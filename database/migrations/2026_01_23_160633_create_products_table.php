@@ -11,9 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            // Adds the role column from your old icemacha.sql
-            $table->string('role')->default('customer')->after('password'); 
+        Schema::create('products', function (Blueprint $table) {
+            $table->id(); // Replaces ProductId
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->decimal('price', 10, 2);
+            $table->integer('stock_quantity')->default(0);
+            $table->string('image_path')->nullable();
+            $table->foreignId('category_id')->constrained()->onDelete('cascade'); // Link to Categories
+            $table->timestamps();
         });
     }
 
@@ -22,8 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('role');
-        });
+        Schema::dropIfExists('products');
     }
 };
