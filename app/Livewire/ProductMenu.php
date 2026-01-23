@@ -10,7 +10,7 @@ class ProductMenu extends Component
     public function render()
     {
         return view('livewire.product-menu', [
-            'products' => Product::with('category')->get()
-        ]);
+            'products' => \App\Models\Product::with('category')->get()
+        ])->layout('layouts.app');
     }
 }
