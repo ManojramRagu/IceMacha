@@ -19,6 +19,11 @@
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ms-6">
+                <!-- Cart Icon -->
+                <div class="me-4">
+                    <livewire:cart-icon />
+                </div>
+                
                 @auth
                     @if (Laravel\Jetstream\Jetstream::hasTeamFeatures())
                         <div class="ms-3 relative">
