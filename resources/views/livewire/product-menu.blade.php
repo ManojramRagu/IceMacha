@@ -134,32 +134,5 @@
         </div>
     </div>
 
-    {{-- Footer --}}
-    <footer class="bg-gray-800 text-white py-8 mt-16">
-        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-                <h4 class="font-bold text-lg mb-4">Our Goal</h4>
-                <p class="text-sm text-gray-300">IceMacha brings you the finest selection of beverages, snacks, and food items delivered right to your doorstep.</p>
-            </div>
-            <div>
-                <h4 class="font-bold text-lg mb-4">Our Socials</h4>
-                <div class="flex gap-4">
-                    <a href="#" class="hover:text-blue-400">Instagram</a>
-                    <a href="#" class="hover:text-blue-400">Facebook</a>
-                    <a href="#" class="hover:text-blue-400">Twitter</a>
-                </div>
-            </div>
-            <div>
-                <h4 class="font-bold text-lg mb-4">Legal & Policies</h4>
-                <ul class="text-sm text-gray-300 space-y-1">
-                    <li>Privacy Policy</li>
-                    <li>Terms of Service</li>
-                    <li>Refund Policy</li>
-                </ul>
-            </div>
-        </div>
-        <div class="text-center mt-8 text-sm text-gray-400">
-            © 2025 IceMacha. All rights reserved.
-        </div>
-    </footer>
+    </div>
 </div>
