@@ -1,60 +1,139 @@
-<x-guest-layout>
-    <x-authentication-card>
-        <x-slot name="logo">
-            <x-authentication-card-logo />
-        </x-slot>
+@extends('layouts.app')
 
+@section('content')
+    <x-auth-card>
+        <!-- Title -->
+        <h2 class="text-2xl md:text-3xl font-bold text-center text-brand mb-6">
+            Create your account
+        </h2>
+
+        <!-- Validation Errors -->
         <x-validation-errors class="mb-4" />
 
-        <form method="POST" action="{{ route('register') }}">
+        <!-- Registration Form -->
+        <form method="POST" action="{{ route('register') }}" class="space-y-4">
             @csrf
 
+            <!-- Full Name Field -->
             <div>
-                <x-label for="name" value="{{ __('Name') }}" />
-                <x-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
+                <label for="name" class="block text-sm font-semibold text-cocoa/80 mb-1">
+                    Full name
+                </label>
+                <input id="name" 
+                       type="text" 
+                       name="name" 
+                       value="{{ old('name') }}" 
+                       required 
+                       autofocus 
+                       autocomplete="name"
+                       placeholder="Jane Doe"
+                       class="w-full px-4 py-3 rounded-xl border border-cocoa/20 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand/50 transition-colors duration-150">
             </div>
 
-            <div class="mt-4">
-                <x-label for="email" value="{{ __('Email') }}" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
+            <!-- Email Field -->
+            <div>
+                <label for="email" class="block text-sm font-semibold text-cocoa/80 mb-1">
+                    Email
+                </label>
+                <input id="email" 
+                       type="email" 
+                       name="email" 
+                       value="{{ old('email') }}" 
+                       required 
+                       autocomplete="username"
+                       placeholder="you@example.com"
+                       class="w-full px-4 py-3 rounded-xl border border-cocoa/20 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand/50 transition-colors duration-150">
             </div>
 
-            <div class="mt-4">
-                <x-label for="password" value="{{ __('Password') }}" />
-                <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
+            <!-- Password Fields (Side by Side) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Password -->
+                <div>
+                    <label for="password" class="block text-sm font-semibold text-cocoa/80 mb-1">
+                        Password
+                    </label>
+                    <input id="password" 
+                           type="password" 
+                           name="password" 
+                           required 
+                           autocomplete="new-password"
+                           placeholder="At least 4 characters"
+                           class="w-full px-4 py-3 rounded-xl border border-cocoa/20 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand/50 transition-colors duration-150">
+                </div>
+
+                <!-- Confirm Password -->
+                <div>
+                    <label for="password_confirmation" class="block text-sm font-semibold text-cocoa/80 mb-1">
+                        Confirm password
+                    </label>
+                    <input id="password_confirmation" 
+                           type="password" 
+                           name="password_confirmation" 
+                           required 
+                           autocomplete="new-password"
+                           placeholder="Repeat password"
+                           class="w-full px-4 py-3 rounded-xl border border-cocoa/20 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand/50 transition-colors duration-150">
+                </div>
             </div>
 
-            <div class="mt-4">
-                <x-label for="password_confirmation" value="{{ __('Confirm Password') }}" />
-                <x-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
+            <!-- Contact Number (Optional) -->
+            <div>
+                <label for="contact_number" class="block text-sm font-semibold text-cocoa/80 mb-1">
+                    Contact number <span class="text-gray-400 font-normal">(optional)</span>
+                </label>
+                <input id="contact_number" 
+                       type="tel" 
+                       name="contact_number" 
+                       value="{{ old('contact_number') }}" 
+                       autocomplete="tel"
+                       placeholder="+94 7X XXX XXXX"
+                       class="w-full px-4 py-3 rounded-xl border border-cocoa/20 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand/50 transition-colors duration-150">
             </div>
 
+            <!-- Address (Optional) -->
+            <div>
+                <label for="address" class="block text-sm font-semibold text-cocoa/80 mb-1">
+                    Address <span class="text-gray-400 font-normal">(optional)</span>
+                </label>
+                <textarea id="address" 
+                          name="address" 
+                          rows="3"
+                          autocomplete="street-address"
+                          placeholder="Street, City, Postal Code"
+                          class="w-full px-4 py-3 rounded-xl border border-cocoa/20 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand/50 transition-colors duration-150 resize-none">{{ old('address') }}</textarea>
+            </div>
+
+            <!-- Terms and Conditions -->
             @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
-                <div class="mt-4">
-                    <x-label for="terms">
-                        <div class="flex items-center">
-                            <x-checkbox name="terms" id="terms" required />
-
-                            <div class="ms-2">
-                                {!! __('I agree to the :terms_of_service and :privacy_policy', [
-                                        'terms_of_service' => '<a target="_blank" href="'.route('terms.show').'" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">'.__('Terms of Service').'</a>',
-                                        'privacy_policy' => '<a target="_blank" href="'.route('policy.show').'" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">'.__('Privacy Policy').'</a>',
-                                ]) !!}
-                            </div>
-                        </div>
-                    </x-label>
+                <div class="flex items-start">
+                    <input id="terms" 
+                           type="checkbox" 
+                           name="terms" 
+                           required
+                           class="w-4 h-4 mt-1 text-brand bg-white border-cocoa/20 rounded focus:ring-brand/30 focus:ring-2">
+                    <label for="terms" class="ml-2 text-sm text-cocoa/70">
+                        I agree to the 
+                        <a href="{{ route('terms.show') }}" target="_blank" class="text-brand hover:underline font-semibold">Terms of Service</a> 
+                        and 
+                        <a href="{{ route('policy.show') }}" target="_blank" class="text-brand hover:underline font-semibold">Privacy Policy</a>
+                    </label>
                 </div>
             @endif
 
-            <div class="flex items-center justify-end mt-4">
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                    {{ __('Already registered?') }}
-                </a>
+            <!-- Submit Button & Link -->
+            <div class="space-y-4">
+                <button type="submit" 
+                        class="w-full px-6 py-3 bg-brand text-white font-semibold rounded-2xl hover:opacity-90 transition-opacity duration-150">
+                    Create account
+                </button>
 
-                <x-button class="ms-4">
-                    {{ __('Register') }}
-                </x-button>
+                <div class="text-center text-sm">
+                    <a href="{{ route('login') }}" 
+                       class="text-cocoa hover:text-brand transition-colors duration-150">
+                        Already have an account? <span class="font-semibold underline">Sign in</span>
+                    </a>
+                </div>
             </div>
         </form>
-    </x-authentication-card>
-</x-guest-layout>
+    </x-auth-card>
+@endsection
