@@ -13,4 +13,11 @@ class ProductMenu extends Component
             'products' => \App\Models\Product::with('category')->get()
         ])->layout('layouts.app');
     }
+
+        public function addToCart($productId)
+    {
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+    }
 }
