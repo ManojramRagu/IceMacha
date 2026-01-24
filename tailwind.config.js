@@ -13,9 +13,20 @@ export default {
 
     theme: {
         extend: {
-            fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+            colors: {
+                brand: "#3d6b5a",
+                cocoa: "#6b4f4a",
+                blush: "#f7e8ec",
+                sand: "#f7d8bd",
+                slate: "#e5e7eb"
             },
+            fontFamily: {
+                sans: ['Poppins', ...defaultTheme.fontFamily.sans],
+                display: ['Poppins', ...defaultTheme.fontFamily.sans],
+            },
+            borderRadius: { 
+                '3xl': '1.25rem' 
+            }
         },
     },
 
