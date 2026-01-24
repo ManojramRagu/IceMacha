@@ -4,8 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\ProductMenu;
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    return view('home');
+})->name('home');
 
 Route::middleware([
     'auth:sanctum',
