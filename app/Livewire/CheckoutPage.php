@@ -47,11 +47,12 @@ class CheckoutPage extends Component
 
         if ($this->paymentMethod === 'cash') {
             // Create Order
-            $order = \App\Models\Order::create([
-                'user_id' => auth()->id(),
-                'total_amount' => $this->total,
-                'status' => 'pending',
-                'payment_method' => 'CASH'
+            $order = Order::create([
+                'UserId' => auth()->id(),
+                'TotalAmount' => $this->total,
+                'PaymentMethod' => strtoupper($this->paymentMethod),
+                'DeliveryAddress' => $this->address,
+                'OrderDate' => now(),
             ]);
 
             // Migrate Items
