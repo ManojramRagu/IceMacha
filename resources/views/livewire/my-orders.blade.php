@@ -20,11 +20,15 @@
                                 
                                 <div class="flex items-center gap-3">
                                     {{-- Payment Badge --}}
-                                    @if(strtoupper($order->payment_method) === 'CARD' || strtoupper($order->payment_method) === 'STRIPE')
+                                    @php
+                                        $pm = strtoupper($order->payment_method);
+                                    @endphp
+
+                                    @if($pm === 'CARD' || $pm === 'STRIPE')
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                             Paid (Card)
                                         </span>
-                                    @elseif(strtoupper($order->payment_method) === 'CASH')
+                                    @elseif($pm === 'CASH')
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand/10 text-brand">
                                             Pay on Delivery
                                         </span>

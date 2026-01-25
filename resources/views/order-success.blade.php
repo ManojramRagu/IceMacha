@@ -17,11 +17,16 @@
                 </div>
 
                 <h1 class="text-3xl font-bold text-cocoa mb-2">Order Confirmed!</h1>
-                <p class="text-cocoa/60 mb-6">Thank you for your purchase.</p>
+                
+                @if(strtoupper($order->payment_method) === 'CASH')
+                     <p class="text-cocoa/60 mb-6">Your order has been placed for <span class="font-semibold text-brand">Cash on Delivery</span>.</p>
+                @else
+                     <p class="text-cocoa/60 mb-6">Thank you for your purchase.</p>
+                @endif
                 
                 <div class="bg-sand/20 rounded-lg p-4 mb-8">
                     <p class="text-sm text-cocoa/80 uppercase tracking-wide font-semibold">Order ID</p>
-                    <p class="text-2xl font-mono text-brand font-bold">#{{ $orderId }}</p>
+                    <p class="text-2xl font-mono text-brand font-bold">#{{ $order->id }}</p>
                 </div>
 
                 <a href="{{ route('my-orders') }}" class="inline-flex w-full items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-brand hover:bg-brand/90 transition-all shadow-md hover:shadow-lg">
