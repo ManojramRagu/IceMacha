@@ -36,6 +36,8 @@
             <main>
                 @yield('content', $slot ?? '')
             </main>
+            
+            <x-footer />
         </div>
 
         @stack('modals')

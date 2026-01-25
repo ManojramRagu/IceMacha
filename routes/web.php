@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Livewire\ProductMenu;
+use App\Livewire\CartPage;
 
 Route::get('/', function () {
     return view('home');
@@ -18,3 +19,4 @@ Route::middleware([
 });
 
 Route::get('/menu', ProductMenu::class)->name('menu');
+Route::get('/cart', CartPage::class)->name('cart');
