@@ -10,15 +10,15 @@ class CartPage extends Component
     public function increment($itemId)
     {
         $item = CartItem::find($itemId);
-        $item->increment('quantity');
+        $item->increment('Quantity');
     }
 
     // Decreases quantity but ensures it never goes below 1
     public function decrement($itemId)
     {
         $item = CartItem::find($itemId);
-        if ($item->quantity > 1) {
-            $item->decrement('quantity');
+        if ($item->Quantity > 1) {
+            $item->decrement('Quantity');
         }
     }
 
@@ -38,7 +38,7 @@ class CartPage extends Component
 
         return view('livewire.cart-page', [
             'cartItems' => $cartItems,
-            'total' => $cartItems->sum(fn($item) => $item->product->price * $item->quantity)
+            'total' => $cartItems->sum(fn($item) => $item->product->price * $item->Quantity)
         ])->layout('layouts.app');
     }
 }

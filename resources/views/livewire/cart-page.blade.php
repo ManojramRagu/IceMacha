@@ -20,11 +20,11 @@
                 <!-- Cart Items (Left Column) -->
                 <div class="lg:col-span-2 space-y-4">
                     @foreach($cartItems as $item)
-                        <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between transition hover:shadow-md" wire:key="item-{{ $item->id }}">
+                        <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between transition hover:shadow-md" wire:key="item-{{ $item->CartItemId }}">
                             <div class="flex items-center gap-4 flex-1">
-                                <div class="w-20 h-20 bg-sand/20 rounded-lg flex-shrink-0 overflow-hidden">
+                                <div class="shrink-0 overflow-hidden rounded-lg bg-sand/20" style="width: 80px; height: 80px;">
                                      @if($item->product->image_path)
-                                        <img src="{{ asset('storage/' . $item->product->image_path) }}" alt="{{ $item->product->name }}" class="w-full h-full object-cover">
+                                        <img src="{{ asset($item->product->image_path) }}" alt="{{ $item->product->name }}" class="h-full w-full object-cover" style="max-width: 100%;">
                                      @else
                                         <div class="w-full h-full flex items-center justify-center text-cocoa/40">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
@@ -35,19 +35,19 @@
                                 </div>
                                 <div>
                                     <h3 class="text-lg font-semibold text-cocoa">{{ $item->product->name }}</h3>
-                                    <p class="text-cocoa/60 text-sm">₹{{ number_format($item->product->price, 2) }}</p>
+                                    <p class="text-cocoa/60 text-sm">LKR {{ number_format($item->product->price, 2) }}</p>
                                 </div>
                             </div>
 
                             <div class="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto mt-4 sm:mt-0">
                                 <!-- Quantity Controls -->
                                 <div class="flex items-center bg-slate/30 rounded-lg p-1">
-                                    <button wire:click="decrement({{ $item->CartItemId }})" class="p-1.5 text-cocoa hover:text-brand hover:bg-white rounded-md transition-colors disabled:opacity-50" @if($item->quantity <= 1) disabled @endif>
+                                    <button wire:click="decrement({{ $item->CartItemId }})" class="p-1.5 text-cocoa hover:text-brand hover:bg-white rounded-md transition-colors disabled:opacity-50" @if($item->Quantity <= 1) disabled @endif>
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
                                         </svg>
                                     </button>
-                                    <span class="w-8 text-center font-medium text-cocoa">{{ $item->quantity }}</span>
+                                    <span class="w-8 text-center font-medium text-cocoa">{{ $item->Quantity }}</span>
                                     <button wire:click="increment({{ $item->CartItemId }})" class="p-1.5 text-cocoa hover:text-brand hover:bg-white rounded-md transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
@@ -56,7 +56,7 @@
                                 </div>
 
                                 <div class="text-right min-w-[80px]">
-                                    <p class="font-bold text-lg text-brand">₹{{ number_format($item->product->price * $item->quantity, 2) }}</p>
+                                    <p class="font-bold text-lg text-brand">LKR {{ number_format($item->product->price * $item->Quantity, 2) }}</p>
                                 </div>
 
                                 <button wire:click="removeItem({{ $item->CartItemId }})" class="text-red-400 hover:text-red-600 transition-colors p-2" title="Remove Item">
@@ -77,19 +77,19 @@
                         <div class="space-y-3 mb-6">
                             <div class="flex justify-between text-cocoa/70">
                                 <span>Subtotal</span>
-                                <span>₹{{ number_format($total, 2) }}</span>
+                                <span>LKR {{ number_format($total, 2) }}</span>
                             </div>
                             <!-- Add tax or shipping logic here if needed, for now just subtotal -->
                              <div class="flex justify-between text-cocoa/70">
                                 <span>Taxes</span>
-                                <span>₹0.00</span>
+                                <span>LKR 0.00</span>
                             </div>
                         </div>
 
                         <div class="border-t border-gray-100 pt-4 mb-8">
                             <div class="flex justify-between items-end">
                                 <span class="text-cocoa font-semibold text-lg">Total</span>
-                                <span class="text-3xl font-bold text-cocoa">₹{{ number_format($total, 2) }}</span>
+                                <span class="text-3xl font-bold text-cocoa">LKR {{ number_format($total, 2) }}</span>
                             </div>
                         </div>
 
