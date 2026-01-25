@@ -5,20 +5,69 @@
             <p class="mt-2 text-cocoa/60">Complete your secure payment</p>
         </div>
 
-        <div class="bg-white rounded-xl shadow-lg p-6 sm:p-8 form-card">
-            <!-- Payment Form -->
-            <form id="payment-form">
-                <div id="payment-element">
-                    <!-- Stripe Elements will be mounted here -->
-                </div>
-                
-                {{-- Error Message --}}
-                <div id="payment-message" class="hidden mt-4 text-center text-red-500 bg-red-50 p-3 rounded-lg text-sm"></div>
+        <div 
+            class="bg-white rounded-xl shadow-lg p-6 sm:p-8 form-card"
+            x-data="checkout()"
+        >
+            
+            {{-- Payment Method Toggle --}}
+            <div class="flex gap-4 mb-6">
+                <label class="flex-1 cursor-pointer">
+                    <input type="radio" value="card" wire:model.live="paymentMethod" class="peer sr-only">
+                    <div class="text-center p-3 rounded-lg border-2 border-slate peer-checked:border-brand peer-checked:bg-brand/10 transition-all">
+                        <span class="text-cocoa font-medium">Card</span>
+                    </div>
+                </label>
+                <label class="flex-1 cursor-pointer">
+                    <input type="radio" value="cash" wire:model.live="paymentMethod" class="peer sr-only">
+                    <div class="text-center p-3 rounded-lg border-2 border-slate peer-checked:border-brand peer-checked:bg-brand/10 transition-all">
+                        <span class="text-cocoa font-medium">Cash on Delivery</span>
+                    </div>
+                </label>
+            </div>
 
-                <button id="submit" class="w-full mt-8 bg-brand text-white font-semibold py-4 rounded-xl shadow-sm hover:bg-brand/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand transition-all duration-200 text-lg btn-brand disabled:opacity-50 disabled:cursor-not-allowed">
-                    <span id="button-text">Pay Rs. {{ number_format($total, 2) }}</span>
-                    <span id="spinner" class="hidden">Processing...</span>
-                </button>
+            <!-- Payment Form -->
+            <form id="payment-form" @submit.prevent="handleSubmit">
+                
+                @if($paymentMethod === 'card')
+                    <div id="stripe-container" wire:ignore>
+                         <div id="payment-element" x-init="initStripe">
+                            <!-- Stripe Elements will be mounted here -->
+                        </div>
+                    </div>
+                @else
+                    <div class="bg-sand/40 rounded-xl p-6 mb-6 text-center">
+                        <p class="text-cocoa font-medium">You will pay for your order in cash upon delivery.</p>
+                        <p class="text-cocoa/70 text-sm mt-1">Please ensure you have the exact amount ready.</p>
+                    </div>
+                @endif
+
+                {{-- Error Message --}}
+                <div id="payment-message" class="hidden mt-4 text-center text-red-500 bg-red-50 p-3 rounded-lg text-sm" x-ref="messageContainer"></div>
+
+                <div class="mt-8">
+                     <button 
+                        id="submit" 
+                        type="submit" 
+                        class="w-full bg-brand text-white font-semibold py-4 rounded-xl shadow-sm hover:bg-brand/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand transition-all duration-200 text-lg btn-brand disabled:opacity-50 disabled:cursor-not-allowed"
+                        :disabled="isLoading"
+                    >
+                        <span x-show="!isLoading">
+                            @if($paymentMethod === 'card')
+                                Pay Rs. {{ number_format($total, 2) }}
+                            @else
+                                Place Order (Cash)
+                            @endif
+                        </span>
+                        <span x-show="isLoading" class="flex items-center justify-center gap-2">
+                            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                        </span>
+                    </button>
+                </div>
             </form>
             
             <div class="mt-6 text-center">
@@ -40,88 +89,90 @@
 
     <script src="https://js.stripe.com/v3/"></script>
     <script>
-        document.addEventListener('livewire:initialized', () => {
-             const stripe = Stripe("{{ env('STRIPE_KEY') }}");
-             const clientSecret = "{{ $clientSecret }}";
-
-             const appearance = {
-                theme: 'flat',
-                variables: {
-                    colorPrimary: '#3d6b5a',
-                    colorBackground: '#ffffff',
-                    colorText: '#6b4f4a',
-                    colorDanger: '#df1b41',
-                    fontFamily: 'Poppins, ui-sans-serif, system-ui, sans-serif',
-                    spacingUnit: '4px',
-                    borderRadius: '12px',
-                    fontSizeBase: '16px',
-                },
-                rules: {
-                    '.Input': {
-                        border: '1px solid rgba(107, 79, 74, 0.2)',
-                        boxShadow: '0 1px 2px 0 rgba(0,0,0,0.05)',
-                    },
-                    '.Input:focus': {
-                        border: '1px solid #3d6b5a',
-                        boxShadow: '0 0 0 2px rgba(61, 107, 90, 0.3)',
-                    },
-                    '.Label': {
-                         color: '#6b4f4a',
-                         fontWeight: '500',
+        function checkout() {
+            return {
+                stripe: null,
+                elements: null,
+                isLoading: false,
+                clientSecret: "{{ $clientSecret }}",
+                
+                initStripe() {
+                    if (!this.stripe) {
+                        this.stripe = Stripe("{{ env('STRIPE_KEY') }}");
                     }
+                    
+                    const appearance = {
+                        theme: 'flat',
+                        variables: {
+                            colorPrimary: '#3d6b5a',
+                            colorBackground: '#ffffff',
+                            colorText: '#6b4f4a', 
+                            colorDanger: '#df1b41',
+                            fontFamily: 'Poppins, ui-sans-serif, system-ui, sans-serif',
+                            spacingUnit: '4px',
+                            borderRadius: '12px',
+                            fontSizeBase: '16px',
+                        },
+                        rules: {
+                            '.Input': {
+                                border: '1px solid rgba(107, 79, 74, 0.2)', 
+                                boxShadow: '0 1px 2px 0 rgba(0,0,0,0.05)', 
+                            },
+                            '.Input:focus': {
+                                border: '1px solid #3d6b5a', 
+                                boxShadow: '0 0 0 2px rgba(61, 107, 90, 0.3)', 
+                            },
+                            '.Label': {
+                                color: '#6b4f4a', 
+                                fontWeight: '500',
+                            }
+                        }
+                    };
+
+                    this.elements = this.stripe.elements({ clientSecret: this.clientSecret, appearance });
+                    const paymentElement = this.elements.create("payment");
+                    paymentElement.mount("#payment-element");
+                },
+
+                async handleSubmit() {
+                    this.isLoading = true;
+                    this.$refs.messageContainer.classList.add('hidden');
+                    
+                    const method = await this.$wire.get('paymentMethod');
+
+                    if (method === 'cash') {
+                         await this.$wire.placeOrder();
+                         return;
+                    }
+
+                    if (!this.stripe || !this.elements) {
+                        this.isLoading = false;
+                        return;
+                    }
+
+                    const { error } = await this.stripe.confirmPayment({
+                        elements: this.elements,
+                        confirmParams: {
+                            return_url: "{{ route('dashboard') }}",
+                        },
+                    });
+
+                    if (error) {
+                        this.showMessage(error.message);
+                        this.isLoading = false;
+                    }
+                },
+
+                showMessage(messageText) {
+                    const msgDiv = this.$refs.messageContainer;
+                    msgDiv.classList.remove('hidden');
+                    msgDiv.textContent = messageText;
+                    setTimeout(() => {
+                        msgDiv.classList.add('hidden');
+                        msgDiv.textContent = "";
+                    }, 4000);
                 }
-            };
-
-            const elements = stripe.elements({ clientSecret, appearance });
-            const paymentElement = elements.create("payment");
-            paymentElement.mount("#payment-element");
-
-            const form = document.getElementById('payment-form');
-            const submitBtn = document.getElementById('submit');
-            const spinner = document.getElementById('spinner');
-            const buttonText = document.getElementById('button-text');
-            const messageContainer = document.getElementById('payment-message');
-
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                setLoading(true);
-
-                const { error } = await stripe.confirmPayment({
-                    elements,
-                    confirmParams: {
-                        return_url: "{{ route('dashboard') }}", // Or success page
-                    },
-                });
-
-                if (error) {
-                    showMessage(error.message);
-                    setLoading(false);
-                } else {
-                    // unexpected state
-                    setLoading(false);
-                }
-            });
-
-            function showMessage(messageText) {
-                messageContainer.classList.remove('hidden');
-                messageContainer.textContent = messageText;
-                setTimeout(function () {
-                    messageContainer.classList.add('hidden');
-                    messageContainer.textContent = "";
-                }, 4000);
             }
-
-            function setLoading(isLoading) {
-                if (isLoading) {
-                    submitBtn.disabled = true;
-                    spinner.classList.remove('hidden');
-                    buttonText.classList.add('hidden');
-                } else {
-                    submitBtn.disabled = false;
-                    spinner.classList.add('hidden');
-                    buttonText.classList.remove('hidden');
-                }
-            }
-        });
+        }
     </script>
 </div>
