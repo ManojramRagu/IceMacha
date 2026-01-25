@@ -20,3 +20,9 @@ Route::middleware([
 
 Route::get('/menu', ProductMenu::class)->name('menu');
 Route::get('/cart', CartPage::class)->name('cart');
+Route::get('/checkout', App\Livewire\CheckoutPage::class)->name('checkout');
+Route::get('/order-success/{orderId}', function ($orderId) {
+    $order = App\Models\Order::findOrFail($orderId);
+    return view('order-success', ['order' => $order]);
+})->name('order.success');
+Route::get('/my-orders', App\Livewire\MyOrders::class)->name('my-orders');

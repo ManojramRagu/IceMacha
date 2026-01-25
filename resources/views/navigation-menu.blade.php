@@ -38,6 +38,16 @@
 
                 <!-- Authentication -->
                 @auth
+                    <!-- My Orders Icon -->
+                    <a href="{{ route('my-orders') }}" class="text-white hover:text-sand transition-colors group relative" title="Orders" aria-label="View My Orders">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                        </svg>
+                        <span class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs bg-cocoa text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                            Orders
+                        </span>
+                    </a>
+
                     <!-- Settings Dropdown -->
                     <div class="relative">
                         <x-dropdown align="right" width="48">
@@ -107,6 +117,11 @@
             <x-responsive-nav-link href="{{ route('menu') }}" :active="request()->routeIs('menu')" class="text-white hover:bg-brand/80">
                 Menu
             </x-responsive-nav-link>
+            @auth
+                <x-responsive-nav-link href="{{ route('my-orders') }}" :active="request()->routeIs('my-orders')" class="text-white hover:bg-brand/80">
+                    {{ __('My Orders') }}
+                </x-responsive-nav-link>
+            @endauth
             <x-responsive-nav-link href="#about" class="text-white hover:bg-brand/80">
                 About
             </x-responsive-nav-link>
