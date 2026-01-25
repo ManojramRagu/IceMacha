@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\CartItem;
+use App\Models\Order;
 
 class CheckoutPage extends Component
 {
@@ -48,11 +49,10 @@ class CheckoutPage extends Component
         if ($this->paymentMethod === 'cash') {
             // Create Order
             $order = Order::create([
-                'UserId' => auth()->id(),
-                'TotalAmount' => $this->total,
-                'PaymentMethod' => strtoupper($this->paymentMethod),
-                'DeliveryAddress' => $this->address,
-                'OrderDate' => now(),
+                'user_id' => auth()->id(),
+                'total_amount' => $this->total,
+                'payment_method' => strtoupper($this->paymentMethod),
+                'status' => 'pending',
             ]);
 
             // Migrate Items

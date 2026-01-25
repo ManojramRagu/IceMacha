@@ -21,6 +21,7 @@
                                 <div class="flex items-center gap-3">
                                     {{-- Payment Badge --}}
                                     @php
+                                        // Ensure we access the correct snake_case property
                                         $pm = strtoupper($order->payment_method);
                                     @endphp
 
@@ -47,7 +48,7 @@
 
                             <div class="border-t border-gray-100 pt-4 flex justify-between items-center">
                                 <span class="font-medium text-cocoa">Total Amount</span>
-                                <span class="text-xl font-bold text-brand">LKR {{ number_format($order->total_amount, 2) }}</span>
+                                <span class="text-xl font-bold text-brand">Rs. {{ number_format($order->total_amount, 2) }}</span>
                             </div>
                         </div>
                     </div>
