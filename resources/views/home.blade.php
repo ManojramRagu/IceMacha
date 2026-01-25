@@ -39,11 +39,11 @@
         <div x-data="{
                 activeSlide: 0,
                 slides: [
-                    '{{ asset('img/products/Promotions/Summer Coolers.webp') }}',
-                    '{{ asset('img/products/Promotions/Coffee Lovers.webp') }}',
-                    '{{ asset('img/products/Promotions/Festive Treats.webp') }}',
-                    '{{ asset('img/products/Promotions/Healthy Mornings.webp') }}',
-                    '{{ asset('img/products/Promotions/Midnight Snacks.webp') }}'
+                    &quot;{{ asset('img/products/Promotions/Summer Coolers.webp') }}&quot;,
+                    &quot;{{ asset('img/products/Promotions/Coffee Lovers.webp') }}&quot;,
+                    &quot;{{ asset('img/products/Promotions/Festive Treats.webp') }}&quot;,
+                    &quot;{{ asset('img/products/Promotions/Healthy Mornings.webp') }}&quot;,
+                    &quot;{{ asset('img/products/Promotions/Midnight Snacks.webp') }}&quot;
                 ],
                 timer: null,
                 init() {
