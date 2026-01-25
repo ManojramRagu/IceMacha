@@ -8,23 +8,49 @@
     </div>
 
     {{-- Menu Section --}}
-    <div class="max-w-7xl mx-auto px-4 py-12">
-        <h2 class="text-4xl font-bold text-center text-teal-700 mb-12">Menu</h2>
+    <div class="max-w-7xl mx-auto px-4 py-12" x-data="{ activeCategory: 'all' }">
+        <h2 class="text-4xl font-bold text-center text-teal-700 mb-8">Menu</h2>
 
         @php
             $productsByCategory = $products->groupBy('category.name');
         @endphp
 
+        {{-- Filter Bar --}}
+        <div class="flex flex-wrap justify-center gap-4 mb-12">
+            <button @click="activeCategory = 'all'"
+                    :class="activeCategory === 'all' ? 'bg-brand text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                    class="px-6 py-2 rounded-full font-semibold shadow-sm transition-all duration-200">
+                All
+            </button>
+            @foreach($productsByCategory->keys() as $catName)
+                <button @click="activeCategory = '{{ $catName }}'"
+                        :class="activeCategory === '{{ $catName }}' ? 'bg-brand text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                        class="px-6 py-2 rounded-full font-semibold shadow-sm transition-all duration-200">
+                    {{ $catName }}
+                </button>
+            @endforeach
+        </div>
+
         @foreach($productsByCategory as $categoryName => $categoryProducts)
-            <div class="mb-12">
+            <div class="mb-12" x-show="activeCategory === 'all' || activeCategory === '{{ $categoryName }}'" x-collapse>
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-2xl font-bold text-gray-700">{{ $categoryName }}</h3>
-                    <button class="text-sm text-teal-600 hover:text-teal-800 font-medium">Show More...</button>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-                    @foreach($categoryProducts->take(5) as $product)
-                        <div class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
+                    @foreach($categoryProducts as $product)
+                        <div class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-200 relative">
+                            {{-- Badges --}}
+                            @if(stripos($categoryName, 'Promotion') !== false || stripos($product->name, 'Sale') !== false || $product->price < 1000) 
+                                <div class="absolute top-2 right-2 z-10 bg-sand text-cocoa text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                                    @php
+                                        // Mock discount logic for demo purposes
+                                        $discount = 20;
+                                    @endphp
+                                    {{ $discount }}% OFF
+                                </div>
+                            @endif
+
                             {{-- Product Image --}}
                             <div class="relative h-48 bg-gray-100 rounded-t-lg overflow-hidden cursor-pointer group"
                                  wire:click="selectProduct({{ $product->id }})">
