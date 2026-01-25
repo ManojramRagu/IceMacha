@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <div class="relative min-h-screen flex items-center justify-center overflow-hidden" x-data="orderSuccess()">
         <!-- Hero Background with Overlay -->
         <div class="absolute inset-0 z-0">
              <img src="{{ asset('img/hero/hero.webp') }}" alt="Background" class="w-full h-full object-cover">
@@ -38,16 +38,33 @@
                     <p class="text-2xl font-bold text-gray-900">#{{ $order->id }}</p>
                 </div>
 
-                <div class="space-y-4">
-                    <a href="{{ route('my-orders') }}" class="block w-full bg-brand text-white font-bold py-3.5 rounded-2xl shadow-md hover:bg-brand/90 hover:shadow-lg transition-all duration-200 text-lg">
+                <div class="space-y-3">
+                    <a href="{{ route('my-orders') }}" class="block w-full bg-brand text-white font-bold py-3.5 rounded-2xl shadow-sm hover:bg-brand/90 hover:shadow-md transition-all duration-200 text-lg">
                         View My Orders
                     </a>
                     
-                    <a href="{{ route('menu') }}" class="inline-block text-cocoa/70 font-medium hover:text-brand hover:underline transition-colors decoration-2 underline-offset-4 text-sm">
-                        Continue Shopping
+                    <a href="{{ route('home') }}" class="block w-full bg-white text-cocoa font-bold py-3.5 rounded-2xl border-2 border-slate-200 hover:border-brand hover:text-brand transition-all duration-200 text-lg">
+                        Go Home (<span x-text="countdown"></span>s)
                     </a>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        function orderSuccess() {
+            return {
+                countdown: 10,
+                init() {
+                    setInterval(() => {
+                        if (this.countdown > 0) {
+                            this.countdown--;
+                        } else {
+                            window.location.href = "{{ route('home') }}";
+                        }
+                    }, 1000);
+                }
+            }
+        }
+    </script>
 </x-app-layout>
