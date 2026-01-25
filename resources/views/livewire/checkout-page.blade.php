@@ -6,22 +6,43 @@
         </div>
 
         <div 
-            class="bg-white rounded-xl shadow-lg p-6 sm:p-8 form-card"
+            class="bg-white rounded-3xl shadow-md p-6 sm:p-8 form-card"
             x-data="checkout()"
         >
             
-            {{-- Payment Method Toggle --}}
-            <div class="flex gap-4 mb-6">
-                <label class="flex-1 cursor-pointer">
+            {{-- Payment Method Selection --}}
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <!-- Card Option -->
+                <label class="relative cursor-pointer group">
                     <input type="radio" value="card" wire:model.live="paymentMethod" class="peer sr-only">
-                    <div class="text-center p-3 rounded-lg border-2 border-slate peer-checked:border-brand peer-checked:bg-brand/10 transition-all">
-                        <span class="text-cocoa font-medium">Card</span>
+                    <div class="h-full p-4 rounded-2xl border-2 border-slate bg-white peer-checked:border-brand peer-checked:bg-sand/40 transition-all duration-200 flex flex-col items-center justify-center gap-3 hover:border-brand/50">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-cocoa peer-checked:text-brand">
+                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
+                        </svg>
+                        <span class="text-sm font-semibold text-cocoa">Card Payment</span>
+                    </div>
+                    <!-- Checkmark Icon -->
+                    <div class="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 transition-opacity text-brand">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clip-rule="evenodd" />
+                        </svg>
                     </div>
                 </label>
-                <label class="flex-1 cursor-pointer">
+
+                <!-- Cash Option -->
+                <label class="relative cursor-pointer group">
                     <input type="radio" value="cash" wire:model.live="paymentMethod" class="peer sr-only">
-                    <div class="text-center p-3 rounded-lg border-2 border-slate peer-checked:border-brand peer-checked:bg-brand/10 transition-all">
-                        <span class="text-cocoa font-medium">Cash on Delivery</span>
+                    <div class="h-full p-4 rounded-2xl border-2 border-slate bg-white peer-checked:border-brand peer-checked:bg-sand/40 transition-all duration-200 flex flex-col items-center justify-center gap-3 hover:border-brand/50">
+                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-cocoa peer-checked:text-brand">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />
+                        </svg>
+                        <span class="text-sm font-semibold text-cocoa">Cash on Delivery</span>
+                    </div>
+                     <!-- Checkmark Icon -->
+                    <div class="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 transition-opacity text-brand">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clip-rule="evenodd" />
+                        </svg>
                     </div>
                 </label>
             </div>
@@ -37,8 +58,11 @@
                     </div>
                 @else
                     <div class="bg-sand/40 rounded-xl p-6 mb-6 text-center">
-                        <p class="text-cocoa font-medium">You will pay for your order in cash upon delivery.</p>
-                        <p class="text-cocoa/70 text-sm mt-1">Please ensure you have the exact amount ready.</p>
+                        <p class="text-cocoa font-medium text-lg">You will pay for your order in cash upon delivery.</p>
+                        <p class="text-cocoa/70 text-sm mt-1 mb-3">Please ensure you have the exact amount ready.</p>
+                         <div class="border-t border-brand/10 pt-3 mt-3">
+                            <p class="text-cocoa font-bold text-lg">Total to pay on delivery: Rs. {{ number_format($total, 2) }}</p>
+                        </div>
                     </div>
                 @endif
 
@@ -49,14 +73,14 @@
                      <button 
                         id="submit" 
                         type="submit" 
-                        class="w-full bg-brand text-white font-semibold py-4 rounded-xl shadow-sm hover:bg-brand/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand transition-all duration-200 text-lg btn-brand disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="w-full bg-brand text-white font-semibold py-4 rounded-2xl shadow-md hover:bg-brand/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand transition-all duration-200 text-lg btn-brand disabled:opacity-50 disabled:cursor-not-allowed"
                         :disabled="isLoading"
                     >
                         <span x-show="!isLoading">
                             @if($paymentMethod === 'card')
                                 Pay Rs. {{ number_format($total, 2) }}
                             @else
-                                Place Order (Cash)
+                                Confirm Order (Rs. {{ number_format($total, 2) }})
                             @endif
                         </span>
                         <span x-show="isLoading" class="flex items-center justify-center gap-2">
@@ -70,9 +94,12 @@
                 </div>
             </form>
             
-            <div class="mt-6 text-center">
-                <a href="{{ route('cart') }}" class="text-cocoa/60 hover:text-brand text-sm font-medium transition-colors">
-                    &larr; Back to Cart
+            <div class="mt-8 text-center">
+                <a href="{{ route('cart') }}" class="text-cocoa/60 hover:text-brand font-medium transition-colors inline-flex items-center gap-1 group">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 transition-transform group-hover:-translate-x-1">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                    </svg>
+                    Back to Cart
                 </a>
             </div>
         </div>
