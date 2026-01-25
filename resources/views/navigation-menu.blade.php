@@ -107,6 +107,11 @@
             <x-responsive-nav-link href="{{ route('menu') }}" :active="request()->routeIs('menu')" class="text-white hover:bg-brand/80">
                 Menu
             </x-responsive-nav-link>
+            @auth
+                <x-responsive-nav-link href="{{ route('my-orders') }}" :active="request()->routeIs('my-orders')" class="text-white hover:bg-brand/80">
+                    {{ __('My Orders') }}
+                </x-responsive-nav-link>
+            @endauth
             <x-responsive-nav-link href="#about" class="text-white hover:bg-brand/80">
                 About
             </x-responsive-nav-link>
