@@ -20,3 +20,4 @@ Route::middleware([
 
 Route::get('/menu', ProductMenu::class)->name('menu');
 Route::get('/cart', CartPage::class)->name('cart');
+Route::get('/checkout', App\Livewire\CheckoutPage::class)->name('checkout');
