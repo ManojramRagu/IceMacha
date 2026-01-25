@@ -7,7 +7,7 @@
         </div>
 
         <div class="relative z-10 w-full max-w-md px-4 sm:px-6 py-12">
-            <div class="bg-white rounded-3xl shadow-2xl p-8 sm:p-10 text-center relative overflow-hidden">
+            <div class="bg-white rounded-3xl shadow-2xl p-10 sm:p-14 text-center relative overflow-hidden">
                 
                 <div class="mb-6 flex justify-center">
                     <div class="h-20 w-20 bg-brand/10 rounded-full flex items-center justify-center">
