@@ -23,8 +23,8 @@
                         <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between transition hover:shadow-md" wire:key="item-{{ $item->id }}">
                             <div class="flex items-center gap-4 flex-1">
                                 <div class="w-20 h-20 bg-sand/20 rounded-lg flex-shrink-0 overflow-hidden">
-                                     @if($item->product->image)
-                                        <img src="{{ asset('storage/' . $item->product->image) }}" alt="{{ $item->product->name }}" class="w-full h-full object-cover">
+                                     @if($item->product->image_path)
+                                        <img src="{{ asset('storage/' . $item->product->image_path) }}" alt="{{ $item->product->name }}" class="w-full h-full object-cover">
                                      @else
                                         <div class="w-full h-full flex items-center justify-center text-cocoa/40">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">

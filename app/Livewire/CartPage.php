@@ -33,7 +33,7 @@ class CartPage extends Component
     {
         // Fetch items linked to the logged-in user
         $cartItems = CartItem::whereHas('cart', function($q) {
-            $q->where('user_id', auth()->id());
+            $q->where('UserId', auth()->id());
         })->with('product')->get();
 
         return view('livewire.cart-page', [
