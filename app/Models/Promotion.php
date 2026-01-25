@@ -2,20 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Promotion extends Model
 {
-    protected $fillable = [
-        'name',
-        'description',
-        'discount_type',
-        'discount_value',
-        'start_date',
-        'end_date',
-    ];
+    use HasFactory;
 
-    public function products() {
+    protected $fillable = ['name', 'description', 'price', 'image_path'];
+
+    public function products()
+    {
         return $this->belongsToMany(Product::class, 'product_promotion');
     }
 }

@@ -7,9 +7,43 @@
         </div>
     </div>
 
-    {{-- Menu Section --}}
     <div class="max-w-7xl mx-auto px-4 py-12" x-data="{ activeCategory: 'all' }">
         <h2 class="text-4xl font-bold text-center text-teal-700 mb-8">Menu</h2>
+
+        {{-- Bundles Section --}}
+        @if($promotions->isNotEmpty())
+            <div class="mb-12">
+                <h3 class="text-3xl font-bold text-brand mb-6 font-display">Special Bundles</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    @foreach($promotions as $promo)
+                        <div class="bg-white rounded-3xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden group">
+                            <div class="relative h-56">
+                                <img src="/{{ $promo->image_path }}" alt="{{ $promo->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <div class="absolute top-4 right-4 bg-brand text-white px-4 py-1 rounded-full font-bold shadow-md">
+                                    LKR {{ number_format($promo->price, 0) }}
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <h4 class="text-xl font-bold text-cocoa mb-2">{{ $promo->name }}</h4>
+                                <p class="text-gray-600 mb-4 text-sm">{{ $promo->description }}</p>
+                                <div class="space-y-1 mb-6">
+                                    @foreach($promo->products as $item)
+                                        <div class="flex items-center text-sm text-gray-500">
+                                            <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                            {{ $item->name }}
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <button wire:click.prevent="addToCart({{ $promo->id }}, 'bundle')" 
+                                        class="w-full bg-brand text-white font-bold py-3 rounded-xl hover:bg-opacity-90 transition-colors shadow-md">
+                                    Add Bundle
+                                </button>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
 
         @php
             $productsByCategory = $products->groupBy('category.name');
@@ -44,7 +78,7 @@
                             @if(stripos($categoryName, 'Promotion') !== false || stripos($product->name, 'Sale') !== false || $product->price < 1000) 
                                 <div class="absolute top-2 right-2 z-10 bg-sand text-cocoa text-xs font-bold px-2 py-1 rounded-full shadow-sm">
                                     @php
-                                        // Mock discount logic for demo purposes
+                                        // Mock discount logic
                                         $discount = 20;
                                     @endphp
                                     {{ $discount }}% OFF

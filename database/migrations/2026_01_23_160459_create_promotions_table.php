@@ -15,10 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->enum('discount_type', ['Percentage', 'Fixed Amount']);
-            $table->decimal('discount_value', 10, 2);
-            $table->date('start_date');
-            $table->date('end_date');
+            $table->decimal('price', 10, 2);
+            $table->string('image_path')->nullable();
             $table->timestamps();
         });
     }
