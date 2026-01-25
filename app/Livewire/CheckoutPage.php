@@ -10,6 +10,7 @@ class CheckoutPage extends Component
     public $clientSecret;
     public $total;
     public $cartItems;
+    public $paymentMethod = 'card';
 
     public function mount()
     {
@@ -23,6 +24,7 @@ class CheckoutPage extends Component
 
         $this->total = $this->cartItems->sum(fn($item) => $item->product->price * $item->Quantity);
 
+        // Always setup Stripe Intent in case they switch to Card
         \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
 
         $intent = \Stripe\PaymentIntent::create([
@@ -34,6 +36,39 @@ class CheckoutPage extends Component
         ]);
 
         $this->clientSecret = $intent->client_secret;
+    }
+
+    public function placeOrder()
+    {
+        if ($this->paymentMethod === 'card') {
+            // Logic handled by Stripe Frontend
+            return;
+        }
+
+        if ($this->paymentMethod === 'cash') {
+            // Create Order
+            $order = \App\Models\Order::create([
+                'user_id' => auth()->id(),
+                'total_amount' => $this->total,
+                'status' => 'pending',
+                'payment_method' => 'CASH'
+            ]);
+
+            // Migrate Items
+            foreach ($this->cartItems as $item) {
+                \App\Models\OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item->product->id, // Assuming relationship
+                    'quantity' => $item->Quantity,
+                    'price_at_purchase' => $item->product->price
+                ]);
+            }
+
+            // Clear Cart
+            CartItem::whereIn('CartItemId', $this->cartItems->pluck('CartItemId'))->delete();
+            
+            return redirect()->route('order.success', ['orderId' => $order->id]);
+        }
     }
 
     public function render()
