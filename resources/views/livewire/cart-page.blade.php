@@ -42,13 +42,13 @@
                             <div class="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto mt-4 sm:mt-0">
                                 <!-- Quantity Controls -->
                                 <div class="flex items-center bg-slate/30 rounded-lg p-1">
-                                    <button wire:click="decrement({{ $item->id }})" class="p-1.5 text-cocoa hover:text-brand hover:bg-white rounded-md transition-colors disabled:opacity-50" @if($item->quantity <= 1) disabled @endif>
+                                    <button wire:click="decrement({{ $item->CartItemId }})" class="p-1.5 text-cocoa hover:text-brand hover:bg-white rounded-md transition-colors disabled:opacity-50" @if($item->quantity <= 1) disabled @endif>
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
                                         </svg>
                                     </button>
                                     <span class="w-8 text-center font-medium text-cocoa">{{ $item->quantity }}</span>
-                                    <button wire:click="increment({{ $item->id }})" class="p-1.5 text-cocoa hover:text-brand hover:bg-white rounded-md transition-colors">
+                                    <button wire:click="increment({{ $item->CartItemId }})" class="p-1.5 text-cocoa hover:text-brand hover:bg-white rounded-md transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
                                         </svg>
@@ -59,7 +59,7 @@
                                     <p class="font-bold text-lg text-brand">₹{{ number_format($item->product->price * $item->quantity, 2) }}</p>
                                 </div>
 
-                                <button wire:click="removeItem({{ $item->id }})" class="text-red-400 hover:text-red-600 transition-colors p-2" title="Remove Item">
+                                <button wire:click="removeItem({{ $item->CartItemId }})" class="text-red-400 hover:text-red-600 transition-colors p-2" title="Remove Item">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                                     </svg>
