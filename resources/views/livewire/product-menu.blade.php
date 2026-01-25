@@ -4,58 +4,6 @@
         <h2 class="text-4xl md:text-5xl font-bold text-center text-brand mb-12 tracking-tight">Menu</h2>
 
         {{-- 1. SPECIAL BUNDLES SECTION (Top Priority) --}}
-        @if($promotions->isNotEmpty())
-            <div class="mb-16">
-                <div class="flex items-center justify-between mb-8">
-                    <h3 class="text-3xl font-bold text-cocoa">Special Bundles</h3>
-                    <div class="h-1 flex-grow ml-8 bg-brand/10 rounded-full"></div>
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    @foreach($promotions as $promo)
-                        <div class="bg-white rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group flex flex-col h-full border border-sand/30">
-                            {{-- Image Container --}}
-                            <div class="relative h-56 overflow-hidden">
-                                <img src="/{{ $promo->image_path }}" 
-                                     alt="{{ $promo->name }}" 
-                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                     onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300?text=Bundle';">
-                                     
-                                {{-- Price Badge (Top-Left) --}}
-                                <div class="absolute top-4 left-4 bg-brand text-white px-4 py-1.5 rounded-2xl text-sm font-bold shadow-lg z-10">
-                                    LKR {{ number_format($promo->price, 0) }}
-                                </div>
-
-                                {{-- Overlay --}}
-                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
-                            </div>
-
-                            {{-- Content --}}
-                            <div class="p-6 flex flex-col flex-grow relative">
-                                <h4 class="text-xl font-bold text-cocoa mb-2 leading-tight">{{ $promo->name }}</h4>
-                                <p class="text-gray-500 mb-4 text-xs line-clamp-2">{{ $promo->description }}</p>
-                                
-                                {{-- Products List --}}
-                                <div class="space-y-1.5 mb-6 flex-grow overflow-y-auto max-h-24 scrollbar-thin scrollbar-thumb-brand/20">
-                                    @foreach($promo->products as $item)
-                                        <div class="flex items-start text-xs text-gray-600">
-                                            <svg class="w-3.5 h-3.5 mr-2 text-brand flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                            <span class="leading-snug">{{ $item->name }}</span>
-                                        </div>
-                                    @endforeach
-                                </div>
-
-                                {{-- Order Button --}}
-                                <button wire:click.prevent="addToCart({{ $promo->id }}, 'bundle')" 
-                                        class="w-full bg-brand text-white font-bold py-3 rounded-2xl hover:bg-brand/90 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-sm tracking-wide">
-                                    ORDER NOW
-                                </button>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        @endif
 
         @php
             $productsByCategory = $products->groupBy('category.name');
@@ -123,6 +71,60 @@
                 </div>
             </div>
         @endforeach
+
+        {{-- SPECIAL BUNDLES SECTION (Moved to Bottom) --}}
+        @if($promotions->isNotEmpty())
+            <div class="mt-16 mb-8 pt-10 border-t border-brand/10">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="text-3xl font-bold text-cocoa">Special Bundles</h3>
+                    <div class="h-1 flex-grow ml-8 bg-brand/10 rounded-full"></div>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    @foreach($promotions as $promo)
+                        <div class="bg-white rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group flex flex-col h-full border border-sand/30">
+                            {{-- Image Container --}}
+                            <div class="relative h-56 overflow-hidden">
+                                <img src="/{{ $promo->image_path }}" 
+                                     alt="{{ $promo->name }}" 
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                     onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300?text=Bundle';">
+                                     
+                                {{-- Price Badge (Top-Left) --}}
+                                <div class="absolute top-4 left-4 bg-brand text-white px-4 py-1.5 rounded-2xl text-sm font-bold shadow-lg z-10">
+                                    LKR {{ number_format($promo->price, 0) }}
+                                </div>
+
+                                {{-- Overlay --}}
+                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                            </div>
+
+                            {{-- Content --}}
+                            <div class="p-6 flex flex-col flex-grow relative">
+                                <h4 class="text-xl font-bold text-cocoa mb-2 leading-tight">{{ $promo->name }}</h4>
+                                <p class="text-gray-500 mb-4 text-xs line-clamp-2">{{ $promo->description }}</p>
+                                
+                                {{-- Products List --}}
+                                <div class="space-y-1.5 mb-6 flex-grow overflow-y-auto max-h-24 scrollbar-thin scrollbar-thumb-brand/20">
+                                    @foreach($promo->products as $item)
+                                        <div class="flex items-start text-xs text-gray-600">
+                                            <svg class="w-3.5 h-3.5 mr-2 text-brand flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                            <span class="leading-snug">{{ $item->name }}</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                {{-- Order Button --}}
+                                <button wire:click.prevent="addToCart({{ $promo->id }}, 'bundle')" 
+                                        class="w-full bg-brand text-white font-bold py-3 rounded-2xl hover:bg-brand/90 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-sm tracking-wide">
+                                    ORDER NOW
+                                </button>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
     </div>
 
     {{-- Product Detail Modal --}}

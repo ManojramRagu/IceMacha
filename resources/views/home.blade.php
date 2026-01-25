@@ -84,4 +84,7 @@
             </template>
         </div>
     </div>
+
+    <!-- Featured Bundles Section -->
+    <livewire:home-bundles />
 @endsection
