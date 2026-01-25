@@ -38,12 +38,12 @@
                     <p class="text-2xl font-bold text-gray-900">#{{ $order->id }}</p>
                 </div>
 
-                <div class="space-y-3">
-                    <a href="{{ route('my-orders') }}" class="block w-full bg-brand text-white font-bold py-3.5 rounded-2xl shadow-sm hover:bg-brand/90 hover:shadow-md transition-all duration-200 text-lg">
+                <div class="flex flex-col items-center space-y-4">
+                    <a href="{{ route('my-orders') }}" class="w-full sm:w-auto px-10 bg-brand text-white font-bold py-3.5 rounded-2xl shadow-sm hover:bg-brand/90 hover:shadow-md transition-all duration-200 text-lg whitespace-nowrap">
                         View My Orders
                     </a>
                     
-                    <a href="{{ route('home') }}" class="block w-full bg-white text-cocoa font-bold py-3.5 rounded-2xl border-2 border-slate-200 hover:border-brand hover:text-brand transition-all duration-200 text-lg">
+                    <a href="{{ route('home') }}" class="w-full sm:w-auto px-10 bg-white text-cocoa font-bold py-3.5 rounded-2xl border-2 border-slate-200 hover:border-brand hover:text-brand transition-all duration-200 text-lg whitespace-nowrap">
                         Go Home (<span x-text="countdown"></span>s)
                     </a>
                 </div>
