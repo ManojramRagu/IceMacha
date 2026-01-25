@@ -93,9 +93,9 @@
                             </div>
                         </div>
 
-                        <button class="w-full bg-brand text-white font-semibold py-4 rounded-xl shadow-sm hover:bg-brand/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand transition-all duration-200 text-lg">
+                        <a href="{{ route('checkout') }}" class="block w-full text-center bg-brand text-white font-semibold py-4 rounded-xl shadow-sm hover:bg-brand/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand transition-all duration-200 text-lg">
                             Checkout
-                        </button>
+                        </a>
 
                          <div class="mt-6 text-center">
                             <a href="{{ route('menu') }}" class="text-sm text-cocoa/60 hover:text-brand font-medium transition-colors">
