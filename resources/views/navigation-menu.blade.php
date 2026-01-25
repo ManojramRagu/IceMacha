@@ -14,7 +14,7 @@
                 <!-- Spacer for Logo -->
                 <div class="w-48 shrink-0"></div>
 
-                <a href="#about" class="text-white hover:text-sand font-medium transition-colors">
+                <a href="{{ route('about') }}" class="text-white hover:text-sand font-medium transition-colors {{ request()->routeIs('about') ? 'font-bold' : '' }}">
                     About
                 </a>
                 <a href="#" class="text-white hover:text-sand font-medium transition-colors">
@@ -122,7 +122,7 @@
                     {{ __('My Orders') }}
                 </x-responsive-nav-link>
             @endauth
-            <x-responsive-nav-link href="#about" class="text-white hover:bg-brand/80">
+            <x-responsive-nav-link href="{{ route('about') }}" :active="request()->routeIs('about')" class="text-white hover:bg-brand/80">
                 About
             </x-responsive-nav-link>
         </div>
