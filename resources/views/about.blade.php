@@ -3,9 +3,7 @@
 @section('content')
     <div class="bg-blush min-h-screen">
         <!-- Page Title -->
-        <div class="bg-brand py-12">
-            <h1 class="text-4xl font-bold text-center text-white font-display">About Us</h1>
-        </div>
+
 
         <div class="max-w-6xl mx-auto px-4 py-12 space-y-24">
             
@@ -15,7 +13,7 @@
                 <div class="order-1">
                     <img src="{{ asset('img/about/story.webp') }}" 
                          alt="Our Story" 
-                         class="w-full h-auto rounded-3xl shadow-lg transform hover:scale-105 transition-transform duration-500">
+                         class="w-full h-64 object-cover rounded-3xl shadow-lg transform hover:scale-105 transition-transform duration-500">
                 </div>
                 <!-- Text Right -->
                 <div class="order-2 text-cocoa">
@@ -47,7 +45,7 @@
                 <div class="order-1 md:order-2">
                     <img src="{{ asset('img/about/commitment.webp') }}" 
                          alt="Our Commitment" 
-                         class="w-full h-auto rounded-3xl shadow-lg transform hover:scale-105 transition-transform duration-500">
+                         class="w-full h-64 object-cover rounded-3xl shadow-lg transform hover:scale-105 transition-transform duration-500">
                 </div>
             </div>
 
@@ -57,7 +55,7 @@
                 <div class="order-1">
                     <img src="{{ asset('img/about/vision.webp') }}" 
                          alt="Our Vision" 
-                         class="w-full h-auto rounded-3xl shadow-lg transform hover:scale-105 transition-transform duration-500">
+                         class="w-full h-64 object-cover rounded-3xl shadow-lg transform hover:scale-105 transition-transform duration-500">
                 </div>
                 <!-- Text Right -->
                 <div class="order-2 text-cocoa">
