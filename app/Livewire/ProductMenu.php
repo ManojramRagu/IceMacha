@@ -66,9 +66,18 @@ class ProductMenu extends Component
         // Show toast
         $this->toastMessage = ($type === 'bundle' ? 'Bundle' : 'Item') . ' added to cart successfully!';
         $this->showToast = true;
+    }
 
-        // Hide toast after 3 seconds
-        $this->dispatch('hide-toast'); 
+    public function selectProduct($productId)
+    {
+        $this->selectedProduct = Product::find($productId);
+        $this->showModal = true;
+    }
+
+    public function closeModal()
+    {
+        $this->showModal = false;
+        $this->selectedProduct = null;
     }
 
     public function render()

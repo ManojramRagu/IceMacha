@@ -1,119 +1,87 @@
 @extends('layouts.app')
 
 @section('content')
-    <!-- Hero Section -->
-    <div class="relative w-full overflow-hidden h-[220px] sm:h-[300px] md:h-[380px]">
-        <!-- Hero Image -->
-        <img src="{{ asset('img/hero/hero.webp') }}" 
-             alt="IceMacha Hero" 
-             class="absolute inset-0 w-full h-full object-cover"
-             loading="eager">
-        
-        <!-- Black Overlay -->
-        <div class="absolute inset-0 bg-black/30"></div>
-        
-        <!-- Hero Content -->
-        <div class="relative z-10 h-full flex items-center justify-center">
-            <div class="text-center text-white px-4">
-                <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 tracking-wide">
-                    IceMacha
-                </h1>
-                <p class="text-base sm:text-lg mb-6 font-medium">
-                    Fresh coffee, beverages, snacks. Browse, Order & Enjoy.
-                </p>
-                <a href="{{ route('menu') }}" 
-                   class="inline-block px-8 py-3 bg-brand text-white font-semibold rounded-2xl hover:opacity-90 transition-opacity duration-150">
-                    View Menu
-                </a>
+    <!-- Full-Width Auto-Rotating Carousel Hero -->
+    <div x-data="{
+            activeSlide: 0,
+            slides: [
+                { image: '{{ asset('img/products/Promotions/Summer Coolers.webp') }}', title: 'Summer Coolers', desc: 'Beat the heat with our refreshing blends.' },
+                { image: '{{ asset('img/products/Promotions/Coffee Lovers.webp') }}', title: 'Coffee Lovers Special', desc: 'Double the caffeine, double the fun.' },
+                { image: '{{ asset('img/products/Promotions/Festive Treats.webp') }}', title: 'Festive Treats', desc: 'Celebrate the season with exclusive flavors.' },
+                { image: '{{ asset('img/products/Promotions/Healthy Mornings.webp') }}', title: 'Healthy Mornings', desc: 'Start your day right with nutritious combos.' },
+                { image: '{{ asset('img/products/Promotions/Midnight Snacks.webp') }}', title: 'Midnight Snack Deals', desc: 'Late night cravings? We got you covered.' }
+            ],
+            timer: null,
+            init() {
+                this.startRotation();
+            },
+            startRotation() {
+                this.timer = setInterval(() => {
+                    this.nextSlide();
+                }, 5000);
+            },
+            stopRotation() {
+                clearInterval(this.timer);
+            },
+            nextSlide() {
+                this.activeSlide = (this.activeSlide + 1) % this.slides.length;
+            },
+            prevSlide() {
+                this.activeSlide = (this.activeSlide - 1 + this.slides.length) % this.slides.length;
+            }
+        }"
+        class="relative w-full h-[600px] overflow-hidden group bg-blush"
+        @mouseenter="stopRotation"
+        @mouseleave="startRotation">
+
+        <!-- Slides -->
+        <template x-for="(slide, index) in slides" :key="index">
+            <div x-show="activeSlide === index"
+                 x-transition:enter="transition ease-out duration-700"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-700"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="absolute inset-0 w-full h-full">
+                
+                <img :src="slide.image" class="w-full h-full object-cover">
+                
+                <!-- Black/40 Overlay -->
+                <div class="absolute inset-0 bg-black/40"></div>
+
+                <!-- Hero Content Overlay -->
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div class="text-center text-white px-4 pointer-events-auto">
+                        <h1 class="text-5xl md:text-7xl font-bold mb-6 font-display drop-shadow-xl tracking-wide" x-text="slide.title"></h1>
+                        <p class="text-xl md:text-2xl mb-10 font-light drop-shadow-md opacity-90" x-text="slide.desc"></p>
+                        <a href="{{ route('menu') }}" 
+                           class="inline-block px-10 py-4 bg-brand text-white font-bold rounded-full hover:bg-opacity-90 transition-all shadow-xl hover:scale-105 hover:shadow-2xl text-lg">
+                            Buy Now
+                        </a>
+                    </div>
+                </div>
             </div>
+        </template>
+
+        <!-- Navigation Buttons (Appear on Hover) -->
+        <button @click="prevSlide" 
+                class="absolute left-6 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-4 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-sm hover:scale-110">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+        <button @click="nextSlide" 
+                class="absolute right-6 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-4 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-sm hover:scale-110">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+
+        <!-- Dots -->
+        <div class="absolute bottom-8 left-0 right-0 flex justify-center space-x-4">
+            <template x-for="(slide, index) in slides" :key="index">
+                <button @click="activeSlide = index" 
+                        class="w-4 h-4 rounded-full transition-all duration-300 border-2 border-white/50"
+                        :class="activeSlide === index ? 'bg-brand scale-125 border-brand' : 'bg-transparent hover:bg-white/30'">
+                </button>
+            </template>
         </div>
     </div>
-
-    <!-- Promotions Section -->
-    <section class="max-w-7xl mx-auto px-4 py-8 md:py-12 bg-blush/30">
-        <h2 class="text-2xl md:text-3xl font-bold text-center text-brand mb-8 font-display">
-            Promotions & Seasonal Offers
-        </h2>
-
-        <!-- Carousel -->
-        <div x-data="{
-                activeSlide: 0,
-                slides: [
-                    &quot;{{ asset('img/products/Promotions/Summer Coolers.webp') }}&quot;,
-                    &quot;{{ asset('img/products/Promotions/Coffee Lovers.webp') }}&quot;,
-                    &quot;{{ asset('img/products/Promotions/Festive Treats.webp') }}&quot;,
-                    &quot;{{ asset('img/products/Promotions/Healthy Mornings.webp') }}&quot;,
-                    &quot;{{ asset('img/products/Promotions/Midnight Snacks.webp') }}&quot;
-                ],
-                timer: null,
-                init() {
-                    this.startRotation();
-                },
-                startRotation() {
-                    this.timer = setInterval(() => {
-                        this.nextSlide();
-                    }, 5000);
-                },
-                stopRotation() {
-                    clearInterval(this.timer);
-                },
-                nextSlide() {
-                    this.activeSlide = (this.activeSlide + 1) % this.slides.length;
-                },
-                prevSlide() {
-                    this.activeSlide = (this.activeSlide - 1 + this.slides.length) % this.slides.length;
-                }
-            }"
-            class="relative w-full max-w-5xl mx-auto overflow-hidden rounded-3xl shadow-xl group"
-            @mouseenter="stopRotation"
-            @mouseleave="startRotation">
-
-            <!-- Slides -->
-            <div class="relative h-[250px] sm:h-[350px] md:h-[450px]">
-                <template x-for="(slide, index) in slides" :key="index">
-                    <div x-show="activeSlide === index"
-                         x-transition:enter="transition ease-out duration-700"
-                         x-transition:enter-start="opacity-0 transform scale-105"
-                         x-transition:enter-end="opacity-100 transform scale-100"
-                         x-transition:leave="transition ease-in duration-700"
-                         x-transition:leave-start="opacity-100 transform scale-100"
-                         x-transition:leave-end="opacity-0 transform scale-95"
-                         class="absolute inset-0 w-full h-full">
-                        <img :src="slide" class="w-full h-full object-cover">
-                        <!-- Overlay -->
-                        <div class="absolute inset-0 bg-black/40"></div>
-                    </div>
-                </template>
-            </div>
-
-            <!-- Navigation Buttons -->
-            <button @click="prevSlide" 
-                    class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-            </button>
-            <button @click="nextSlide" 
-                    class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-            </button>
-
-            <!-- Dots -->
-            <div class="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
-                <template x-for="(slide, index) in slides" :key="index">
-                    <button @click="activeSlide = index" 
-                            class="w-2.5 h-2.5 rounded-full transition-colors duration-300"
-                            :class="activeSlide === index ? 'bg-brand' : 'bg-white/50 hover:bg-white'">
-                    </button>
-                </template>
-            </div>
-        </div>
-
-        <!-- Call to Action -->
-        <div class="text-center mt-12">
-            <a href="{{ route('menu') }}"
-               class="inline-block px-10 py-4 bg-brand text-white font-bold text-lg rounded-2xl shadow-lg hover:bg-brand/90 hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
-                Buy Now
-            </a>
-        </div>
-    </section>
-
 @endsection

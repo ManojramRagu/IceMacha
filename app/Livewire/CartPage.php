@@ -34,11 +34,14 @@ class CartPage extends Component
         // Fetch items linked to the logged-in user
         $cartItems = CartItem::whereHas('cart', function($q) {
             $q->where('UserId', auth()->id());
-        })->with('product')->get();
+        })->with(['product', 'promotion'])->get();
 
         return view('livewire.cart-page', [
             'cartItems' => $cartItems,
-            'total' => $cartItems->sum(fn($item) => $item->product->price * $item->Quantity)
+            'total' => $cartItems->sum(function($item) {
+                $price = $item->product ? $item->product->price : ($item->promotion ? $item->promotion->price : 0);
+                return $price * $item->Quantity;
+            })
         ])->layout('layouts.app');
     }
 }

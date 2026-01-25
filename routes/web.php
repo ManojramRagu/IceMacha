@@ -5,7 +5,8 @@ use App\Livewire\ProductMenu;
 use App\Livewire\CartPage;
 
 Route::get('/', function () {
-    return view('home');
+    $promotions = \App\Models\Promotion::with('products')->get();
+    return view('home', compact('promotions'));
 })->name('home');
 
 Route::get('/about', function () {
