@@ -5,11 +5,11 @@
     <div x-data="{
             activeSlide: 0,
             slides: [
+                { image: '{{ asset('img/products/Promotions/Midnight Snacks.webp') }}', title: 'Midnight Snack Deals', desc: 'Late night cravings? We got you covered.' },
                 { image: '{{ asset('img/products/Promotions/Summer Coolers.webp') }}', title: 'Summer Coolers', desc: 'Beat the heat with our refreshing blends.' },
                 { image: '{{ asset('img/products/Promotions/Coffee Lovers.webp') }}', title: 'Coffee Lovers Special', desc: 'Double the caffeine, double the fun.' },
                 { image: '{{ asset('img/products/Promotions/Festive Treats.webp') }}', title: 'Festive Treats', desc: 'Celebrate the season with exclusive flavors.' },
-                { image: '{{ asset('img/products/Promotions/Healthy Mornings.webp') }}', title: 'Healthy Mornings', desc: 'Start your day right with nutritious combos.' },
-                { image: '{{ asset('img/products/Promotions/Midnight Snacks.webp') }}', title: 'Midnight Snack Deals', desc: 'Late night cravings? We got you covered.' }
+                { image: '{{ asset('img/products/Promotions/Healthy Mornings.webp') }}', title: 'Healthy Mornings', desc: 'Start your day right with nutritious combos.' }
             ],
             timer: null,
             init() {

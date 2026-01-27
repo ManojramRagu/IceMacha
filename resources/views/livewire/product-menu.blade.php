@@ -6,7 +6,7 @@
         {{-- 1. SPECIAL BUNDLES SECTION (Top Priority) --}}
 
         @php
-            $productsByCategory = $products->groupBy('category.name');
+            $productsByCategory = $products->where('category.name', '!=', 'Promotions')->groupBy('category.name');
         @endphp
 
         {{-- 2. CATEGORY FILTER BAR --}}
