@@ -17,7 +17,7 @@
                 <a href="{{ route('about') }}" class="text-white hover:text-sand font-medium transition-colors {{ request()->routeIs('about') ? 'font-bold' : '' }}">
                     About
                 </a>
-                <a href="#" class="text-white hover:text-sand font-medium transition-colors">
+                <a href="{{ route('contact') }}" class="text-white hover:text-sand font-medium transition-colors {{ request()->routeIs('contact') ? 'font-bold' : '' }}">
                     Contact
                 </a>
             </div>
@@ -124,6 +124,9 @@
             @endauth
             <x-responsive-nav-link href="{{ route('about') }}" :active="request()->routeIs('about')" class="text-white hover:bg-brand/80">
                 About
+            </x-responsive-nav-link>
+            <x-responsive-nav-link href="{{ route('contact') }}" :active="request()->routeIs('contact')" class="text-white hover:bg-brand/80">
+                Contact
             </x-responsive-nav-link>
         </div>
 
