@@ -5,8 +5,17 @@ use App\Livewire\ProductMenu;
 use App\Livewire\CartPage;
 
 Route::get('/', function () {
-    return view('home');
+    $promotions = \App\Models\Promotion::with('products')->get();
+    return view('home', compact('promotions'));
 })->name('home');
+
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
+
+Route::get('/contact', function () {
+    return view('contact');
+})->name('contact');
 
 Route::middleware([
     'auth:sanctum',

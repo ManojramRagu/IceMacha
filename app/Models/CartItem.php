@@ -21,6 +21,10 @@ class CartItem extends Model
         return $this->belongsTo(Product::class, 'ProductId', 'id');
     }
 
+    public function promotion() {
+        return $this->belongsTo(Promotion::class, 'PromotionId', 'id');
+    }
+
     public function cart() {
         return $this->belongsTo(Cart::class, 'CartId', 'CartId');
     }

@@ -23,8 +23,14 @@
                         <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between transition hover:shadow-md" wire:key="item-{{ $item->CartItemId }}">
                             <div class="flex items-center gap-4 flex-1">
                                 <div class="shrink-0 overflow-hidden rounded-lg bg-sand/20" style="width: 80px; height: 80px;">
-                                     @if($item->product->image_path)
-                                        <img src="{{ asset($item->product->image_path) }}" alt="{{ $item->product->name }}" class="h-full w-full object-cover" style="max-width: 100%;">
+                                     @php
+                                         $imagePath = $item->product ? $item->product->image_path : ($item->promotion ? $item->promotion->image_path : null);
+                                         $name = $item->product ? $item->product->name : ($item->promotion ? $item->promotion->name : 'Unknown Item');
+                                         $price = $item->product ? $item->product->price : ($item->promotion ? $item->promotion->price : 0);
+                                     @endphp
+                                     
+                                     @if($imagePath)
+                                        <img src="{{ asset($imagePath) }}" alt="{{ $name }}" class="h-full w-full object-cover" style="max-width: 100%;">
                                      @else
                                         <div class="w-full h-full flex items-center justify-center text-cocoa/40">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
@@ -34,8 +40,8 @@
                                      @endif
                                 </div>
                                 <div>
-                                    <h3 class="text-lg font-semibold text-cocoa">{{ $item->product->name }}</h3>
-                                    <p class="text-cocoa/60 text-sm">LKR {{ number_format($item->product->price, 2) }}</p>
+                                    <h3 class="text-lg font-semibold text-cocoa">{{ $name }}</h3>
+                                    <p class="text-cocoa/60 text-sm">LKR {{ number_format($price, 2) }}</p>
                                 </div>
                             </div>
 
@@ -56,7 +62,7 @@
                                 </div>
 
                                 <div class="text-right min-w-[80px]">
-                                    <p class="font-bold text-lg text-brand">LKR {{ number_format($item->product->price * $item->Quantity, 2) }}</p>
+                                    <p class="font-bold text-lg text-brand">LKR {{ number_format($price * $item->Quantity, 2) }}</p>
                                 </div>
 
                                 <button wire:click="removeItem({{ $item->CartItemId }})" class="text-red-400 hover:text-red-600 transition-colors p-2" title="Remove Item">
