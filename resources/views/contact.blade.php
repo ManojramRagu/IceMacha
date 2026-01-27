@@ -45,7 +45,7 @@
         <div class="px-10 py-12 md:w-7/12">
             <h2 class="text-3xl font-display font-bold text-brand mb-8 text-center md:text-left">Send us a Message</h2>
             
-            <form action="https://formspree.io/f/YOUR_FORMSPREE_ID_HERE" method="POST" class="space-y-6">
+            <form action="https://formspree.io/f/mojdpjne" method="POST" class="space-y-6">
                 <!-- Redirect After Submission -->
                 <input type="hidden" name="_next" value="{{ route('home') }}">
                 
