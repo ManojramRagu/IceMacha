@@ -45,7 +45,7 @@
         <div class="p-12 md:p-20 md:w-7/12" style="padding: 3rem;">
             <h2 class="text-3xl font-display font-bold text-brand mb-8 text-center md:text-left">Send us a Message</h2>
             
-            <form action="https://formspree.io/f/mojdpjne" method="POST" class="space-y-6">
+            <form id="contact-form" action="https://formspree.io/f/mojdpjne" method="POST" class="space-y-6">
                 <!-- Redirect After Submission -->
                 <input type="hidden" name="_next" value="{{ route('home') }}">
                 
@@ -79,12 +79,79 @@
                     <button type="reset" class="px-8 py-3 rounded-2xl bg-gray-200 text-gray-700 font-bold hover:bg-gray-300 transition-colors">
                         Cancel
                     </button>
-                    <button type="submit" class="px-8 py-3 rounded-2xl bg-brand text-white font-bold shadow-lg hover:shadow-xl hover:bg-opacity-90 transition-all transform hover:-translate-y-1">
+                    <button type="submit" id="submit-btn" class="px-8 py-3 rounded-2xl bg-brand text-white font-bold shadow-lg hover:shadow-xl hover:bg-opacity-90 transition-all transform hover:-translate-y-1">
                         Submit
                     </button>
                 </div>
             </form>
         </div>
     </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="fixed inset-0 bg-black/40 backdrop-blur-md hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-3xl p-12 max-w-md w-full mx-4 flex flex-col items-center text-center shadow-2xl relative" style="padding: 3.5rem;">
+            <div class="w-20 h-20 bg-brand/10 rounded-full flex items-center justify-center mb-6">
+                <svg class="w-10 h-10 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h3 class="text-3xl font-display font-bold text-brand mb-2">Message Sent!</h3>
+            <p class="text-cocoa/80 text-lg mb-8">We will get back to you shortly.</p>
+            <button onclick="document.getElementById('success-modal').classList.add('hidden')" class="w-full py-4 rounded-full bg-brand text-white font-bold text-lg hover:bg-opacity-90 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                Close
+            </button>
+        </div>
+    </div>
 </div>
+
+<script>
+    document.getElementById('contact-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const form = this;
+        const submitBtn = document.getElementById('submit-btn');
+        const modal = document.getElementById('success-modal');
+        const originalBtnText = submitBtn.textContent;
+        
+        // Loading State
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+        
+        const formData = new FormData(form);
+        
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // Success State
+                form.reset();
+                modal.classList.remove('hidden');
+                submitBtn.textContent = originalBtnText;
+                submitBtn.disabled = false;
+            } else {
+                // Error State
+                response.json().then(data => {
+                    if (Object.hasOwn(data, 'errors')) {
+                        alert(data["errors"].map(error => error["message"]).join(", "));
+                    } else {
+                        alert('Oops! There was a problem submitting your form');
+                    }
+                });
+                submitBtn.textContent = originalBtnText;
+                submitBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            // Network Error
+            alert('Oops! There was a problem submitting your form');
+            submitBtn.textContent = originalBtnText;
+            submitBtn.disabled = false;
+        });
+    });
+</script>
 @endsection
