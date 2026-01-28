@@ -17,9 +17,15 @@
                 <a href="{{ route('about') }}" class="text-white hover:text-sand font-medium transition-colors {{ request()->routeIs('about') ? 'font-bold' : '' }}">
                     About
                 </a>
-                <a href="{{ route('contact') }}" class="text-white hover:text-sand font-medium transition-colors {{ request()->routeIs('contact') ? 'font-bold' : '' }}">
-                    Contact
-                </a>
+                @if(Auth::check() && Auth::user()->role === 'admin')
+                    <a href="/admin" class="text-white hover:text-sand font-medium transition-colors">
+                        Admin
+                    </a>
+                @else
+                    <a href="{{ route('contact') }}" class="text-white hover:text-sand font-medium transition-colors {{ request()->routeIs('contact') ? 'font-bold' : '' }}">
+                        Contact
+                    </a>
+                @endif
             </div>
 
             <!-- Logo (Absolute Top Center) -->
@@ -125,9 +131,15 @@
             <x-responsive-nav-link href="{{ route('about') }}" :active="request()->routeIs('about')" class="text-white hover:bg-brand/80">
                 About
             </x-responsive-nav-link>
-            <x-responsive-nav-link href="{{ route('contact') }}" :active="request()->routeIs('contact')" class="text-white hover:bg-brand/80">
-                Contact
-            </x-responsive-nav-link>
+            @if(Auth::check() && Auth::user()->role === 'admin')
+                <x-responsive-nav-link href="/admin" class="text-white hover:bg-brand/80">
+                    Admin
+                </x-responsive-nav-link>
+            @else
+                <x-responsive-nav-link href="{{ route('contact') }}" :active="request()->routeIs('contact')" class="text-white hover:bg-brand/80">
+                    Contact
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         @auth

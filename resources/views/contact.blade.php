@@ -115,16 +115,38 @@
         
         // Loading State
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Sending...';
+        submitBtn.textContent = 'Saving...';
         
         const formData = new FormData(form);
         
-        fetch(form.action, {
+        // 1. Save to Database
+        fetch('{{ route('contact.submit') }}', {
             method: 'POST',
             body: formData,
             headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 'Accept': 'application/json'
             }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || 'Error saving message');
+                });
+            }
+            return response.json();
+        })
+        .then(() => {
+            // 2. Send to Formspree
+            submitBtn.textContent = 'Sending...';
+            
+            return fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
         })
         .then(response => {
             if (response.ok) {
@@ -147,8 +169,9 @@
             }
         })
         .catch(error => {
-            // Network Error
-            alert('Oops! There was a problem submitting your form');
+            // Network Error or Save Error
+            console.error('Error:', error);
+            alert('Oops! There was a problem submitting your form. ' + error.message);
             submitBtn.textContent = originalBtnText;
             submitBtn.disabled = false;
         });

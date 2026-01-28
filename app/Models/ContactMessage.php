@@ -6,13 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class ContactMessage extends Model
 {
+    protected $primaryKey = 'MessageId';
+    public $timestamps = false;
+
     protected $fillable = [
-        'user_id',
-        'name',
-        'email',
-        'subject',
-        'message',
-        'is_read',
+        'UserId',
+        'FirstName',
+        'LastName',
+        'Email',
+        'Subject',
+        'Message',
     ];
 
     //

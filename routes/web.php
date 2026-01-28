@@ -17,6 +17,8 @@ Route::get('/contact', function () {
     return view('contact');
 })->name('contact');
 
+Route::post('/contact/submit', [App\Http\Controllers\ContactController::class, 'submit'])->name('contact.submit');
+
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
