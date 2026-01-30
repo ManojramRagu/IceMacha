@@ -28,75 +28,105 @@ class ProductMenu extends Component
             ['dataset' => 'legacy']
         );
 
+        // Check Bundle Stock and Limits
         if ($type === 'bundle') {
-            // Check Bundle Stock (All items must have stock >= requested quantity + existing bundle quantity)
             $promotion = \App\Models\Promotion::with('products')->find($productId);
             
-            // Get existing quantity of this specific bundle in cart
+            // Get existing quantity
             $existingCartItem = \App\Models\CartItem::where('CartId', $cart->CartId)
                 ->where('PromotionId', $productId)
                 ->first();
             $existingBundleQty = $existingCartItem ? $existingCartItem->Quantity : 0;
 
+            // Calculate Max Addable for this Bundle based on constituent products
+            $maxAddableByStock = 9999;
             foreach ($promotion->products as $product) {
-                // Check if (Existing Bundles + New Request) exceeds stock
-                // content: assuming 1 unit of product per bundle for now. 
-                // ideally we should also check if the user has this product added individually, but for now we fix the main loop.
-                if ($product->stock_quantity < ($existingBundleQty + $quantity)) {
-                    $this->toastMessage = "You have {$existingBundleQty} in cart. Only {$product->stock_quantity} left of {$product->name}!";
-                    $this->showToast = true;
-                    return;
-                }
+                 // Simple View: Stock - (Current Bundle Qty already holding this stock)
+                $currentStockUsedByBundle = $existingBundleQty; 
+                $remainingStock = $product->stock_quantity - $currentStockUsedByBundle;
+                
+                if ($remainingStock < 0) $remainingStock = 0;
+                $maxAddableByStock = min($maxAddableByStock, $remainingStock);
             }
 
-            // Handle Bundle (Promotion)
+            // Apply Policy Limit (Max 10 bundles)
+            $remainingPolicyLimit = max(0, 10 - $existingBundleQty);
+            
+            // Final Available to Add
+            $availableToAdd = min($maxAddableByStock, $remainingPolicyLimit);
+
+            if ($availableToAdd <= 0) {
+                $reason = ($existingBundleQty >= 10) ? "Order limit of 10 reached" : "Insufficient stock";
+                $this->toastMessage = "Cannot add more. {$reason}.";
+                $this->showToast = true;
+                return;
+            }
+
+            // Cap the quantity
+            $quantityToAdd = min($quantity, $availableToAdd);
+            $message = ($quantityToAdd < $quantity) 
+                ? "Added {$quantityToAdd} bundles (Stock/Limit reached)!" 
+                : "Bundle added to cart successfully!";
+
+            // Handle Bundle Add
             if ($existingCartItem) {
-                $existingCartItem->increment('Quantity', $quantity);
+                $existingCartItem->increment('Quantity', $quantityToAdd);
             } else {
                 \App\Models\CartItem::create([
                     'CartId' => $cart->CartId,
                     'PromotionId' => $productId,
                     'ProductId' => null,
-                    'Quantity' => $quantity
+                    'Quantity' => $quantityToAdd
                 ]);
             }
+            
+            $this->toastMessage = $message;
+            $this->showToast = true;
+
         } else {
             // Check Product Stock
             $product = \App\Models\Product::find($productId);
             
-            // Get existing quantity of this product in cart
+            // Get existing quantity
             $existingCartItem = \App\Models\CartItem::where('CartId', $cart->CartId)
                 ->where('ProductId', $productId)
                 ->first();
             $existingQty = $existingCartItem ? $existingCartItem->Quantity : 0;
             
-            // Check if (Existing Qty + New Qty) exceeds Stock
-            if ($product->stock_quantity < ($existingQty + $quantity)) {
-                $availableToAdd = $product->stock_quantity - $existingQty;
-                $this->toastMessage = "You already have {$existingQty} in cart. Only {$availableToAdd} more available!";
+            // Calculate Limits
+            $remainingStock = max(0, $product->stock_quantity - $existingQty);
+            $remainingPolicyLimit = max(0, 10 - $existingQty);
+            
+            $availableToAdd = min($remainingStock, $remainingPolicyLimit);
+
+            if ($availableToAdd <= 0) {
+                $reason = ($existingQty >= 10) ? "Order limit of 10 reached" : "Out of stock";
+                $this->toastMessage = "Cannot add more. {$reason}.";
                 $this->showToast = true;
                 return;
             }
 
-            // Handle Product
+            // Cap the quantity
+            $quantityToAdd = min($quantity, $availableToAdd);
+            $message = ($quantityToAdd < $quantity) 
+                ? "Added {$quantityToAdd} items (Stock/Limit reached)!" 
+                : "Item added to cart successfully!";
+
+            // Handle Product Add
             if ($existingCartItem) {
-                $existingCartItem->increment('Quantity', $quantity);
+                $existingCartItem->increment('Quantity', $quantityToAdd);
             } else {
                 \App\Models\CartItem::create([
                     'CartId' => $cart->CartId,
                     'ProductId' => $productId,
                     'PromotionId' => null,
-                    'Quantity' => $quantity
+                    'Quantity' => $quantityToAdd
                 ]);
             }
+
+            $this->toastMessage = $message;
+            $this->showToast = true;
         }
-
-        // Dispatch event to update navbar icon
-        $this->dispatch('cartUpdated');
-
-        // Show toast
-        $this->toastMessage = ($type === 'bundle' ? 'Bundle' : 'Item') . ' added to cart successfully!';
-        $this->showToast = true;
     }
 
     public function selectProduct($productId)

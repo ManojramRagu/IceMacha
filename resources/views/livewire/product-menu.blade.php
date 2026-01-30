@@ -188,12 +188,12 @@
                                 <div class="flex items-center gap-4">
                                     {{-- Quantity Stepper --}}
                                     @if($selectedProduct->stock_quantity > 0)
-                                        <div class="flex items-center bg-gray-100 rounded-xl p-1">
-                                            <button @click="decrement()" class="p-2 text-gray-500 hover:text-brand transition-colors">
+                                        <div class="flex items-center bg-gray-100 rounded-xl p-1" x-data>
+                                            <button @click="decrement()" class="p-3 text-gray-500 hover:text-brand transition-colors">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
                                             </button>
-                                            <span class="w-8 text-center font-bold text-gray-800" x-text="modalQty"></span>
-                                            <button @click="increment()" class="p-2 text-gray-500 hover:text-brand transition-colors" :class="{'opacity-50 cursor-not-allowed': modalQty >= maxStock}">
+                                            <input type="number" x-model.number="modalQty" min="1" :max="Math.min(maxStock, 10)" class="w-12 text-center text-lg font-bold text-gray-800 bg-transparent border-none focus:ring-0 p-0 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none">
+                                            <button @click="increment()" class="p-3 text-gray-500 hover:text-brand transition-colors" :class="{'opacity-50 cursor-not-allowed': modalQty >= Math.min(maxStock, 10)}">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                             </button>
                                         </div>
