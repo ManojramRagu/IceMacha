@@ -6,11 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class ContactMessage extends Model
 {
+    protected $table = 'contact_messages';
     protected $primaryKey = 'MessageId';
-    public $timestamps = false;
+    const CREATED_AT = 'CreatedAt';
+    const UPDATED_AT = null; // Assuming no UpdatedAt or not needed
 
     protected $fillable = [
-        'UserId',
         'FirstName',
         'LastName',
         'Email',
@@ -18,5 +19,29 @@ class ContactMessage extends Model
         'Message',
     ];
 
-    //
+    // Map Accessors
+    public function getNameAttribute()
+    {
+        return trim(($this->attributes['FirstName'] ?? '') . ' ' . ($this->attributes['LastName'] ?? ''));
+    }
+
+    public function getEmailAttribute()
+    {
+        return $this->attributes['Email'] ?? '';
+    }
+
+    public function getSubjectAttribute()
+    {
+        return $this->attributes['Subject'] ?? '';
+    }
+
+    public function getMessageAttribute()
+    {
+        return $this->attributes['Message'] ?? '';
+    }
+
+    public function getIsReadAttribute()
+    {
+        return $this->attributes['IsRead'] ?? false;
+    }
 }

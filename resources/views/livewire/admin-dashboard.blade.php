@@ -53,8 +53,13 @@
                 <!-- Card 3: Quick Actions -->
                 <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-6">
                     <h3 class="font-bold text-gray-900 mb-4 text-base">Quick actions</h3>
+                    @php
+                        $canCreate = $selectedMain === 'Promotions' || !empty($selectedSub);
+                    @endphp
                     <button wire:click="setMode('create')" 
-                        class="w-full py-3 bg-brand text-white font-bold rounded-2xl shadow-lg hover:shadow-xl hover:bg-opacity-90 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 text-sm">
+                        @if(!$canCreate) disabled @endif
+                        class="w-full py-3 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 text-sm
+                        {{ $canCreate ? 'bg-brand text-white shadow-lg hover:shadow-xl hover:bg-opacity-90 transform hover:-translate-y-0.5' : 'bg-gray-200 text-gray-400 cursor-not-allowed' }}">
                         <span>+ Add Product</span>
                     </button>
                 </div>
@@ -62,21 +67,20 @@
             </div>
         @endif
 
-        <!-- Content Area (Expandable) -->
         <div class="col-span-12 {{ $activeTab === 'inventory' ? 'md:col-span-9' : 'md:col-span-12' }} space-y-6">
             
-            <!-- Product List Card -->
+            <!-- List/Create Card -->
             <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8 min-h-[600px] flex flex-col">
                 @if($activeTab === 'inventory')
                     <!-- Header with Search -->
                     <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                         <h2 class="text-xl font-bold text-gray-800">
-                            Products · <span class="text-brand">{{ $selectedMain }}</span> 
+                            {{ $selectedMain === 'Promotions' ? 'Promotions' : 'Products' }} · <span class="text-brand">{{ $selectedMain }}</span> 
                             @if($selectedSub) <span class="text-gray-400">/</span> {{ $selectedSub }} @endif
                         </h2>
                         
                         <div class="relative w-full md:w-64">
-                            <input type="text" wire:model.live="search" placeholder="Search products..." 
+                            <input type="text" wire:model.live="search" placeholder="Search..." 
                                 class="w-full pl-4 pr-10 py-2 rounded-full border border-gray-200 focus:border-brand focus:ring-brand text-sm">
                             <svg class="w-4 h-4 text-gray-400 absolute right-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -85,10 +89,85 @@
                     </div>
                     
                     @if($mode === 'create')
-                        <div class="p-6 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 text-center flex-grow flex flex-col justify-center items-center">
-                            <p class="text-gray-500 mb-2">Create Product Form Placeholder</p>
-                            <button wire:click="setMode('list')" class="text-brand font-bold hover:underline">Cancel</button>
-                        </div>
+                        @if($selectedMain === 'Promotions')
+                            <!-- Create Promotion Form -->
+                            <div class="flex flex-col h-full">
+                                <h3 class="font-bold text-lg mb-4">Create New Bundle</h3>
+                                @include('livewire.partials.promotion-editor')
+                            </div>
+                        @else
+                            <div class="h-full flex flex-col">
+                                <h3 class="font-bold text-gray-800 text-lg mb-6">Create New Product</h3>
+                                
+                                <div class="flex-grow overflow-y-auto pr-2 space-y-6">
+                                    <div class="space-y-4">
+                                        <!-- Image Upload -->
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Product Image</label>
+                                            <div class="flex items-center gap-4">
+                                                <div class="w-24 h-24 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden">
+                                                    @if ($newImage)
+                                                        <img src="{{ $newImage->temporaryUrl() }}" class="w-full h-full object-cover">
+                                                    @else
+                                                        <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                    @endif
+                                                </div>
+                                                <div class="flex-grow">
+                                                    <input type="file" wire:model.live="newImage" id="productImage" class="hidden">
+                                                    <label for="productImage" class="cursor-pointer inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-xl font-semibold text-xs text-gray-600 hover:bg-gray-50 transition-colors">
+                                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                                        Choose File
+                                                    </label>
+                                                    <p class="mt-2 text-[10px] text-gray-400">PNG, JPG up to 2MB</p>
+                                                </div>
+                                            </div>
+                                            @error('newImage') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                        </div>
+
+                                        <!-- Fields -->
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Name</label>
+                                                <input type="text" wire:model="editingName" class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all">
+                                                @error('editingName') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Price (LKR)</label>
+                                                <input type="number" wire:model="editingPrice" class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all">
+                                                @error('editingPrice') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                            </div>
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Stock</label>
+                                                <input type="number" wire:model="editingStock" class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all">
+                                                @error('editingStock') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Category</label>
+                                                <div class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 text-gray-500">
+                                                    {{ $selectedMain }} / {{ $selectedSub ?: 'Select Sub...' }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Description</label>
+                                            <textarea wire:model="editingDescription" rows="3" class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all resize-none"></textarea>
+                                            @error('editingDescription') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-8 pt-6 border-t border-gray-100 flex justify-end gap-3">
+                                    <button wire:click="setMode('list')" class="px-6 py-2 rounded-xl text-gray-500 hover:bg-gray-50 font-bold transition-colors">Cancel</button>
+                                    <button wire:click="storeProduct" class="px-8 py-2 rounded-xl bg-brand text-white font-bold shadow-lg hover:shadow-xl hover:bg-opacity-90 transition-all transform hover:-translate-y-0.5">
+                                        Create Product
+                                    </button>
+                                </div>
+                            </div>
+                        @endif
                     @else
                         <!-- Table -->
                         <div class="overflow-x-auto">
@@ -98,29 +177,41 @@
                                         <th class="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider w-12">#</th>
                                         <th class="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
                                         <th class="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Price</th>
-                                        <th class="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Stock</th>
+                                        @if($selectedMain === 'Promotions')
+                                            <th class="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Discount</th>
+                                            <th class="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Items</th>
+                                        @else
+                                            <th class="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Stock</th>
+                                        @endif
                                         <th class="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">ImagePath</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-50">
-                                    @forelse($this->products as $index => $product)
-                                        <tr wire:key="product-{{ $product->id }}"
-                                            wire:click="editProduct({{ $product->id }})" 
-                                            class="hover:bg-gray-50/80 transition-colors group text-sm cursor-pointer {{ $editingProductId === $product->id ? 'bg-sand/30' : '' }}">
+                                    @forelse($this->products as $index => $item)
+                                        <tr wire:key="item-{{ $item->id }}"
+                                            wire:click="editProduct({{ $item->id }})" 
+                                            class="hover:bg-gray-50/80 transition-colors group text-sm cursor-pointer {{ ($editingProductId === $item->id || $editingPromotionId === $item->id) ? 'bg-sand/30' : '' }}">
                                             <td class="px-4 py-4 text-gray-400 font-mono text-xs">{{ $index + 1 }}</td>
-                                            <td class="px-4 py-4 font-medium text-gray-900">{{ $product->name }}</td>
-                                            <td class="px-4 py-4 text-gray-600">LKR {{ number_format($product->price, 2) }}</td>
-                                            <td class="px-4 py-4 {{ ($product->stock_quantity ?? 0) < 10 ? 'text-red-500 font-bold' : 'text-gray-600' }}">
-                                                {{ $product->stock_quantity ?? 'N/A' }}
-                                            </td>
+                                            <td class="px-4 py-4 font-medium text-gray-900">{{ $item->name }}</td>
+                                            <td class="px-4 py-4 text-gray-600">LKR {{ number_format($item->price, 2) }}</td>
+                                            
+                                            @if($selectedMain === 'Promotions')
+                                                <td class="px-4 py-4 text-green-600 font-bold">{{ $item->discount_percent }}%</td>
+                                                <td class="px-4 py-4 text-gray-500 text-xs">{{ $item->products->count() }} Items</td>
+                                            @else
+                                                <td class="px-4 py-4 {{ ($item->stock_quantity ?? 0) < 10 ? 'text-red-500 font-bold' : 'text-gray-600' }}">
+                                                    {{ $item->stock_quantity ?? 'N/A' }}
+                                                </td>
+                                            @endif
+                                            
                                             <td class="px-4 py-4 text-gray-400 text-xs truncate max-w-[200px] font-mono">
-                                                {{ $product->image_path }}
+                                                {{ $item->image_path }}
                                             </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="px-6 py-12 text-center text-gray-400 italic">
-                                                No products found for this category.
+                                            <td colspan="6" class="px-6 py-12 text-center text-gray-400 italic">
+                                                No items found.
                                             </td>
                                         </tr>
                                     @endforelse
@@ -130,71 +221,205 @@
                     @endif
 
                 @else
-                    <h2 class="text-xl font-bold text-gray-800 mb-6">Orders / Feedback</h2>
-                    <p class="text-gray-500">Orders and feedback management content.</p>
+                    <div class="space-y-8">
+                    <div class="space-y-8">
+                        <!-- Orders Table -->
+                        <div>
+                            <div class="flex items-center justify-between mb-6">
+                                <h2 class="text-xl font-bold text-gray-800">Orders</h2>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-2xl border border-gray-100 mb-8">
+                                <table class="w-full text-left text-sm">
+                                    <thead class="bg-gray-50 text-gray-500 font-bold uppercase text-xs">
+                                        <tr>
+                                            <th class="px-6 py-4">#</th>
+                                            <th class="px-6 py-4">User</th>
+                                            <th class="px-6 py-4">Total</th>
+                                            <th class="px-6 py-4">Status</th>
+                                            <th class="px-6 py-4">Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-50">
+                                        @forelse($this->orders as $order)
+                                            <tr class="hover:bg-gray-50/50 transition-colors">
+                                                <td class="px-6 py-4 font-mono text-xs">#{{ $order->id }}</td>
+                                                <td class="px-6 py-4 font-medium text-gray-900">{{ $order->user->name ?? 'Guest' }}</td>
+                                                <td class="px-6 py-4 font-bold text-brand">LKR {{ number_format($order->total_amount, 2) }}</td>
+                                                <td class="px-6 py-4">
+                                                    <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase bg-yellow-100 text-yellow-700">
+                                                        {{ $order->status }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 text-gray-400 text-xs">{{ $order->created_at->format('M d, Y') }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="5" class="px-6 py-12 text-center text-gray-400 italic">No active orders found.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Feedback Table -->
+                        <div>
+                            <div class="flex items-center justify-between mb-6">
+                                <h2 class="text-xl font-bold text-gray-800">Feedback & Inquiries</h2>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-2xl border border-gray-100">
+                                <table class="w-full text-left text-sm">
+                                    <thead class="bg-gray-50 text-gray-500 font-bold uppercase text-xs">
+                                        <tr>
+                                            <th class="px-6 py-4">Status</th>
+                                            <th class="px-6 py-4">Name</th>
+                                            <th class="px-6 py-4">Subject</th>
+                                            <th class="px-6 py-4">Date</th>
+                                            <th class="px-6 py-4 text-right">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-50">
+                                        @forelse($this->messages as $msg)
+                                            <tr class="hover:bg-gray-50/50 transition-colors">
+                                                <td class="px-6 py-4">
+                                                    @if(!$msg->is_read)
+                                                        <span class="px-2 py-1 rounded-full bg-brand text-white text-[10px] font-bold">NEW</span>
+                                                    @else
+                                                        <span class="text-gray-400 text-xs">Read</span>
+                                                    @endif
+                                                </td>
+                                                <td class="px-6 py-4 font-medium text-gray-900">{{ $msg->name }}</td>
+                                                <td class="px-6 py-4 text-gray-600 truncate max-w-[200px]">{{ $msg->subject }}</td>
+                                                <td class="px-6 py-4 text-gray-400 text-xs">{{ optional($msg->CreatedAt)->diffForHumans() ?? 'N/A' }}</td>
+                                                <td class="px-6 py-4 text-right flex justify-end gap-2">
+                                                    <button wire:click="viewMessage({{ $msg->MessageId }})" class="px-4 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 text-xs font-semibold">View</button>
+                                                    <button wire:click="deleteMessage({{ $msg->MessageId }})" 
+                                                            onclick="confirm('Delete this message?') || event.stopImmediatePropagation()"
+                                                            class="px-4 py-1.5 rounded-full border border-red-100 text-red-500 hover:bg-red-50 text-xs font-semibold">
+                                                        Delete
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="5" class="px-6 py-12 text-center text-gray-400 italic">No feedback messages found.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Message View Modal -->
+                    @if($viewingMessage)
+                        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" wire:click.self="closeMessage">
+                            <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                                <div class="p-8">
+                                    <div class="flex justify-between items-start mb-6">
+                                        <div>
+                                            <h3 class="text-2xl font-bold text-gray-900 mb-1">{{ $viewingMessage->subject }}</h3>
+                                            <div class="flex items-center gap-2 text-sm text-gray-500">
+                                                <span class="font-semibold text-brand">{{ $viewingMessage->name }}</span>
+                                                <span>&lt;{{ $viewingMessage->email }}&gt;</span>
+                                                <span>•</span>
+                                                <span>{{ optional($viewingMessage->CreatedAt)->format('M d, Y h:i A') ?? 'N/A' }}</span>
+                                            </div>
+                                        </div>
+                                        <button wire:click="closeMessage" class="p-2 rounded-full hover:bg-gray-100 text-gray-400">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 rounded-xl p-6 text-gray-700 leading-relaxed whitespace-pre-wrap min-h-[150px]">
+                                        {{ $viewingMessage->message }}
+                                    </div>
+
+                                    <div class="mt-8 flex justify-end">
+                                        <button wire:click="closeMessage" class="px-6 py-2 rounded-full bg-brand text-white font-bold hover:bg-opacity-90">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 @endif
             </div>
 
-            <!-- Product Detail Card (Editor) -->
-            @if($activeTab === 'inventory' && $editingProductId)
-                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8 transform transition-all duration-300">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="font-bold text-gray-800 text-lg">Update / Delete Product</h3>
-                        <button wire:click="cancelEdit" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Product Name</label>
-                            <input type="text" wire:model="editingName" class="w-full rounded-xl border-gray-200 focus:border-brand focus:ring-brand bg-gray-50">
-                            @error('editingName') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Price (LKR)</label>
-                            <input type="number" step="0.01" wire:model="editingPrice" class="w-full rounded-xl border-gray-200 focus:border-brand focus:ring-brand bg-gray-50">
-                            @error('editingPrice') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
-                            <textarea wire:model="editingDescription" rows="3" class="w-full rounded-xl border-gray-200 focus:border-brand focus:ring-brand bg-gray-50"></textarea>
-                            @error('editingDescription') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Stock Quantity</label>
-                            <input type="number" wire:model="editingStock" class="w-full rounded-xl border-gray-200 focus:border-brand focus:ring-brand bg-gray-50">
-                            @error('editingStock') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-100">
-                        <button wire:click="deleteProduct" 
-                                onclick="confirm('Are you sure you want to delete this product?') || event.stopImmediatePropagation()"
-                                class="px-6 py-2 rounded-full border border-red-200 text-red-600 font-semibold hover:bg-red-50 transition-colors">
-                            Delete Product
-                        </button>
-                        
-                        <div class="flex gap-3">
-                            <button wire:click="cancelEdit" class="px-6 py-2 rounded-full border border-gray-200 text-gray-600 font-semibold hover:bg-gray-50 transition-colors">
-                                Cancel
-                            </button>
-                            <button wire:click="saveProduct" class="px-8 py-2 rounded-full bg-brand text-white font-bold shadow-md hover:shadow-lg hover:bg-opacity-90 transition-all transform hover:-translate-y-0.5">
-                                Save Changes
+            <!-- Editor Section -->
+            @if($activeTab === 'inventory')
+                @if($editingProductId)
+                    <!-- Product Editor -->
+                    <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8 transform transition-all duration-300">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-bold text-gray-800 text-lg">Update / Delete Product</h3>
+                            <button wire:click="cancelEdit" class="text-gray-400 hover:text-gray-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
                         </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Product Name</label>
+                                <input type="text" wire:model="editingName" class="w-full rounded-xl border-gray-200 focus:border-brand focus:ring-brand bg-gray-50">
+                                @error('editingName') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Price (LKR)</label>
+                                <input type="number" step="0.01" wire:model="editingPrice" class="w-full rounded-xl border-gray-200 focus:border-brand focus:ring-brand bg-gray-50">
+                                @error('editingPrice') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                                <textarea wire:model="editingDescription" rows="3" class="w-full rounded-xl border-gray-200 focus:border-brand focus:ring-brand bg-gray-50"></textarea>
+                                @error('editingDescription') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Stock Quantity</label>
+                                <input type="number" wire:model="editingStock" class="w-full rounded-xl border-gray-200 focus:border-brand focus:ring-brand bg-gray-50">
+                                @error('editingStock') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-100">
+                            <button wire:click="deleteProduct" 
+                                    onclick="confirm('Are you sure you want to delete this product?') || event.stopImmediatePropagation()"
+                                    class="px-6 py-2 rounded-full border border-red-200 text-red-600 font-semibold hover:bg-red-50 transition-colors">
+                                Delete Product
+                            </button>
+                            
+                            <div class="flex gap-3">
+                                <button wire:click="cancelEdit" class="px-6 py-2 rounded-full border border-gray-200 text-gray-600 font-semibold hover:bg-gray-50 transition-colors">
+                                    Cancel
+                                </button>
+                                <button wire:click="saveProduct" class="px-8 py-2 rounded-full bg-brand text-white font-bold shadow-md hover:shadow-lg hover:bg-opacity-90 transition-all transform hover:-translate-y-0.5">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            @elseif($activeTab === 'inventory')
-                 <!-- Placeholder Footer when no product selected -->
-                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8 text-center">
-                    <p class="text-gray-400 italic">Click on a product row above to edit details.</p>
-                </div>
+                @elseif($editingPromotionId)
+                    <!-- Promotion Editor -->
+                    <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8 transform transition-all duration-300">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-bold text-gray-800 text-lg">Update / Delete Promotion</h3>
+                             <button wire:click="cancelEdit" class="text-gray-400 hover:text-gray-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
+                        @include('livewire.partials.promotion-editor')
+                    </div>
+                @elseif($activeTab === 'inventory')
+                     <!-- Placeholder Footer when no product selected -->
+                    <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8 text-center">
+                        <p class="text-gray-400 italic">Click on a row above to edit details.</p>
+                    </div>
+                @endif
             @endif
-
         </div>
     </div>
 
