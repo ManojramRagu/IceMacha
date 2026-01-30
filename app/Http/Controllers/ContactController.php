@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ContactController extends Controller
 {
-    public function submit(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'first_name' => 'required|string|max:255',

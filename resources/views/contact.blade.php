@@ -120,7 +120,7 @@
         const formData = new FormData(form);
         
         // 1. Save to Database
-        fetch('{{ route('contact.submit') }}', {
+        fetch('{{ route('contact.store') }}', {
             method: 'POST',
             body: formData,
             headers: {
