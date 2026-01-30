@@ -129,9 +129,24 @@ class ProductMenu extends Component
         }
     }
 
+    public $quantityInCart = 0;
+
     public function selectProduct($productId)
     {
         $this->selectedProduct = Product::find($productId);
+        
+        // Calculate Quantity currently in cart for this product
+        $this->quantityInCart = 0;
+        if (auth()->check()) {
+            $cart = \App\Models\Cart::where('UserId', auth()->id())->first();
+            if ($cart) {
+                $item = \App\Models\CartItem::where('CartId', $cart->CartId)
+                    ->where('ProductId', $productId) 
+                    ->first();
+                $this->quantityInCart = $item ? $item->Quantity : 0;
+            }
+        }
+
         $this->showModal = true;
     }
 
