@@ -54,7 +54,7 @@
                     <div class="relative">
                         <x-dropdown align="right" width="48">
                             <x-slot name="trigger">
-                                <button class="flex items-center text-sm font-medium text-white hover:text-sand focus:outline-none transition">
+                                <button class="flex items-center text-sm font-medium text-white hover:text-sand focus:outline-none transition group relative">
                                     @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
                                         <img class="size-8 rounded-full object-cover border-2 border-white" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
                                     @else
@@ -62,6 +62,9 @@
                                             {{ substr(Auth::user()->name, 0, 1) }}
                                         </div>
                                     @endif
+                                    <span class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs bg-cocoa text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                        Profile
+                                    </span>
                                 </button>
                             </x-slot>
 
