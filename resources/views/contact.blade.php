@@ -1,16 +1,45 @@
 @extends('layouts.app')
 
 @section('content')
-    <!-- 1. Hero Section -->
-    <div class="relative w-full h-[400px] overflow-hidden">
-        <img src="{{ asset('img/contact/hero.webp') }}" class="absolute inset-0 w-full h-full object-cover">
-         <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-center px-4">
-             <span class="text-brand font-bold uppercase tracking-widest text-sm mb-2 bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm text-sand border border-white/30">Get in Touch</span>
-             <h1 class="text-4xl md:text-6xl text-white font-bold font-display mb-4 drop-shadow-lg">We'd Love to Hear From You</h1>
-             <p class="text-xl text-white/90 max-w-2xl font-light">
-                 Have a question or just want to say hi? We're all ears.
-             </p>
-         </div>
+    {{-- Hero Section --}}
+    <div class="relative h-[400px] overflow-hidden">
+        {{-- Background Image --}}
+        <img src="{{ asset('img/contact/hero.webp') }}" class="absolute inset-0 w-full h-full object-cover" alt="Contact Us">
+        
+        {{-- Gradient Overlay --}}
+        <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-gray-50"></div>
+        
+        {{-- Decorative Top Border --}}
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-brand to-transparent"></div>
+        
+        {{-- Content --}}
+        <div class="relative h-full flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto">
+            {{-- Decorative Line --}}
+            <div class="w-16 h-px bg-brand mb-6"></div>
+            
+            {{-- Badge --}}
+            <span class="text-brand font-bold uppercase tracking-widest text-sm mb-4 bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm border border-white/30">Get in Touch</span>
+            
+            {{-- Main Title --}}
+            <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight leading-tight font-display">
+                We'd Love to Hear From You
+            </h1>
+            
+            {{-- Subtitle --}}
+            <p class="text-lg md:text-xl text-white/90 font-light max-w-2xl leading-relaxed">
+                Have a question or just want to say hi? We're all ears.
+            </p>
+            
+            {{-- Decorative Line --}}
+            <div class="w-16 h-px bg-brand mt-6"></div>
+        </div>
+        
+        {{-- Scroll Indicator --}}
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <svg class="w-6 h-6 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
+        </div>
     </div>
 
     <div class="min-h-screen bg-gray-50 flex py-16 px-4">

@@ -1,7 +1,7 @@
 <div class="min-h-screen bg-gray-50 font-display">
     
     {{-- HERO SECTION --}}
-    <div class="relative h-[60vh] min-h-[500px] overflow-hidden">
+    <div class="relative h-[400px] overflow-hidden">
         {{-- Background Image --}}
         <img src="{{ asset('img/menu/hero.webp') }}" class="absolute inset-0 w-full h-full object-cover" alt="Menu">
         
@@ -17,12 +17,12 @@
             <div class="w-16 h-px bg-brand mb-6"></div>
             
             {{-- Main Title --}}
-            <h1 class="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight leading-tight">
-                Our <span class="text-brand italic font-serif">Curated</span> Menu
+            <h1 class="text-4xl md:text-6xl font-bold text-white mb-4 tracking-tight leading-tight font-display">
+                Our Curated Menu
             </h1>
             
             {{-- Subtitle --}}
-            <p class="text-xl md:text-2xl text-white/90 font-light mb-8 max-w-2xl leading-relaxed">
+            <p class="text-lg md:text-xl text-white/90 font-light mb-8 max-w-2xl leading-relaxed">
                 Handcrafted beverages and artisanal treats, made fresh daily with passion and precision
             </p>
             
