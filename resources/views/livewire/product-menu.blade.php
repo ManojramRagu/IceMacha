@@ -49,21 +49,46 @@
                                  wire:click="selectProduct({{ $product->id }})">
                                 <img src="/{{ $product->image_path }}" 
                                      alt="{{ $product->name }}"
-                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 {{ $product->stock_quantity == 0 ? 'opacity-50 grayscale' : '' }}"
                                      onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text={{ urlencode($product->name) }}';">
                                 <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300"></div>
+                                
+                                @if($product->stock_quantity == 0)
+                                    <div class="absolute inset-0 flex items-center justify-center bg-black/40">
+                                        <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg transform -rotate-12 border border-white/20">
+                                            Out of Stock
+                                        </span>
+                                    </div>
+                                @endif
                             </div>
 
                             {{-- Product Info --}}
                             <div class="p-4 flex flex-col flex-grow">
                                 <h4 class="font-bold text-gray-800 mb-1 truncate text-base group-hover:text-brand transition-colors">{{ $product->name }}</h4>
-                                <div class="flex items-center justify-between mt-auto pt-3">
-                                    <span class="text-brand font-bold">LKR {{ number_format($product->price, 0) }}</span>
-                                    <button wire:click.prevent="addToCart({{ $product->id }})"
-                                            wire:loading.attr="disabled"
-                                            class="bg-gray-100 hover:bg-brand hover:text-white text-gray-600 p-2 rounded-xl transition-colors duration-200">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                                    </button>
+                                
+                                {{-- Low Stock Warning --}}
+                                @if($product->stock_quantity <= 5 && $product->stock_quantity > 0)
+                                    <p class="text-xs font-bold text-orange-500 mb-2 flex items-center">
+                                        <svg class="w-3 H-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                        Only {{ $product->stock_quantity }} remaining!
+                                    </p>
+                                @endif
+
+                                <div class="flex items-center justify-between mt-auto pt-3 gap-2">
+                                    <span class="text-brand font-bold text-sm">LKR {{ number_format($product->price, 0) }}</span>
+                                    
+                                    @if($product->stock_quantity > 0)
+                                        <button wire:click.prevent="addToCart({{ $product->id }}, 'product', 1)"
+                                                wire:loading.attr="disabled"
+                                                class="bg-gray-100 hover:bg-brand hover:text-white text-gray-600 p-2.5 rounded-xl transition-colors duration-200"
+                                                title="Add 1 to Cart">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                        </button>
+                                    @else
+                                        <button disabled class="bg-gray-100 text-gray-400 p-2.5 rounded-xl cursor-not-allowed">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                                        </button>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -94,6 +119,20 @@
                                 <div class="absolute top-4 left-4 bg-brand text-white px-4 py-1.5 rounded-2xl text-sm font-bold shadow-lg z-10">
                                     LKR {{ number_format($promo->price, 0) }}
                                 </div>
+                                
+                                @php
+                                    $isOutOfStock = $promo->products->contains(function($p) {
+                                        return $p->stock_quantity == 0;
+                                    });
+                                @endphp
+
+                                @if($isOutOfStock)
+                                    <div class="absolute inset-0 flex items-center justify-center bg-black/50 z-20"> <!-- Increased z-index to be above price badge/image -->
+                                        <span class="bg-red-500 text-white px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wider shadow-lg transform -rotate-12 border border-white/20">
+                                            Out of Stock
+                                        </span>
+                                    </div>
+                                @endif
 
                                 {{-- Overlay --}}
                                 <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
@@ -116,8 +155,9 @@
 
                                 {{-- Order Button --}}
                                 <button wire:click.prevent="addToCart({{ $promo->id }}, 'bundle')" 
-                                        class="w-full bg-brand text-white font-bold py-3 rounded-2xl hover:bg-brand/90 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-sm tracking-wide">
-                                    ORDER NOW
+                                        @if($isOutOfStock) disabled @endif
+                                        class="w-full font-bold py-3 rounded-2xl transition-all duration-200 text-sm tracking-wide {{ $isOutOfStock ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-brand text-white hover:bg-brand/90 hover:shadow-lg hover:-translate-y-0.5' }}">
+                                    {{ $isOutOfStock ? 'OUT OF STOCK' : 'ORDER NOW' }}
                                 </button>
                             </div>
                         </div>
@@ -142,15 +182,64 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
                         </div>
-                        <div class="p-6 sm:p-8">
+                        <div class="p-6 sm:p-8" x-data="{ 
+                            modalQty: 1, 
+                            stock: {{ $selectedProduct->stock_quantity }},
+                            inCart: {{ $quantityInCart }},
+                            limit: 10,
+                            get maxAllowed() { 
+                                return Math.max(0, Math.min(this.stock, this.limit) - this.inCart);
+                            },
+                            increment() { if(this.modalQty < this.maxAllowed) this.modalQty++ },
+                            decrement() { if(this.modalQty > 1) this.modalQty-- },
+                            validateQty() {
+                                if (this.modalQty > this.maxAllowed) this.modalQty = this.maxAllowed;
+                                if (this.modalQty < 1 && this.maxAllowed > 0) this.modalQty = 1;
+                            }
+                        }" x-init="validateQty()">
                             <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ $selectedProduct->name }}</h3>
                             <p class="text-gray-500 mb-6 leading-relaxed">{{ $selectedProduct->description }}</p>
                             
                             <div class="flex items-center justify-between">
                                 <div class="text-2xl font-bold text-brand">Rs. {{ number_format($selectedProduct->price, 2) }}</div>
-                                <button type="button" wire:click.prevent="addToCart({{ $selectedProduct->id }})" class="inline-flex justify-center rounded-2xl border border-transparent shadow-lg px-8 py-3 bg-brand text-base font-bold text-white hover:bg-opacity-90 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand">
-                                    Add to Cart
-                                </button>
+                                
+                                <div class="flex items-center gap-4">
+                                    {{-- Quantity Stepper --}}
+                                    <template x-if="maxAllowed > 0">
+                                        <div class="flex items-center gap-4">
+                                            <div class="flex items-center bg-gray-100 rounded-xl p-1">
+                                                <button @click="decrement()" class="p-3 text-gray-500 hover:text-brand transition-colors">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                                </button>
+                                                <input type="number" 
+                                                       x-model.number="modalQty" 
+                                                       @input="validateQty()"
+                                                       min="1" 
+                                                       :max="maxAllowed" 
+                                                       class="w-12 text-center text-lg font-bold text-gray-800 bg-transparent border-none focus:ring-0 p-0 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none">
+                                                <button @click="increment()" class="p-3 text-gray-500 hover:text-brand transition-colors" :class="{'opacity-50 cursor-not-allowed': modalQty >= maxAllowed}">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                                </button>
+                                            </div>
+
+                                            <button type="button" wire:click.prevent="addToCart({{ $selectedProduct->id }}, 'product', modalQty)" 
+                                                    class="inline-flex justify-center rounded-2xl border border-transparent shadow-lg px-8 py-3 bg-brand text-base font-bold text-white hover:bg-opacity-90 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand">
+                                                Add to Cart
+                                            </button>
+                                        </div>
+                                    </template>
+                                    
+                                    <template x-if="maxAllowed <= 0">
+                                        <div class="px-6 py-3 bg-red-100 text-red-500 font-bold rounded-2xl cursor-not-allowed border border-red-200">
+                                            <span x-text="inCart >= limit ? 'Max Limit Reached' : 'Out of Stock'"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            
+                            <!-- Helper Text -->
+                            <div class="mt-4 text-right text-xs text-gray-400 font-medium h-4">
+                                <span x-show="inCart > 0" x-text="'You have ' + inCart + ' in cart. Max ' + limit + ' per item.'"></span>
                             </div>
                         </div>
                     </div>
