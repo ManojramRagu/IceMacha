@@ -33,38 +33,7 @@
         </div>
     </div>
 
-    <!-- 2. Shop by Category (New Section) -->
-    <div class="bg-white py-16 px-4">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex justify-between items-end mb-10">
-                <div>
-                    <span class="text-brand font-bold uppercase tracking-wider text-sm">Explore Menu</span>
-                    <h2 class="text-3xl font-bold text-cocoa mt-2">Shop by Category</h2>
-                </div>
-                <a href="{{ route('menu') }}" class="hidden md:inline-flex items-center text-brand font-semibold hover:underline">
-                    View All Menu <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                </a>
-            </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                @foreach($categories as $category)
-                    <a href="{{ route('menu') }}" class="group flex flex-col items-center">
-                        <div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-blush overflow-hidden shadow-sm group-hover:shadow-md transition-all group-hover:scale-105 border-2 border-transparent group-hover:border-brand/20 flex items-center justify-center">
-                             <!-- Using a generic placeholder icon/image logic based on category name -->
-                             <img src="https://ui-avatars.com/api/?name={{ urlencode($category->name) }}&background=3d6b5a&color=fff" 
-                                class="w-full h-full object-cover p-2 rounded-full opacity-90 group-hover:opacity-100 transition-opacity">
-                        </div>
-                        <h3 class="mt-4 font-bold text-cocoa group-hover:text-brand transition-colors text-center">{{ $category->name }}</h3>
-                    </a>
-                @endforeach
-            </div>
-             <div class="mt-8 text-center md:hidden">
-                <a href="{{ route('menu') }}" class="inline-flex items-center text-brand font-semibold hover:underline">
-                    View All Menu <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                </a>
-            </div>
-        </div>
-    </div>
 
     <!-- 3. Promotions Section (Refined) -->
     <div class="bg-blush py-20 px-4 relative overflow-hidden">
