@@ -149,8 +149,94 @@
                     @endif
 
                 @else
-                    <h2 class="text-xl font-bold text-gray-800 mb-6">Orders / Feedback</h2>
-                    <p class="text-gray-500">Orders and feedback management content.</p>
+                    <div class="space-y-8">
+                        <!-- Orders Section Placeholder (Future Implementation) -->
+                        <div class="bg-brand/5 rounded-2xl p-6 border border-brand/10">
+                            <h2 class="text-xl font-bold text-gray-800 mb-2">Active Orders</h2>
+                            <p class="text-gray-500 text-sm">Order management system coming soon. For now, track orders via Stripe Dashboard.</p>
+                        </div>
+
+                        <!-- Feedback Table -->
+                        <div>
+                            <div class="flex items-center justify-between mb-6">
+                                <h2 class="text-xl font-bold text-gray-800">Feedback & Inquiries</h2>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-2xl border border-gray-100">
+                                <table class="w-full text-left text-sm">
+                                    <thead class="bg-gray-50 text-gray-500 font-bold uppercase text-xs">
+                                        <tr>
+                                            <th class="px-6 py-4">Status</th>
+                                            <th class="px-6 py-4">Name</th>
+                                            <th class="px-6 py-4">Subject</th>
+                                            <th class="px-6 py-4">Date</th>
+                                            <th class="px-6 py-4 text-right">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-50">
+                                        @forelse($this->messages as $msg)
+                                            <tr class="hover:bg-gray-50/50 transition-colors">
+                                                <td class="px-6 py-4">
+                                                    @if(!$msg->is_read)
+                                                        <span class="px-2 py-1 rounded-full bg-brand text-white text-[10px] font-bold">NEW</span>
+                                                    @else
+                                                        <span class="text-gray-400 text-xs">Read</span>
+                                                    @endif
+                                                </td>
+                                                <td class="px-6 py-4 font-medium text-gray-900">{{ $msg->name }}</td>
+                                                <td class="px-6 py-4 text-gray-600 truncate max-w-[200px]">{{ $msg->subject }}</td>
+                                                <td class="px-6 py-4 text-gray-400 text-xs">{{ $msg->created_at->diffForHumans() }}</td>
+                                                <td class="px-6 py-4 text-right flex justify-end gap-2">
+                                                    <button wire:click="viewMessage({{ $msg->id }})" class="px-4 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 text-xs font-semibold">View</button>
+                                                    <button wire:click="deleteMessage({{ $msg->id }})" 
+                                                            onclick="confirm('Delete this message?') || event.stopImmediatePropagation()"
+                                                            class="px-4 py-1.5 rounded-full border border-red-100 text-red-500 hover:bg-red-50 text-xs font-semibold">
+                                                        Delete
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="5" class="px-6 py-12 text-center text-gray-400 italic">No feedback messages found.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Message View Modal -->
+                    @if($viewingMessage)
+                        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" wire:click.self="closeMessage">
+                            <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                                <div class="p-8">
+                                    <div class="flex justify-between items-start mb-6">
+                                        <div>
+                                            <h3 class="text-2xl font-bold text-gray-900 mb-1">{{ $viewingMessage->subject }}</h3>
+                                            <div class="flex items-center gap-2 text-sm text-gray-500">
+                                                <span class="font-semibold text-brand">{{ $viewingMessage->name }}</span>
+                                                <span>&lt;{{ $viewingMessage->email }}&gt;</span>
+                                                <span>•</span>
+                                                <span>{{ $viewingMessage->created_at->format('M d, Y h:i A') }}</span>
+                                            </div>
+                                        </div>
+                                        <button wire:click="closeMessage" class="p-2 rounded-full hover:bg-gray-100 text-gray-400">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 rounded-xl p-6 text-gray-700 leading-relaxed whitespace-pre-wrap min-h-[150px]">
+                                        {{ $viewingMessage->message }}
+                                    </div>
+
+                                    <div class="mt-8 flex justify-end">
+                                        <button wire:click="closeMessage" class="px-6 py-2 rounded-full bg-brand text-white font-bold hover:bg-opacity-90">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 @endif
             </div>
 

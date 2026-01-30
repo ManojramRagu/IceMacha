@@ -5,6 +5,10 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\CartItem;
 use App\Models\Order;
+use App\Models\Product;
+use App\Models\Promotion;
+use App\Models\OrderItem;
+use Illuminate\Support\Facades\DB;
 
 class CheckoutPage extends Component
 {
@@ -17,7 +21,7 @@ class CheckoutPage extends Component
     {
         $this->cartItems = CartItem::whereHas('cart', function($q) {
             $q->where('UserId', auth()->id());
-        })->with('product')->get();
+        })->with(['product', 'promotion.products'])->get();
 
         if ($this->cartItems->isEmpty()) {
             return redirect()->route('cart');
@@ -56,19 +60,51 @@ class CheckoutPage extends Component
             ]);
 
             // Migrate Items
+            // Migrate Items & Deduct Stock
             foreach ($this->cartItems as $item) {
-                \App\Models\OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $item->product->id, // Assuming relationship
-                    'quantity' => $item->Quantity,
-                    'price_at_purchase' => $item->product->price
-                ]);
+                if ($item->PromotionId) {
+                    OrderItem::create([
+                        'order_id' => $order->id,
+                        'promotion_id' => $item->PromotionId,
+                        'quantity' => $item->Quantity,
+                        'price_at_purchase' => $item->promotion->price ?? 0
+                    ]);
+                } else {
+                    OrderItem::create([
+                        'order_id' => $order->id,
+                        'product_id' => $item->product->id,
+                        'quantity' => $item->Quantity,
+                        'price_at_purchase' => $item->product->price
+                    ]);
+                }
             }
+            
+            $this->deductStock($order);
 
             // Clear Cart
             CartItem::whereIn('CartItemId', $this->cartItems->pluck('CartItemId'))->delete();
             
             return redirect()->route('order.success', ['orderId' => $order->id]);
+        }
+    }
+
+    protected function deductStock(Order $order)
+    {
+        $order->load('items.promotion.products', 'items.product');
+
+        foreach ($order->items as $item) {
+            if ($item->product_id && $item->product) {
+                // Standard Item
+                $item->product->decrement('stock_quantity', $item->quantity);
+            } elseif ($item->promotion_id && $item->promotion) {
+                // Bundle Item - Deduct for each constituent product
+                foreach ($item->promotion->products as $p) {
+                    $p->decrement('stock_quantity', $item->quantity); 
+                    // Note: If bundle implies multiple of same product, we rely on pivot/logic.
+                    // Current Admin implementation attaches unique products.
+                    // $item->quantity is how many bundles bought.
+                }
+            }
         }
     }
 

@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Promotion;
+use App\Models\ContactMessage;
 
 class AdminDashboard extends Component
 {
@@ -32,6 +33,9 @@ class AdminDashboard extends Component
     // Toast State
     public $showToast = false;
     public $toastMessage = '';
+
+    // Feedback State
+    public $viewingMessage = null;
 
     protected $queryString = [
         'activeTab' => ['except' => 'inventory'],
@@ -303,6 +307,31 @@ class AdminDashboard extends Component
     {
         // Fetch categories where parent matches selectedMain
         return Category::where('parent', $this->selectedMain)->get();
+    }
+
+    public function getMessagesProperty()
+    {
+        return ContactMessage::latest()->get();
+    }
+
+    public function viewMessage($id)
+    {
+        $this->viewingMessage = ContactMessage::find($id);
+        if ($this->viewingMessage) {
+            // $this->viewingMessage->update(['is_read' => true]); // Legacy schema support
+        }
+    }
+
+    public function closeMessage()
+    {
+        $this->viewingMessage = null;
+    }
+
+    public function deleteMessage($id)
+    {
+        ContactMessage::destroy($id);
+        $this->showToast('Message deleted successfully.');
+        $this->viewingMessage = null;
     }
 
     public function render()

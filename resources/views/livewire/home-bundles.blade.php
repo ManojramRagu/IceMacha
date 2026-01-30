@@ -26,6 +26,12 @@
                             <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-md text-brand px-5 py-2 rounded-full text-lg font-bold shadow-lg z-10 border border-brand/10">
                                 LKR {{ number_format($promo->price, 0) }}
                             </div>
+                            
+                            @if($promo->out_of_stock)
+                                <div class="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-20 flex items-center justify-center">
+                                    <span class="bg-red-500 text-white px-6 py-2 rounded-full font-bold shadow-xl transform -rotate-12 border-2 border-white">OUT OF STOCK</span>
+                                </div>
+                            @endif
 
                             {{-- Overlay --}}
                             <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300"></div>
@@ -54,10 +60,14 @@
                             </div>
 
                             {{-- Order Button --}}
+                            {{-- Order Button --}}
                             <button wire:click.prevent="addToCart({{ $promo->id }}, 'bundle')" 
-                                    class="w-full bg-brand text-white font-bold py-4 rounded-xl hover:bg-cocoa shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 text-base tracking-wide flex justify-center items-center group-hover:ring-4 ring-brand/20">
-                                <span>Buy Now</span>
+                                    @if($promo->out_of_stock) disabled @endif
+                                    class="w-full font-bold py-4 rounded-xl shadow-lg transition-all duration-300 text-base tracking-wide flex justify-center items-center group-hover:ring-4 ring-brand/20 {{ $promo->out_of_stock ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-brand text-white hover:bg-cocoa hover:shadow-xl hover:scale-[1.02]' }}">
+                                <span>{{ $promo->out_of_stock ? 'Out of Stock' : 'Buy Now' }}</span>
+                                @if(!$promo->out_of_stock)
                                 <svg class="w-5 h-5 ml-2 -mr-1 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                @endif
                             </button>
                         </div>
                     </div>

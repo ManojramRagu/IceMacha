@@ -57,7 +57,13 @@ class HomeBundles extends Component
     public function render()
     {
         // Fetch promotions here so it's self-contained
-        $promotions = Promotion::with('products')->get();
+        // Fetch promotions and check stock integrity
+        $promotions = Promotion::with('products')->get()->map(function($promo) {
+            $minStock = $promo->products->min('stock_quantity');
+            $promo->out_of_stock = $minStock <= 0;
+            return $promo;
+        });
+        
         return view('livewire.home-bundles', compact('promotions'));
     }
 }
