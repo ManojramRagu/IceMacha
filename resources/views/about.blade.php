@@ -3,7 +3,7 @@
 @section('content')
     <!-- 1. Hero / Header -->
     <div class="relative w-full h-[400px] overflow-hidden">
-        <img src="{{ asset('img/hero/hero.webp') }}" class="absolute inset-0 w-full h-full object-cover">
+        <img src="{{ asset('img/about/hero.webp') }}" class="absolute inset-0 w-full h-full object-cover">
          <div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-center px-4">
              <span class="text-brand font-bold uppercase tracking-widest text-sm mb-2">Since 2024</span>
              <h1 class="text-4xl md:text-6xl text-white font-bold font-display mb-6">Crafting Joyful Moments</h1>
