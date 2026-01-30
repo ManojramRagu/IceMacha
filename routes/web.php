@@ -6,7 +6,8 @@ use App\Livewire\CartPage;
 
 Route::get('/', function () {
     $promotions = \App\Models\Promotion::with('products')->get();
-    return view('home', compact('promotions'));
+    $categories = \App\Models\Category::where('name', '!=', 'Promotions')->get();
+    return view('home', compact('promotions', 'categories'));
 })->name('home');
 
 Route::get('/about', function () {
