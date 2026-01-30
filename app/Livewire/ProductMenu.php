@@ -14,6 +14,8 @@ class ProductMenu extends Component
 
     public function addToCart($productId, $type = 'product', $quantity = 1)
     {
+        $quantity = max(1, intval($quantity)); // Ensure positive integer
+
         if (!auth()->check()) {
             return redirect()->route('login');
         }

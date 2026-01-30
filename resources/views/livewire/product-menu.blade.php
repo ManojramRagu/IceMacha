@@ -63,22 +63,20 @@
                             </div>
 
                             {{-- Product Info --}}
-                            <div class="p-4 flex flex-col flex-grow" x-data="{ qty: 1 }">
+                            <div class="p-4 flex flex-col flex-grow">
                                 <h4 class="font-bold text-gray-800 mb-1 truncate text-base group-hover:text-brand transition-colors">{{ $product->name }}</h4>
                                 <div class="flex items-center justify-between mt-auto pt-3 gap-2">
                                     <span class="text-brand font-bold text-sm">LKR {{ number_format($product->price, 0) }}</span>
                                     
                                     @if($product->stock_quantity > 0)
-                                        <div class="flex items-center bg-gray-100 rounded-lg p-1">
-                                            <input type="number" x-model="qty" min="1" max="{{ $product->stock_quantity }}" class="w-10 bg-transparent text-center text-xs font-bold focus:outline-none p-0 border-none h-6" />
-                                        </div>
-                                        <button wire:click.prevent="addToCart({{ $product->id }}, 'product', qty)"
+                                        <button wire:click.prevent="addToCart({{ $product->id }}, 'product', 1)"
                                                 wire:loading.attr="disabled"
-                                                class="bg-gray-100 hover:bg-brand hover:text-white text-gray-600 p-2 rounded-xl transition-colors duration-200">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                                class="bg-gray-100 hover:bg-brand hover:text-white text-gray-600 p-2.5 rounded-xl transition-colors duration-200"
+                                                title="Add 1 to Cart">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                         </button>
                                     @else
-                                        <button disabled class="bg-gray-100 text-gray-400 p-2 rounded-xl cursor-not-allowed">
+                                        <button disabled class="bg-gray-100 text-gray-400 p-2.5 rounded-xl cursor-not-allowed">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
                                         </button>
                                     @endif
@@ -175,15 +173,41 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
                         </div>
-                        <div class="p-6 sm:p-8">
+                        <div class="p-6 sm:p-8" x-data="{ 
+                            modalQty: 1, 
+                            maxStock: {{ $selectedProduct->stock_quantity }},
+                            increment() { if(this.modalQty < this.maxStock) this.modalQty++ },
+                            decrement() { if(this.modalQty > 1) this.modalQty-- } 
+                        }">
                             <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ $selectedProduct->name }}</h3>
                             <p class="text-gray-500 mb-6 leading-relaxed">{{ $selectedProduct->description }}</p>
                             
                             <div class="flex items-center justify-between">
                                 <div class="text-2xl font-bold text-brand">Rs. {{ number_format($selectedProduct->price, 2) }}</div>
-                                <button type="button" wire:click.prevent="addToCart({{ $selectedProduct->id }})" class="inline-flex justify-center rounded-2xl border border-transparent shadow-lg px-8 py-3 bg-brand text-base font-bold text-white hover:bg-opacity-90 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand">
-                                    Add to Cart
-                                </button>
+                                
+                                <div class="flex items-center gap-4">
+                                    {{-- Quantity Stepper --}}
+                                    @if($selectedProduct->stock_quantity > 0)
+                                        <div class="flex items-center bg-gray-100 rounded-xl p-1">
+                                            <button @click="decrement()" class="p-2 text-gray-500 hover:text-brand transition-colors">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                            </button>
+                                            <span class="w-8 text-center font-bold text-gray-800" x-text="modalQty"></span>
+                                            <button @click="increment()" class="p-2 text-gray-500 hover:text-brand transition-colors" :class="{'opacity-50 cursor-not-allowed': modalQty >= maxStock}">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                            </button>
+                                        </div>
+
+                                        <button type="button" wire:click.prevent="addToCart({{ $selectedProduct->id }}, 'product', modalQty)" 
+                                                class="inline-flex justify-center rounded-2xl border border-transparent shadow-lg px-8 py-3 bg-brand text-base font-bold text-white hover:bg-opacity-90 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand">
+                                            Add to Cart
+                                        </button>
+                                    @else
+                                        <div class="px-6 py-3 bg-gray-100 text-gray-400 font-bold rounded-2xl cursor-not-allowed">
+                                            Out of Stock
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
