@@ -254,9 +254,9 @@
         </div>
     @endif
 
-    {{-- Success Toast --}}
-    <div x-data="{ show: @entangle('showToast') }" 
-         x-effect="if(show) setTimeout(() => $wire.set('showToast', false), 3000)"
+    {{-- Toast Notification --}}
+    <div x-data="{ show: @entangle('showToast'), type: @entangle('toastType') }" 
+         x-effect="if(show) setTimeout(() => $wire.set('showToast', false), 3500)"
          x-show="show" 
          x-transition:enter="transform ease-out duration-300 transition"
          x-transition:enter-start="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
@@ -265,13 +265,46 @@
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"
          class="fixed bottom-6 right-6 z-50">
-        <div class="bg-brand text-white rounded-2xl shadow-2xl px-6 py-4 flex items-center gap-4">
-             <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+        <div :class="{
+                'bg-brand text-white': type === 'success',
+                'bg-white text-orange-600 border-2 border-orange-200': type === 'warning',
+                'bg-white text-red-600 border-2 border-red-200': type === 'error'
+             }" 
+             class="rounded-2xl shadow-2xl px-6 py-4 flex items-center gap-4">
+             
+             {{-- Icon --}}
+             <div :class="{
+                     'bg-white/20': type === 'success',
+                     'bg-orange-100': type === 'warning',
+                     'bg-red-100': type === 'error'
+                  }" 
+                  class="w-8 h-8 rounded-full flex items-center justify-center shrink-0">
+                  
+                  {{-- Success Icon --}}
+                  <svg x-show="type === 'success'" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  
+                  {{-- Warning Icon --}}
+                  <svg x-show="type === 'warning'" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  
+                  {{-- Error Icon --}}
+                  <svg x-show="type === 'error'" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
              </div>
+             
+             {{-- Message --}}
              <div>
-                 <p class="font-bold text-sm">Success</p>
-                 <p class="text-white/80 text-xs">{{ $toastMessage }}</p>
+                 <p class="font-bold text-sm" x-text="type === 'success' ? 'Success' : (type === 'warning' ? 'Warning' : 'Error')"></p>
+                 <p :class="{
+                        'text-white/80': type === 'success',
+                        'text-orange-500': type === 'warning',
+                        'text-red-500': type === 'error'
+                     }" 
+                    class="text-xs">{{ $toastMessage }}</p>
              </div>
         </div>
     </div>
