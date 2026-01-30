@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Order;
 use App\Models\Promotion;
 use App\Models\ContactMessage;
 
@@ -307,6 +308,11 @@ class AdminDashboard extends Component
     {
         // Fetch categories where parent matches selectedMain
         return Category::where('parent', $this->selectedMain)->get();
+    }
+
+    public function getOrdersProperty()
+    {
+        return Order::with('user')->latest()->take(50)->get();
     }
 
     public function getMessagesProperty()

@@ -150,10 +150,45 @@
 
                 @else
                     <div class="space-y-8">
-                        <!-- Orders Section Placeholder (Future Implementation) -->
-                        <div class="bg-brand/5 rounded-2xl p-6 border border-brand/10">
-                            <h2 class="text-xl font-bold text-gray-800 mb-2">Active Orders</h2>
-                            <p class="text-gray-500 text-sm">Order management system coming soon. For now, track orders via Stripe Dashboard.</p>
+                    <div class="space-y-8">
+                        <!-- Orders Table -->
+                        <div>
+                            <div class="flex items-center justify-between mb-6">
+                                <h2 class="text-xl font-bold text-gray-800">Orders</h2>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-2xl border border-gray-100 mb-8">
+                                <table class="w-full text-left text-sm">
+                                    <thead class="bg-gray-50 text-gray-500 font-bold uppercase text-xs">
+                                        <tr>
+                                            <th class="px-6 py-4">#</th>
+                                            <th class="px-6 py-4">User</th>
+                                            <th class="px-6 py-4">Total</th>
+                                            <th class="px-6 py-4">Status</th>
+                                            <th class="px-6 py-4">Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-50">
+                                        @forelse($this->orders as $order)
+                                            <tr class="hover:bg-gray-50/50 transition-colors">
+                                                <td class="px-6 py-4 font-mono text-xs">#{{ $order->id }}</td>
+                                                <td class="px-6 py-4 font-medium text-gray-900">{{ $order->user->name ?? 'Guest' }}</td>
+                                                <td class="px-6 py-4 font-bold text-brand">LKR {{ number_format($order->total_amount, 2) }}</td>
+                                                <td class="px-6 py-4">
+                                                    <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase bg-yellow-100 text-yellow-700">
+                                                        {{ $order->status }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 text-gray-400 text-xs">{{ $order->created_at->format('M d, Y') }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="5" class="px-6 py-12 text-center text-gray-400 italic">No active orders found.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
 
                         <!-- Feedback Table -->
@@ -185,10 +220,10 @@
                                                 </td>
                                                 <td class="px-6 py-4 font-medium text-gray-900">{{ $msg->name }}</td>
                                                 <td class="px-6 py-4 text-gray-600 truncate max-w-[200px]">{{ $msg->subject }}</td>
-                                                <td class="px-6 py-4 text-gray-400 text-xs">{{ $msg->created_at->diffForHumans() }}</td>
+                                                <td class="px-6 py-4 text-gray-400 text-xs">{{ optional($msg->CreatedAt)->diffForHumans() ?? 'N/A' }}</td>
                                                 <td class="px-6 py-4 text-right flex justify-end gap-2">
-                                                    <button wire:click="viewMessage({{ $msg->id }})" class="px-4 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 text-xs font-semibold">View</button>
-                                                    <button wire:click="deleteMessage({{ $msg->id }})" 
+                                                    <button wire:click="viewMessage({{ $msg->MessageId }})" class="px-4 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 text-xs font-semibold">View</button>
+                                                    <button wire:click="deleteMessage({{ $msg->MessageId }})" 
                                                             onclick="confirm('Delete this message?') || event.stopImmediatePropagation()"
                                                             class="px-4 py-1.5 rounded-full border border-red-100 text-red-500 hover:bg-red-50 text-xs font-semibold">
                                                         Delete
@@ -218,7 +253,7 @@
                                                 <span class="font-semibold text-brand">{{ $viewingMessage->name }}</span>
                                                 <span>&lt;{{ $viewingMessage->email }}&gt;</span>
                                                 <span>•</span>
-                                                <span>{{ $viewingMessage->created_at->format('M d, Y h:i A') }}</span>
+                                                <span>{{ optional($viewingMessage->CreatedAt)->format('M d, Y h:i A') ?? 'N/A' }}</span>
                                             </div>
                                         </div>
                                         <button wire:click="closeMessage" class="p-2 rounded-full hover:bg-gray-100 text-gray-400">
