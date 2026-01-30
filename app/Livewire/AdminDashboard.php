@@ -3,6 +3,9 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Order;
@@ -11,6 +14,8 @@ use App\Models\ContactMessage;
 
 class AdminDashboard extends Component
 {
+    use WithFileUploads;
+
     public $selectedMain = 'Beverages';
     public $selectedSub = '';
     public $activeTab = 'inventory';
@@ -24,6 +29,9 @@ class AdminDashboard extends Component
     public $editingStock = '';
     public $editingDescription = '';
     
+    // Create/Upload State
+    public $newImage;
+
     // Promotion State
     public $editingPromotionId = null;
     public $bundleItems = []; // Array of ['product_id' => int, 'name' => string, 'price' => float, 'quantity' => int] (Quantity is bundle count)
@@ -61,6 +69,7 @@ class AdminDashboard extends Component
     {
         $this->selectedMain = $main;
         $this->selectedSub = ''; // Reset sub when main changes
+        $this->mode = 'list';
         $this->cancelEdit();
     }
 
@@ -153,6 +162,69 @@ class AdminDashboard extends Component
         $original = $this->getOriginalTotalProperty();
         $discount = (float)$this->discountPercent;
         return max(0, $original - ($original * ($discount / 100)));
+    }
+
+
+    public function storeProduct()
+    {
+        $this->validate([
+            'editingName' => 'required|string|max:255',
+            'editingPrice' => 'required|numeric|min:0',
+            'editingStock' => 'required|integer|min:0',
+            'editingDescription' => 'nullable|string',
+            'newImage' => 'required|image|max:2048', // 2MB Max
+            'selectedMain' => 'required',
+            'selectedSub' => 'required_unless:selectedMain,Promotions'
+        ]);
+
+        $imagePath = null;
+        if ($this->newImage) {
+            // Sanitize filename
+            $filename = Str::slug($this->editingName) . '.' . $this->newImage->getClientOriginalExtension();
+            
+            // Construct Path: products/{Main}/{Sub}/
+            $path = 'products/' . $this->selectedMain . '/' . ($this->selectedSub ?? 'General');
+            
+            // Store file
+            // Storage::disk('public')->putFileAs($path, $this->newImage, $filename);
+             $this->newImage->storeAs($path, $filename, 'public'); 
+
+            // DB Path format: storage/products/{Main}/{Sub}/{filename}
+            $imagePath = 'storage/' . $path . '/' . $filename;
+            
+            // Note: If using standard asset('storage/...') helper, the DB usually stores 'products/...'. 
+            // But user requested full access path logic. If asset() is used on this value directly, 
+            // it naturally works if relative to public root. 
+            // Standard Laravel: public/storage -> storage/app/public.
+            // If we store 'storage/products/...', then asset('storage/products/...') would allow double storage if not careful?
+            // Actually, if we store 'products/...' in public disk, it lands in storage/app/public/products/...
+            // The symlink maps public/storage to storage/app/public.
+            // So to access it via web, we need 'storage/products/...'.
+            // If the DB stores 'storage/products/...', then `asset($product->ImagePath)` results in `http://.../storage/products/...` which is correct.
+        }
+
+        // Find Category ID
+        $category = Category::where('name', $this->selectedSub)->where('parent', $this->selectedMain)->first();
+        // Fallback or error if not found? logic implies sub exists.
+        
+        if (!$category) {
+            // Should not happen with UI logic, but safety first
+             $this->showToast('Category Error!', 'error');
+             return;
+        }
+
+        Product::create([
+            'name' => $this->editingName,
+            'price' => $this->editingPrice,
+            'stock_quantity' => $this->editingStock,
+            'description' => $this->editingDescription,
+            'category_id' => $category->id,
+            'image_path' => $imagePath ?? 'img/placeholder.png' // Default
+        ]);
+
+        $this->showToast('Product created successfully!');
+        $this->cancelEdit();
+        $this->mode = 'list';
     }
 
     public function saveProduct()
@@ -273,6 +345,8 @@ class AdminDashboard extends Component
         $this->discountPercent = 0;
         $this->productSearch = '';
         $this->searchResults = [];
+        $this->searchResults = [];
+        $this->newImage = null; // Clear upload
     }
 
     public function getProductsProperty()

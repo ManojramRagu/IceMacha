@@ -53,8 +53,13 @@
                 <!-- Card 3: Quick Actions -->
                 <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-6">
                     <h3 class="font-bold text-gray-900 mb-4 text-base">Quick actions</h3>
+                    @php
+                        $canCreate = $selectedMain === 'Promotions' || !empty($selectedSub);
+                    @endphp
                     <button wire:click="setMode('create')" 
-                        class="w-full py-3 bg-brand text-white font-bold rounded-2xl shadow-lg hover:shadow-xl hover:bg-opacity-90 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 text-sm">
+                        @if(!$canCreate) disabled @endif
+                        class="w-full py-3 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 text-sm
+                        {{ $canCreate ? 'bg-brand text-white shadow-lg hover:shadow-xl hover:bg-opacity-90 transform hover:-translate-y-0.5' : 'bg-gray-200 text-gray-400 cursor-not-allowed' }}">
                         <span>+ Add Product</span>
                     </button>
                 </div>
@@ -91,9 +96,76 @@
                                 @include('livewire.partials.promotion-editor')
                             </div>
                         @else
-                            <div class="p-6 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 text-center flex-grow flex flex-col justify-center items-center">
-                                <p class="text-gray-500 mb-2">Create Product Form Placeholder</p>
-                                <button wire:click="setMode('list')" class="text-brand font-bold hover:underline">Cancel</button>
+                            <div class="h-full flex flex-col">
+                                <h3 class="font-bold text-gray-800 text-lg mb-6">Create New Product</h3>
+                                
+                                <div class="flex-grow overflow-y-auto pr-2 space-y-6">
+                                    <div class="space-y-4">
+                                        <!-- Image Upload -->
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Product Image</label>
+                                            <div class="flex items-center gap-4">
+                                                <div class="w-24 h-24 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden">
+                                                    @if ($newImage)
+                                                        <img src="{{ $newImage->temporaryUrl() }}" class="w-full h-full object-cover">
+                                                    @else
+                                                        <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                    @endif
+                                                </div>
+                                                <div class="flex-grow">
+                                                    <input type="file" wire:model.live="newImage" id="productImage" class="hidden">
+                                                    <label for="productImage" class="cursor-pointer inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-xl font-semibold text-xs text-gray-600 hover:bg-gray-50 transition-colors">
+                                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                                        Choose File
+                                                    </label>
+                                                    <p class="mt-2 text-[10px] text-gray-400">PNG, JPG up to 2MB</p>
+                                                </div>
+                                            </div>
+                                            @error('newImage') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                        </div>
+
+                                        <!-- Fields -->
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Name</label>
+                                                <input type="text" wire:model="editingName" class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all">
+                                                @error('editingName') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Price (LKR)</label>
+                                                <input type="number" wire:model="editingPrice" class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all">
+                                                @error('editingPrice') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                            </div>
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Stock</label>
+                                                <input type="number" wire:model="editingStock" class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all">
+                                                @error('editingStock') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Category</label>
+                                                <div class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 text-gray-500">
+                                                    {{ $selectedMain }} / {{ $selectedSub ?: 'Select Sub...' }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Description</label>
+                                            <textarea wire:model="editingDescription" rows="3" class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all resize-none"></textarea>
+                                            @error('editingDescription') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-8 pt-6 border-t border-gray-100 flex justify-end gap-3">
+                                    <button wire:click="setMode('list')" class="px-6 py-2 rounded-xl text-gray-500 hover:bg-gray-50 font-bold transition-colors">Cancel</button>
+                                    <button wire:click="storeProduct" class="px-8 py-2 rounded-xl bg-brand text-white font-bold shadow-lg hover:shadow-xl hover:bg-opacity-90 transition-all transform hover:-translate-y-0.5">
+                                        Create Product
+                                    </button>
+                                </div>
                             </div>
                         @endif
                     @else
