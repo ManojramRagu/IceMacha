@@ -10,7 +10,27 @@ class CartPage extends Component
     public function increment($itemId)
     {
         $item = CartItem::find($itemId);
-        $item->increment('Quantity');
+        
+        // Check if it's a product or promotion
+        if ($item->product) {
+            $stock = $item->product->stock_quantity;
+            
+            // Check if we can increase (stock available)
+            if ($item->Quantity < $stock) {
+                $item->increment('Quantity');
+                $this->dispatch('cartUpdated');
+            } else {
+                // Send toast notification when stock limit reached
+                $this->dispatch('toast', 
+                    type: 'warning', 
+                    message: 'Cannot add more. Only ' . $stock . ' in stock!'
+                );
+            }
+        } else {
+            // For promotions/bundles, increment without stock check (or add bundle logic if needed)
+            $item->increment('Quantity');
+            $this->dispatch('cartUpdated');
+        }
     }
 
     // Decreases quantity but ensures it never goes below 1
@@ -19,6 +39,7 @@ class CartPage extends Component
         $item = CartItem::find($itemId);
         if ($item->Quantity > 1) {
             $item->decrement('Quantity');
+            $this->dispatch('cartUpdated');
         }
     }
 
