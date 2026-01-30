@@ -1,245 +1,251 @@
-<div class="min-h-screen bg-blush font-display">
-    {{-- Main Container --}}
-    <div class="max-w-7xl mx-auto px-4 py-12" x-data="{ activeCategory: 'all' }">
-        <h2 class="text-4xl md:text-5xl font-bold text-center text-brand mb-12 tracking-tight">Menu</h2>
+<div class="min-h-screen bg-gray-50 font-display">
+    
+    {{-- HERO SECTION --}}
+    <div class="relative h-[60vh] min-h-[500px] overflow-hidden">
+        {{-- Background Image --}}
+        <img src="{{ asset('img/menu/hero.webp') }}" class="absolute inset-0 w-full h-full object-cover" alt="Menu">
+        
+        {{-- Gradient Overlay --}}
+        <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-gray-50"></div>
+        
+        {{-- Decorative Top Border --}}
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-brand to-transparent"></div>
+        
+        {{-- Content --}}
+        <div class="relative h-full flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto">
+            {{-- Decorative Line --}}
+            <div class="w-16 h-px bg-brand mb-6"></div>
+            
+            {{-- Main Title --}}
+            <h1 class="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight leading-tight">
+                Our <span class="text-brand italic font-serif">Curated</span> Menu
+            </h1>
+            
+            {{-- Subtitle --}}
+            <p class="text-xl md:text-2xl text-white/90 font-light mb-8 max-w-2xl leading-relaxed">
+                Handcrafted beverages and artisanal treats, made fresh daily with passion and precision
+            </p>
+            
+            {{-- Decorative Line --}}
+            <div class="w-16 h-px bg-brand"></div>
+        </div>
+        
+        {{-- Scroll Indicator --}}
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <svg class="w-6 h-6 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
+        </div>
+    </div>
 
-        {{-- 1. SPECIAL BUNDLES SECTION (Top Priority) --}}
+    {{-- Main Container --}}
+    <div class="max-w-7xl mx-auto px-4 py-8 -mt-20 relative z-10" x-data="{ activeCategory: 'all' }">
 
         @php
             $productsByCategory = $products->where('category.name', '!=', 'Promotions')->groupBy('category.name');
         @endphp
 
-        {{-- 2. CATEGORY FILTER BAR --}}
-        <div class="sticky top-4 z-30 bg-blush/95 backdrop-blur-sm py-4 mb-10 -mx-4 px-4 flex justify-center">
-            <div class="flex flex-wrap justify-center gap-3 p-1.5 bg-white/50 rounded-full shadow-sm border border-white/60">
+        {{-- 1. STICKY CATEGORY FILTER --}}
+        <div class="sticky top-24 z-30 mb-12 flex justify-center pointer-events-none"> <!-- precise top spacing -->
+            <div class="pointer-events-auto bg-white/80 backdrop-blur-md px-2 py-2 rounded-full shadow-lg border border-white/40 flex flex-wrap justify-center gap-1.5 transition-all duration-300 hover:bg-white/95">
                 <button @click="activeCategory = 'all'"
-                        :class="activeCategory === 'all' ? 'bg-brand text-white shadow-md' : 'text-gray-600 hover:bg-white hover:text-brand'"
-                        class="px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm">
+                        :class="activeCategory === 'all' ? 'bg-brand text-white shadow-md' : 'text-gray-500 hover:bg-gray-100 hover:text-brand'"
+                        class="px-6 py-2.5 rounded-full font-bold transition-all duration-300 text-sm">
                     All
                 </button>
                 @foreach($productsByCategory->keys() as $catName)
                     <button @click="activeCategory = '{{ $catName }}'"
-                            :class="activeCategory === '{{ $catName }}' ? 'bg-brand text-white shadow-md' : 'text-gray-600 hover:bg-white hover:text-brand'"
-                            class="px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm">
+                            :class="activeCategory === '{{ $catName }}' ? 'bg-brand text-white shadow-md' : 'text-gray-500 hover:bg-gray-100 hover:text-brand'"
+                            class="px-6 py-2.5 rounded-full font-bold transition-all duration-300 text-sm">
                         {{ $catName }}
                     </button>
                 @endforeach
             </div>
         </div>
 
-        {{-- 3. PRODUCT GRID BY CATEGORY --}}
+        {{-- 2. PRODUCT GRID --}}
         @foreach($productsByCategory as $categoryName => $categoryProducts)
-            <div class="mb-16 scroll-mt-28" 
+            <div class="mb-20 scroll-mt-40" 
                  x-show="activeCategory === 'all' || activeCategory === '{{ $categoryName }}'" 
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 translate-y-4"
+                 x-transition:enter="transition ease-out duration-500"
+                 x-transition:enter-start="opacity-0 translate-y-8"
                  x-transition:enter-end="opacity-100 translate-y-0">
                 
-                <div class="flex items-center justify-between mb-8">
-                    <h3 class="text-2xl font-bold text-cocoa">{{ $categoryName }}</h3>
-                    <div class="h-px flex-grow ml-6 bg-cocoa/10"></div>
+                <div class="flex items-end gap-6 mb-8">
+                    <h3 class="text-3xl font-bold text-cocoa leading-none">{{ $categoryName }}</h3>
+                    <div class="h-px flex-grow bg-gradient-to-r from-cocoa/20 to-transparent mb-1.5"></div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                     @foreach($categoryProducts as $product)
-                        <div class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group relative border border-sand/20 flex flex-col overflow-hidden">
+                        <div class="group bg-white rounded-[2rem] shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer overflow-hidden flex flex-col items-center text-center relative hover:-translate-y-2"
+                             wire:click="selectProduct({{ $product->id }})">
                             
-                            {{-- Product Image --}}
-                            <div class="relative h-48 bg-gray-50 overflow-hidden cursor-pointer"
-                                 wire:click="selectProduct({{ $product->id }})">
+                            {{-- Image Area --}}
+                            <div class="relative w-full aspect-[4/5] overflow-hidden bg-gray-100">
                                 <img src="/{{ $product->image_path }}" 
                                      alt="{{ $product->name }}"
-                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 {{ $product->stock_quantity == 0 ? 'opacity-50 grayscale' : '' }}"
-                                     onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text={{ urlencode($product->name) }}';">
-                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300"></div>
+                                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 {{ $product->stock_quantity == 0 ? 'grayscale opacity-70' : '' }}"
+                                     onerror="this.onerror=null; this.src='https://via.placeholder.com/400x500?text={{ urlencode($product->name) }}';">
                                 
+                                {{-- Gradient Overlay --}}
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                                {{-- Badges --}}
                                 @if($product->stock_quantity == 0)
-                                    <div class="absolute inset-0 flex items-center justify-center bg-black/40">
-                                        <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg transform -rotate-12 border border-white/20">
+                                    <div class="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+                                        <span class="px-4 py-2 bg-white/90 text-red-600 rounded-xl font-bold text-sm tracking-wider uppercase shadow-xl">
                                             Out of Stock
+                                        </span>
+                                    </div>
+                                @elseif($product->stock_quantity <= 5)
+                                    <div class="absolute top-4 right-4 animate-pulse">
+                                        <span class="px-3 py-1 bg-orange-500 text-white rounded-lg text-xs font-bold shadow-lg">
+                                            Low Stock
                                         </span>
                                     </div>
                                 @endif
                             </div>
 
-                            {{-- Product Info --}}
-                            <div class="p-4 flex flex-col flex-grow">
-                                <h4 class="font-bold text-gray-800 mb-1 truncate text-base group-hover:text-brand transition-colors">{{ $product->name }}</h4>
-                                
-                                {{-- Low Stock Warning --}}
-                                @if($product->stock_quantity <= 5 && $product->stock_quantity > 0)
-                                    <p class="text-xs font-bold text-orange-500 mb-2 flex items-center">
-                                        <svg class="w-3 H-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                        Only {{ $product->stock_quantity }} remaining!
-                                    </p>
-                                @endif
-
-                                <div class="flex items-center justify-between mt-auto pt-3 gap-2">
-                                    <span class="text-brand font-bold text-sm">LKR {{ number_format($product->price, 0) }}</span>
-                                    
-                                    @if($product->stock_quantity > 0)
-                                        <button wire:click.prevent="addToCart({{ $product->id }}, 'product', 1)"
-                                                wire:loading.attr="disabled"
-                                                class="bg-gray-100 hover:bg-brand hover:text-white text-gray-600 p-2.5 rounded-xl transition-colors duration-200"
-                                                title="Add 1 to Cart">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                        </button>
-                                    @else
-                                        <button disabled class="bg-gray-100 text-gray-400 p-2.5 rounded-xl cursor-not-allowed">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
-                                        </button>
-                                    @endif
+                            {{-- Content --}}
+                            <div class="p-6 w-full flex flex-col flex-grow">
+                                <h4 class="text-xl font-bold text-cocoa mb-2 leading-tight group-hover:text-brand transition-colors">{{ $product->name }}</h4>
+                                <div class="mt-auto pt-2">
+                                     <span class="text-brand font-bold text-lg">LKR {{ number_format($product->price, 0) }}</span>
                                 </div>
                             </div>
+
+                            {{-- Quick Add Button (Visible on Hover/Desktop) --}}
+                            @if($product->stock_quantity > 0)
+                                <button wire:click.stop="addToCart({{ $product->id }}, 'product', 1)"
+                                        class="absolute bottom-6 right-6 w-10 h-10 bg-white text-brand rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-brand hover:text-white z-20"
+                                        title="Quick Add">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                            @endif
                         </div>
                     @endforeach
                 </div>
             </div>
         @endforeach
 
-        {{-- SPECIAL BUNDLES SECTION (Moved to Bottom) --}}
+        {{-- 3. SPECIAL OFFERS (DISTINCT SECTION) --}}
         @if($promotions->isNotEmpty())
-            <div class="mt-16 mb-8 pt-10 border-t border-brand/10">
-                <div class="flex items-center justify-between mb-8">
-                    <h3 class="text-3xl font-bold text-cocoa">Special Bundles</h3>
-                    <div class="h-1 flex-grow ml-8 bg-brand/10 rounded-full"></div>
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    @foreach($promotions as $promo)
-                        <div class="bg-white rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group flex flex-col h-full border border-sand/30">
-                            {{-- Image Container --}}
-                            <div class="relative h-56 overflow-hidden">
-                                <img src="/{{ $promo->image_path }}" 
-                                     alt="{{ $promo->name }}" 
-                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                     onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300?text=Bundle';">
-                                     
-                                {{-- Price Badge (Top-Left) --}}
-                                <div class="absolute top-4 left-4 bg-brand text-white px-4 py-1.5 rounded-2xl text-sm font-bold shadow-lg z-10">
-                                    LKR {{ number_format($promo->price, 0) }}
-                                </div>
-                                
-                                @php
-                                    $isOutOfStock = $promo->products->contains(function($p) {
-                                        return $p->stock_quantity == 0;
-                                    });
-                                @endphp
-
-                                @if($isOutOfStock)
-                                    <div class="absolute inset-0 flex items-center justify-center bg-black/50 z-20"> <!-- Increased z-index to be above price badge/image -->
-                                        <span class="bg-red-500 text-white px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wider shadow-lg transform -rotate-12 border border-white/20">
-                                            Out of Stock
-                                        </span>
+            <div class="mt-24 relative">
+                <div class="absolute inset-0 bg-cocoa/5 -mx-4 md:-mx-8 rounded-[3rem] transform -skew-y-1"></div>
+                <div class="relative py-16 px-4">
+                    <div class="text-center mb-12">
+                        <span class="text-brand font-bold uppercase tracking-widest text-xs mb-2 block">Limited Time</span>
+                        <h3 class="text-3xl md:text-4xl font-bold text-cocoa">Special Bundles & Offers</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        @foreach($promotions as $promo)
+                            <div class="group bg-white rounded-[2rem] p-4 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col border border-white/50">
+                                <div class="relative h-56 rounded-[1.5rem] overflow-hidden mb-6 filter group-hover:brightness-105 transition-all">
+                                    <img src="/{{ $promo->image_path }}" 
+                                         class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                                         onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300?text=Bundle';">
+                                    <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-brand px-4 py-1.5 rounded-xl text-sm font-bold shadow-sm">
+                                        LKR {{ number_format($promo->price, 0) }}
                                     </div>
-                                @endif
-
-                                {{-- Overlay --}}
-                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
-                            </div>
-
-                            {{-- Content --}}
-                            <div class="p-6 flex flex-col flex-grow relative">
-                                <h4 class="text-xl font-bold text-cocoa mb-2 leading-tight">{{ $promo->name }}</h4>
-                                <p class="text-gray-500 mb-4 text-xs line-clamp-2">{{ $promo->description }}</p>
-                                
-                                {{-- Products List --}}
-                                <div class="space-y-1.5 mb-6 flex-grow overflow-y-auto max-h-24 scrollbar-thin scrollbar-thumb-brand/20">
-                                    @foreach($promo->products as $item)
-                                        <div class="flex items-start text-xs text-gray-600">
-                                            <svg class="w-3.5 h-3.5 mr-2 text-brand flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                            <span class="leading-snug">{{ $item->name }}</span>
-                                        </div>
-                                    @endforeach
                                 </div>
-
-                                {{-- Order Button --}}
-                                <button wire:click.prevent="addToCart({{ $promo->id }}, 'bundle')" 
-                                        @if($isOutOfStock) disabled @endif
-                                        class="w-full font-bold py-3 rounded-2xl transition-all duration-200 text-sm tracking-wide {{ $isOutOfStock ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-brand text-white hover:bg-brand/90 hover:shadow-lg hover:-translate-y-0.5' }}">
-                                    {{ $isOutOfStock ? 'OUT OF STOCK' : 'ORDER NOW' }}
-                                </button>
+                                <div class="px-2 pb-4 flex flex-col flex-grow">
+                                    <h4 class="text-2xl font-bold text-cocoa mb-2">{{ $promo->name }}</h4>
+                                    <p class="text-gray-500 text-sm mb-6 line-clamp-2 leading-relaxed">{{ $promo->description }}</p>
+                                    
+                                    <button wire:click.prevent="addToCart({{ $promo->id }}, 'bundle')" 
+                                            class="mt-auto w-full py-3.5 rounded-2xl bg-cocoa text-white font-bold hover:bg-brand transition-colors shadow-lg hover:shadow-xl hover:-translate-y-1 transform duration-200">
+                                        Order Bundle
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
             </div>
         @endif
     </div>
 
-    {{-- Product Detail Modal --}}
+    {{-- 4. PRODUCT DETAIL MODAL --}}
     @if($showModal && $selectedProduct)
-        <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 z-[60] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-                <div class="fixed inset-0 bg-black/60 transition-opacity backdrop-blur-sm" aria-hidden="true" wire:click="closeModal"></div>
+                <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" aria-hidden="true" wire:click="closeModal"></div>
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
                 
-                <div class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-white/20">
-                    <div class="bg-white">
-                        <div class="relative h-64 sm:h-72">
+                <div class="inline-block align-bottom bg-white rounded-[2.5rem] text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full border border-white/20">
+                    <div class="flex flex-col md:flex-row h-full md:h-[600px]">
+                        
+                        {{-- Modal Image --}}
+                        <div class="md:w-1/2 h-64 md:h-full relative bg-gray-100">
                             <img src="/{{ $selectedProduct->image_path }}" class="w-full h-full object-cover">
-                            <button wire:click="closeModal" class="absolute top-4 right-4 bg-black/20 hover:bg-black/40 text-white rounded-full p-1 transition-colors">
+                            <button wire:click="closeModal" class="absolute top-6 left-6 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white rounded-full p-2 transition-colors">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
                         </div>
-                        <div class="p-6 sm:p-8" x-data="{ 
-                            modalQty: 1, 
-                            stock: {{ $selectedProduct->stock_quantity }},
-                            inCart: {{ $quantityInCart }},
-                            limit: 10,
-                            get maxAllowed() { 
-                                return Math.max(0, Math.min(this.stock, this.limit) - this.inCart);
-                            },
-                            increment() { if(this.modalQty < this.maxAllowed) this.modalQty++ },
-                            decrement() { if(this.modalQty > 1) this.modalQty-- },
-                            validateQty() {
-                                if (this.modalQty > this.maxAllowed) this.modalQty = this.maxAllowed;
-                                if (this.modalQty < 1 && this.maxAllowed > 0) this.modalQty = 1;
-                            }
-                        }" x-init="validateQty()">
-                            <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ $selectedProduct->name }}</h3>
-                            <p class="text-gray-500 mb-6 leading-relaxed">{{ $selectedProduct->description }}</p>
-                            
-                            <div class="flex items-center justify-between">
-                                <div class="text-2xl font-bold text-brand">Rs. {{ number_format($selectedProduct->price, 2) }}</div>
+
+                        {{-- Modal Content --}}
+                        <div class="md:w-1/2 p-10 md:p-12 flex flex-col justify-center bg-white">
+                            <div x-data="{ 
+                                modalQty: 1, 
+                                stock: {{ $selectedProduct->stock_quantity }},
+                                inCart: {{ $quantityInCart }},
+                                limit: 10,
+                                get maxAllowed() { 
+                                    return Math.max(0, Math.min(this.stock, this.limit) - this.inCart);
+                                },
+                                increment() { if(this.modalQty < this.maxAllowed) this.modalQty++ },
+                                decrement() { if(this.modalQty > 1) this.modalQty-- },
+                                validateQty() {
+                                    if (this.modalQty > this.maxAllowed) this.modalQty = this.maxAllowed;
+                                    if (this.modalQty < 1 && this.maxAllowed > 0) this.modalQty = 1;
+                                }
+                            }" x-init="validateQty()">
                                 
-                                <div class="flex items-center gap-4">
-                                    {{-- Quantity Stepper --}}
+                                <span class="text-brand font-bold uppercase tracking-widest text-xs mb-3 block">{{ $selectedProduct->category->name }}</span>
+                                <h3 class="text-4xl font-bold text-cocoa mb-4 leading-tight">{{ $selectedProduct->name }}</h3>
+                                <p class="text-gray-500 mb-8 text-lg leading-relaxed">{{ $selectedProduct->description }}</p>
+                                
+                                <div class="flex items-center gap-6 mb-10">
+                                    <div class="text-3xl font-bold text-cocoa">Rs. {{ number_format($selectedProduct->price, 0) }}</div>
+                                    @if($selectedProduct->stock_quantity <= 5 && $selectedProduct->stock_quantity > 0)
+                                        <div class="text-orange-500 font-bold text-sm bg-orange-50 px-3 py-1 rounded-lg">
+                                            Running Low!
+                                        </div>
+                                    @endif
+                                </div>
+                                
+                                <div class="flex flex-col gap-4">
                                     <template x-if="maxAllowed > 0">
-                                        <div class="flex items-center gap-4">
-                                            <div class="flex items-center bg-gray-100 rounded-xl p-1">
-                                                <button @click="decrement()" class="p-3 text-gray-500 hover:text-brand transition-colors">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
-                                                </button>
-                                                <input type="number" 
-                                                       x-model.number="modalQty" 
-                                                       @input="validateQty()"
-                                                       min="1" 
-                                                       :max="maxAllowed" 
-                                                       class="w-12 text-center text-lg font-bold text-gray-800 bg-transparent border-none focus:ring-0 p-0 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none">
-                                                <button @click="increment()" class="p-3 text-gray-500 hover:text-brand transition-colors" :class="{'opacity-50 cursor-not-allowed': modalQty >= maxAllowed}">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                                </button>
+                                        <div class="space-y-6">
+                                            {{-- Stepper --}}
+                                            <div class="flex items-center gap-6">
+                                                <span class="text-gray-400 font-bold uppercase text-xs tracking-wider">Quantity</span>
+                                                <div class="flex items-center bg-gray-100 rounded-2xl p-1.5 w-fit">
+                                                    <button @click="decrement()" class="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-brand hover:bg-white rounded-xl transition-all shadow-sm">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                                    </button>
+                                                    <input type="number" x-model.number="modalQty" class="w-12 text-center bg-transparent border-none font-bold text-lg p-0 focus:ring-0" readonly>
+                                                    <button @click="increment()" class="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-brand hover:bg-white rounded-xl transition-all shadow-sm" :class="{'opacity-50 cursor-not-allowed': modalQty >= maxAllowed}">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                                    </button>
+                                                </div>
                                             </div>
 
-                                            <button type="button" wire:click.prevent="addToCart({{ $selectedProduct->id }}, 'product', modalQty)" 
-                                                    class="inline-flex justify-center rounded-2xl border border-transparent shadow-lg px-8 py-3 bg-brand text-base font-bold text-white hover:bg-opacity-90 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand">
-                                                Add to Cart
+                                            <button wire:click.prevent="addToCart({{ $selectedProduct->id }}, 'product', modalQty)" 
+                                                    class="w-full py-5 rounded-2xl bg-brand text-white font-bold text-lg hover:bg-cocoa transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
+                                                Add to Cart - Rs. <span x-text="(modalQty * {{ $selectedProduct->price }}).toLocaleString()"></span>
                                             </button>
                                         </div>
                                     </template>
                                     
                                     <template x-if="maxAllowed <= 0">
-                                        <div class="px-6 py-3 bg-red-100 text-red-500 font-bold rounded-2xl cursor-not-allowed border border-red-200">
-                                            <span x-text="inCart >= limit ? 'Max Limit Reached' : 'Out of Stock'"></span>
+                                        <div class="w-full py-4 bg-gray-100 text-gray-400 font-bold rounded-2xl text-center cursor-not-allowed uppercase tracking-wider">
+                                            <span x-text="inCart >= limit ? 'Max Limit Reached' : 'Currently Unavailable'"></span>
                                         </div>
                                     </template>
                                 </div>
-                            </div>
-                            
-                            <!-- Helper Text -->
-                            <div class="mt-4 text-right text-xs text-gray-400 font-medium h-4">
-                                <span x-show="inCart > 0" x-text="'You have ' + inCart + ' in cart. Max ' + limit + ' per item.'"></span>
                             </div>
                         </div>
                     </div>
@@ -258,10 +264,15 @@
          x-transition:leave="transition ease-in duration-100"
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"
-         class="fixed bottom-6 right-6 w-auto max-w-sm bg-brand text-white rounded-2xl shadow-xl pointer-events-auto z-50 flex items-center p-4 gap-3">
-        <svg class="h-6 w-6 text-green-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <p class="text-sm font-bold">{{ $toastMessage }}</p>
+         class="fixed bottom-6 right-6 z-50">
+        <div class="bg-brand text-white rounded-2xl shadow-2xl px-6 py-4 flex items-center gap-4">
+             <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+             </div>
+             <div>
+                 <p class="font-bold text-sm">Success</p>
+                 <p class="text-white/80 text-xs">{{ $toastMessage }}</p>
+             </div>
+        </div>
     </div>
 </div>
