@@ -21,6 +21,10 @@ class AdminDashboard extends Component
     public $editingPrice = '';
     public $editingStock = '';
     public $editingDescription = '';
+    
+    // Toast State
+    public $showToast = false;
+    public $toastMessage = '';
 
     protected $queryString = [
         'activeTab' => ['except' => 'inventory'],
@@ -84,8 +88,7 @@ class AdminDashboard extends Component
                 'description' => $this->editingDescription,
             ]);
 
-            // Dispatch browser notification (using simple js alert or custom event)
-            $this->dispatch('product-saved', message: 'Product updated successfully!');
+            $this->showToast('Product updated successfully!');
             $this->cancelEdit();
         }
     }
@@ -95,9 +98,15 @@ class AdminDashboard extends Component
         $product = Product::find($this->editingProductId);
         if ($product) {
             $product->delete();
-            $this->dispatch('product-saved', message: 'Product deleted successfully!');
+            $this->showToast('Product deleted successfully!');
             $this->cancelEdit();
         }
+    }
+    
+    public function showToast($message)
+    {
+        $this->toastMessage = $message;
+        $this->showToast = true;
     }
 
     public function cancelEdit()
