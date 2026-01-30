@@ -127,6 +127,14 @@ class ProductMenu extends Component
             $this->toastMessage = $message;
             $this->showToast = true;
         }
+
+        // Dispatch event to update navbar icon
+        $this->dispatch('cartUpdated');
+
+        // Update local state if the modal is open for this product
+        if ($this->selectedProduct && $this->selectedProduct->id == $productId && $type == 'product') {
+            $this->quantityInCart += $quantityToAdd;
+        }
     }
 
     public $quantityInCart = 0;
