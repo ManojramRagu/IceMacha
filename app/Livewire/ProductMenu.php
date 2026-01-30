@@ -29,24 +29,29 @@ class ProductMenu extends Component
         );
 
         if ($type === 'bundle') {
-            // Check Bundle Stock (All items must have stock >= requested quantity)
+            // Check Bundle Stock (All items must have stock >= requested quantity + existing bundle quantity)
             $promotion = \App\Models\Promotion::with('products')->find($productId);
             
+            // Get existing quantity of this specific bundle in cart
+            $existingCartItem = \App\Models\CartItem::where('CartId', $cart->CartId)
+                ->where('PromotionId', $productId)
+                ->first();
+            $existingBundleQty = $existingCartItem ? $existingCartItem->Quantity : 0;
+
             foreach ($promotion->products as $product) {
-                if ($product->stock_quantity < $quantity) {
-                    $this->toastMessage = "Only {$product->stock_quantity} left of {$product->name} (in bundle)!";
+                // Check if (Existing Bundles + New Request) exceeds stock
+                // content: assuming 1 unit of product per bundle for now. 
+                // ideally we should also check if the user has this product added individually, but for now we fix the main loop.
+                if ($product->stock_quantity < ($existingBundleQty + $quantity)) {
+                    $this->toastMessage = "You have {$existingBundleQty} in cart. Only {$product->stock_quantity} left of {$product->name}!";
                     $this->showToast = true;
                     return;
                 }
             }
 
             // Handle Bundle (Promotion)
-            $cartItem = \App\Models\CartItem::where('CartId', $cart->CartId)
-                ->where('PromotionId', $productId) // $productId is promotion_id here
-                ->first();
-
-            if ($cartItem) {
-                $cartItem->increment('Quantity', $quantity);
+            if ($existingCartItem) {
+                $existingCartItem->increment('Quantity', $quantity);
             } else {
                 \App\Models\CartItem::create([
                     'CartId' => $cart->CartId,
@@ -59,19 +64,23 @@ class ProductMenu extends Component
             // Check Product Stock
             $product = \App\Models\Product::find($productId);
             
-            if ($product->stock_quantity < $quantity) {
-                $this->toastMessage = "Only {$product->stock_quantity} remaining in stock!";
+            // Get existing quantity of this product in cart
+            $existingCartItem = \App\Models\CartItem::where('CartId', $cart->CartId)
+                ->where('ProductId', $productId)
+                ->first();
+            $existingQty = $existingCartItem ? $existingCartItem->Quantity : 0;
+            
+            // Check if (Existing Qty + New Qty) exceeds Stock
+            if ($product->stock_quantity < ($existingQty + $quantity)) {
+                $availableToAdd = $product->stock_quantity - $existingQty;
+                $this->toastMessage = "You already have {$existingQty} in cart. Only {$availableToAdd} more available!";
                 $this->showToast = true;
                 return;
             }
 
             // Handle Product
-            $cartItem = \App\Models\CartItem::where('CartId', $cart->CartId)
-                ->where('ProductId', $productId)
-                ->first();
-
-            if ($cartItem) {
-                $cartItem->increment('Quantity', $quantity);
+            if ($existingCartItem) {
+                $existingCartItem->increment('Quantity', $quantity);
             } else {
                 \App\Models\CartItem::create([
                     'CartId' => $cart->CartId,
