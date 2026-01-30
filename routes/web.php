@@ -37,3 +37,12 @@ Route::get('/order-success/{orderId}', function ($orderId) {
     return view('order-success', ['order' => $order]);
 })->name('order.success');
 Route::get('/my-orders', App\Livewire\MyOrders::class)->name('my-orders');
+
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+    'admin',
+])->group(function () {
+    Route::get('/admin', [App\Http\Controllers\AdminController::class, 'index'])->name('admin');
+});

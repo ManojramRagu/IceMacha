@@ -18,7 +18,7 @@
                     About
                 </a>
                 @if(Auth::check() && Auth::user()->role === 'admin')
-                    <a href="/admin" class="text-white hover:text-sand font-medium transition-colors">
+                    <a href="{{ route('admin') }}" class="text-white hover:text-sand font-medium transition-colors">
                         Admin
                     </a>
                 @else
@@ -132,7 +132,7 @@
                 About
             </x-responsive-nav-link>
             @if(Auth::check() && Auth::user()->role === 'admin')
-                <x-responsive-nav-link href="/admin" class="text-white hover:bg-brand/80">
+                <x-responsive-nav-link href="{{ route('admin') }}" class="text-white hover:bg-brand/80">
                     Admin
                 </x-responsive-nav-link>
             @else
