@@ -91,16 +91,16 @@
                                                     
                                                     if ($item->product) {
                                                         $name = $item->product->name;
-                                                        $image = $item->product->image;
+                                                        $image = $item->product->image_path;
                                                     } elseif ($item->promotion) {
                                                         $name = $item->promotion->name . " (Bundle)";
-                                                        $image = $item->promotion->image;
+                                                        $image = $item->promotion->image_path;
                                                     }
                                                 @endphp
                                                 
                                                 <div class="h-12 w-12 flex-shrink-0 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center">
                                                     @if($image)
-                                                        <img src="{{ Storage::url($image) }}" alt="" class="h-full w-full object-cover">
+                                                        <img src="/{{ $image }}" alt="" class="h-full w-full object-cover" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text={{ urlencode($name) }}';">
                                                     @else
                                                         <svg class="h-6 w-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -113,18 +113,14 @@
                                                         {{ $name }}
                                                     </h4>
                                                     <p class="text-xs text-gray-500">
-                                                        Qty: {{ $item->Quantity }}
+                                                        Qty: {{ $item->quantity }}
                                                     </p>
                                                 </div>
                                             </div>
                                             
                                             <div class="text-right">
-                                                @if($item->product || $item->promotion)
-                                                     <p class="text-sm font-bold text-brand">Rs. {{ number_format(($item->product->price ?? $item->promotion->price) * $item->Quantity, 2) }}</p>
-                                                     <p class="text-xs text-gray-400">Rs. {{ number_format($item->product->price ?? $item->promotion->price, 2) }} / ea</p>
-                                                @else
-                                                    <p class="text-xs text-gray-400 italic">Price unavailable</p>
-                                                @endif
+                                                 <p class="text-sm font-bold text-brand">Rs. {{ number_format($item->price_at_purchase * $item->quantity, 2) }}</p>
+                                                 <p class="text-xs text-gray-400">Rs. {{ number_format($item->price_at_purchase, 2) }} / ea</p>
                                             </div>
                                         </div>
                                     @endforeach
