@@ -22,6 +22,13 @@ class AdminDashboard extends Component
     public $editingStock = '';
     public $editingDescription = '';
     
+    // Promotion State
+    public $editingPromotionId = null;
+    public $bundleItems = []; // Array of ['product_id' => int, 'name' => string, 'price' => float, 'quantity' => int] (Quantity is bundle count)
+    public $discountPercent = 0;
+    public $productSearch = '';
+    public $searchResults = [];
+
     // Toast State
     public $showToast = false;
     public $toastMessage = '';
@@ -32,6 +39,18 @@ class AdminDashboard extends Component
         'selectedSub' => ['except' => ''],
         'search' => ['except' => ''],
     ];
+
+    public function updatedProductSearch()
+    {
+        if (strlen($this->productSearch) > 1) {
+            $this->searchResults = Product::where('name', 'like', '%' . $this->productSearch . '%')
+                ->take(5)
+                ->get()
+                ->toArray();
+        } else {
+            $this->searchResults = [];
+        }
+    }
 
     public function selectMain($main)
     {
@@ -60,6 +79,11 @@ class AdminDashboard extends Component
 
     public function editProduct($id)
     {
+        if ($this->selectedMain === 'Promotions') {
+            $this->editPromotion($id);
+            return;
+        }
+
         $product = Product::find($id);
         if ($product) {
             $this->editingProductId = $id;
@@ -68,6 +92,62 @@ class AdminDashboard extends Component
             $this->editingStock = $product->stock_quantity;
             $this->editingDescription = $product->description;
         }
+    }
+    
+    public function editPromotion($id)
+    {
+        $promotion = Promotion::with('products')->find($id);
+        if ($promotion) {
+            $this->editingPromotionId = $id;
+            $this->editingName = $promotion->name;
+            $this->editingDescription = $promotion->description;
+            $this->discountPercent = $promotion->discount_percent;
+            
+            // Load bundle items
+            $this->bundleItems = [];
+            foreach ($promotion->products as $product) {
+                // We add each product as a separate item
+                $this->bundleItems[] = [
+                    'product_id' => $product->id,
+                    'name' => $product->name,
+                    'price' => (float)$product->price
+                ];
+            }
+        }
+    }
+    
+    public function addProductToBundle($productId)
+    {
+        $product = Product::find($productId);
+        if ($product) {
+            $this->bundleItems[] = [
+                'product_id' => $product->id,
+                'name' => $product->name,
+                'price' => (float)$product->price
+            ];
+            $this->productSearch = '';
+            $this->searchResults = [];
+        }
+    }
+
+    public function removeProductFromBundle($index)
+    {
+        unset($this->bundleItems[$index]);
+        $this->bundleItems = array_values($this->bundleItems); // Re-index
+    }
+
+    public function getOriginalTotalProperty()
+    {
+        return array_reduce($this->bundleItems, function ($carry, $item) {
+            return $carry + $item['price'];
+        }, 0);
+    }
+
+    public function getFinalPriceProperty()
+    {
+        $original = $this->getOriginalTotalProperty();
+        $discount = (float)$this->discountPercent;
+        return max(0, $original - ($original * ($discount / 100)));
     }
 
     public function saveProduct()
@@ -93,12 +173,79 @@ class AdminDashboard extends Component
         }
     }
 
+    public function savePromotion()
+    {
+        $rules = [
+            'editingName' => 'required|string|max:255',
+            'editingDescription' => 'nullable|string',
+            'discountPercent' => 'required|integer|min:0|max:100',
+        ];
+        
+        $this->validate($rules);
+        
+        // Calculate price
+        $originalTotal = $this->getOriginalTotalProperty();
+        $finalPrice = max(0, $originalTotal - ($originalTotal * ($this->discountPercent / 100)));
+
+        if ($this->editingPromotionId) {
+            $promotion = Promotion::find($this->editingPromotionId);
+            $promotion->update([
+                'name' => $this->editingName,
+                'description' => $this->editingDescription,
+                'price' => $finalPrice,
+                'discount_percent' => $this->discountPercent,
+            ]);
+            
+            // Sync products
+            // Since pivot table has no quantity and usually unique (product_id, promotion_id), 
+            // if we want multiple of the same product, we can't use standard sync without extra pivot data columns or allowing duplicates.
+            // For this implementation, I will just sync the list of unique product IDs.
+            // If the user adds "Latte" twice, it will only be saved once.
+            $productIds = array_column($this->bundleItems, 'product_id');
+            $promotion->products()->sync($productIds);
+            
+            $this->showToast('Promotion updated successfully!');
+        } else {
+            // Create
+            $promotion = Promotion::create([
+                'name' => $this->editingName,
+                'description' => $this->editingDescription,
+                'price' => $finalPrice,
+                'discount_percent' => $this->discountPercent,
+            ]);
+            
+             $productIds = array_column($this->bundleItems, 'product_id');
+             $promotion->products()->attach($productIds);
+             
+             $this->showToast('Promotion created successfully!');
+        }
+        
+        $this->cancelEdit();
+    }
+    
+    public function createPromotion() {
+        $this->cancelEdit(); // Reset
+        $this->mode = 'create_promotion'; 
+        // We handle this view state in blade. Or reuse generic create mode.
+        // Actually, let's keep it simple. If SelectedMain is Promotion and we click Add, we clear state and set mode='create'.
+    }
+
     public function deleteProduct()
     {
         $product = Product::find($this->editingProductId);
         if ($product) {
             $product->delete();
             $this->showToast('Product deleted successfully!');
+            $this->cancelEdit();
+        }
+    }
+    
+    public function deletePromotion()
+    {
+        $promotion = Promotion::find($this->editingPromotionId);
+        if ($promotion) {
+            $promotion->delete();
+            $this->showToast('Promotion deleted successfully!');
             $this->cancelEdit();
         }
     }
@@ -112,10 +259,15 @@ class AdminDashboard extends Component
     public function cancelEdit()
     {
         $this->editingProductId = null;
+        $this->editingPromotionId = null;
         $this->editingName = '';
         $this->editingPrice = '';
         $this->editingStock = '';
         $this->editingDescription = '';
+        $this->bundleItems = [];
+        $this->discountPercent = 0;
+        $this->productSearch = '';
+        $this->searchResults = [];
     }
 
     public function getProductsProperty()

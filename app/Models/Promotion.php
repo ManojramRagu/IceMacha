@@ -9,7 +9,7 @@ class Promotion extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description', 'price', 'image_path'];
+    protected $fillable = ['name', 'description', 'price', 'discount_percent', 'image_path'];
 
     public function products()
     {
