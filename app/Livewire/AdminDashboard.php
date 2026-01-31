@@ -1,5 +1,5 @@
 <?php
-
+#Main SAFE
 namespace App\Livewire;
 
 use Livewire\Component;
