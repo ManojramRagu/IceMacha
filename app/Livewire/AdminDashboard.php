@@ -263,10 +263,13 @@ class AdminDashboard extends Component
         $rules = [
             'editingName' => 'required|string|max:255',
             'editingDescription' => 'nullable|string',
-            'discountPercent' => 'required|integer|min:0|max:100',
+            'discountPercent' => 'required|integer|min:5|max:80',
+            'bundleItems' => 'required|array|min:2',
         ];
         
-        $this->validate($rules);
+        $this->validate($rules, [
+            'bundleItems.min' => 'A bundle must have at least 2 items.'
+        ]);
         
         // Calculate price
         $originalTotal = $this->getOriginalTotalProperty();
@@ -281,13 +284,11 @@ class AdminDashboard extends Component
                 'discount_percent' => $this->discountPercent,
             ]);
             
-            // Sync products
-            // Since pivot table has no quantity and usually unique (product_id, promotion_id), 
-            // if we want multiple of the same product, we can't use standard sync without extra pivot data columns or allowing duplicates.
-            // For this implementation, I will just sync the list of unique product IDs.
-            // If the user adds "Latte" twice, it will only be saved once.
-            $productIds = array_column($this->bundleItems, 'product_id');
-            $promotion->products()->sync($productIds);
+            // Sync products manually to allow duplicates
+            $promotion->products()->detach();
+            foreach ($this->bundleItems as $item) {
+                $promotion->products()->attach($item['product_id']);
+            }
             
             $this->showToast('Promotion updated successfully!');
         } else {
@@ -299,8 +300,9 @@ class AdminDashboard extends Component
                 'discount_percent' => $this->discountPercent,
             ]);
             
-             $productIds = array_column($this->bundleItems, 'product_id');
-             $promotion->products()->attach($productIds);
+            foreach ($this->bundleItems as $item) {
+                 $promotion->products()->attach($item['product_id']);
+            }
              
              $this->showToast('Promotion created successfully!');
         }
