@@ -37,6 +37,7 @@ Route::get('/order-success/{orderId}', function ($orderId) {
     return view('order-success', ['order' => $order]);
 })->name('order.success');
 Route::get('/my-orders', App\Livewire\MyOrders::class)->name('my-orders');
+Route::get('/payment/success', [App\Http\Controllers\StripePaymentController::class, 'success'])->name('payment.success');
 
 Route::middleware([
     'auth:sanctum',
