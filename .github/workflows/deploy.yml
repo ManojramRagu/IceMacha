@@ -26,6 +26,16 @@ jobs:
         npm install
         npm run build
 
+    - name: Pre-Deployment Permission Fix
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          # Change ownership to ubuntu so scp-action can overwrite existing files
+          sudo chown -R ubuntu:ubuntu /var/www/html
+
     - name: Deploy to EC2 via SSH
       uses: appleboy/scp-action@v0.1.7
       with:
@@ -34,7 +44,7 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         source: "."
         target: "/var/www/html"
-        rm: false # Set to true if you want to clear old files before syncing
+        rm: false 
 
     - name: Run Post-Deployment Commands
       uses: appleboy/ssh-action@v1.0.3
@@ -44,18 +54,21 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           cd /var/www/html
-          # 1. Update the RDS schema and plant the data
+          
+          # 1. Database Setup (RDS)
+          # Ensure you have run 'CREATE DATABASE icemacha_v2' manually in RDS first
           php artisan migrate --force
           php artisan db:seed --force
           
-          # 2. Clear and rebuild caches for performance
+          # 2. Optimization
           php artisan config:cache
           php artisan route:cache
           php artisan view:cache
           
-          # 3. Ensure images are visible
+          # 3. Storage & Permissions
+          # Ensures product images are reachable by the web server
           php artisan storage:link || true
           
-          # 4. Fix folder permissions for the web server
-          sudo chown -R ubuntu:www-data storage bootstrap/cache
-          sudo chmod -R 775 storage bootstrap/cache
+          # Set ownership back to www-data so Laravel can write logs/sessions
+          sudo chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+          sudo chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
