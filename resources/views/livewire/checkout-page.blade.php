@@ -186,7 +186,7 @@
                     const { error } = await this.stripe.confirmPayment({
                         elements: this.elements,
                         confirmParams: {
-                            return_url: "{{ route('dashboard') }}",
+                            return_url: "{{ route('payment.success') }}",
                         },
                     });
 

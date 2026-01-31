@@ -19,12 +19,11 @@ class ContactController extends Controller
         ]);
 
         ContactMessage::create([
-            'UserId' => Auth::id(),
-            'FirstName' => $request->first_name,
-            'LastName' => $request->last_name,
-            'Email' => $request->email,
-            'Subject' => $request->subject,
-            'Message' => $request->message,
+            'user_id' => Auth::id(),
+            'name' => $request->first_name . ' ' . $request->last_name,
+            'email' => $request->email,
+            'subject' => $request->subject,
+            'message' => $request->message,
         ]);
 
         return response()->json(['success' => true]);

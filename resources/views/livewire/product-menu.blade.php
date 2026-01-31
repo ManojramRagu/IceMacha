@@ -42,7 +42,10 @@
     <div class="max-w-7xl mx-auto px-4 py-8 -mt-20 relative z-10" x-data="{ activeCategory: 'all' }">
 
         @php
-            $productsByCategory = $products->where('category.name', '!=', 'Promotions')->groupBy('category.name');
+            $productsByCategory = $products->where('category.name', '!=', 'Promotions')
+                ->groupBy(function($item) {
+                    return $item->subCategory ? $item->subCategory->name : 'Others';
+                })->sortKeys();
         @endphp
 
         {{-- 1. STICKY CATEGORY FILTER --}}

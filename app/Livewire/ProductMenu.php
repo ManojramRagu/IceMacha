@@ -174,7 +174,7 @@ class ProductMenu extends Component
     public function render()
     {
         return view('livewire.product-menu', [
-            'products' => \App\Models\Product::with('category')->get(),
+            'products' => \App\Models\Product::with(['category', 'subCategory'])->get(),
             'promotions' => \App\Models\Promotion::with('products')->get() // Fetch bundles
         ])->layout('layouts.app');
     }

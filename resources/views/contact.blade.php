@@ -108,7 +108,7 @@
             </div>
 
             <!-- 3. Contact Form (Right - 7 cols) -->
-            <div class="md:col-span-7 bg-white p-10 md:p-14">
+            <div class="md:col-span-7 bg-white p-10 md:p-14 relative z-20">
                  <h2 class="text-3xl font-display font-bold text-brand mb-8 text-center md:text-left">Send us a Message</h2>
                 
                 <form id="contact-form" action="https://formspree.io/f/mojdpjne" method="POST" class="space-y-6">
@@ -219,7 +219,15 @@
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Oops! There was a problem submitting your form. ' + error.message);
+            // Dispatch Toast Event instead of blocking Alert
+            window.dispatchEvent(new CustomEvent('toast', { 
+                detail: { 
+                    type: 'error', 
+                    message: 'Submitting failed. ' + error.message 
+                },
+                bubbles: true,
+                composed: true
+            }));
         })
         .finally(() => {
             submitBtn.textContent = originalBtnText;

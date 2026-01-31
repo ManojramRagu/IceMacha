@@ -7,6 +7,7 @@ use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\Category;
+use App\Models\SubCategory;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\Promotion;
@@ -45,6 +46,11 @@ class AdminDashboard extends Component
 
     // Feedback State
     public $viewingMessage = null;
+
+    // Confirmation Modal State
+    public $confirmingDelete = false;
+    public $deleteType = ''; // 'product', 'promotion', 'message'
+    public $deleteId = null;
 
     protected $queryString = [
         'activeTab' => ['except' => 'inventory'],
@@ -203,12 +209,13 @@ class AdminDashboard extends Component
             // If the DB stores 'storage/products/...', then `asset($product->ImagePath)` results in `http://.../storage/products/...` which is correct.
         }
 
-        // Find Category ID
-        $category = Category::where('name', $this->selectedSub)->where('parent', $this->selectedMain)->first();
-        // Fallback or error if not found? logic implies sub exists.
+        // Find SubCategory ID
+        $subCategory = SubCategory::where('name', $this->selectedSub)
+            ->whereHas('category', function ($q) {
+                $q->where('name', $this->selectedMain);
+            })->first();
         
-        if (!$category) {
-            // Should not happen with UI logic, but safety first
+        if (!$subCategory) {
              $this->showToast('Category Error!', 'error');
              return;
         }
@@ -218,7 +225,8 @@ class AdminDashboard extends Component
             'price' => $this->editingPrice,
             'stock_quantity' => $this->editingStock,
             'description' => $this->editingDescription,
-            'category_id' => $category->id,
+            'category_id' => $subCategory->category_id,
+            'sub_category_id' => $subCategory->id,
             'image_path' => $imagePath ?? 'img/placeholder.png' // Default
         ]);
 
@@ -255,10 +263,13 @@ class AdminDashboard extends Component
         $rules = [
             'editingName' => 'required|string|max:255',
             'editingDescription' => 'nullable|string',
-            'discountPercent' => 'required|integer|min:0|max:100',
+            'discountPercent' => 'required|integer|min:5|max:80',
+            'bundleItems' => 'required|array|min:2',
         ];
         
-        $this->validate($rules);
+        $this->validate($rules, [
+            'bundleItems.min' => 'A bundle must have at least 2 items.'
+        ]);
         
         // Calculate price
         $originalTotal = $this->getOriginalTotalProperty();
@@ -273,13 +284,11 @@ class AdminDashboard extends Component
                 'discount_percent' => $this->discountPercent,
             ]);
             
-            // Sync products
-            // Since pivot table has no quantity and usually unique (product_id, promotion_id), 
-            // if we want multiple of the same product, we can't use standard sync without extra pivot data columns or allowing duplicates.
-            // For this implementation, I will just sync the list of unique product IDs.
-            // If the user adds "Latte" twice, it will only be saved once.
-            $productIds = array_column($this->bundleItems, 'product_id');
-            $promotion->products()->sync($productIds);
+            // Sync products manually to allow duplicates
+            $promotion->products()->detach();
+            foreach ($this->bundleItems as $item) {
+                $promotion->products()->attach($item['product_id']);
+            }
             
             $this->showToast('Promotion updated successfully!');
         } else {
@@ -291,8 +300,9 @@ class AdminDashboard extends Component
                 'discount_percent' => $this->discountPercent,
             ]);
             
-             $productIds = array_column($this->bundleItems, 'product_id');
-             $promotion->products()->attach($productIds);
+            foreach ($this->bundleItems as $item) {
+                 $promotion->products()->attach($item['product_id']);
+            }
              
              $this->showToast('Promotion created successfully!');
         }
@@ -307,24 +317,56 @@ class AdminDashboard extends Component
         // Actually, let's keep it simple. If SelectedMain is Promotion and we click Add, we clear state and set mode='create'.
     }
 
+    public function confirmDelete($type, $id)
+    {
+        $this->confirmingDelete = true;
+        $this->deleteType = $type;
+        $this->deleteId = $id;
+    }
+
+    public function performDelete()
+    {
+        if ($this->deleteType === 'product') {
+            $product = Product::find($this->deleteId);
+            if ($product) {
+                $product->delete();
+                $this->showToast('Product deleted successfully!');
+                $this->cancelEdit();
+            }
+        } elseif ($this->deleteType === 'promotion') {
+            $promotion = Promotion::find($this->deleteId);
+            if ($promotion) {
+                $promotion->delete();
+                $this->showToast('Promotion deleted successfully!');
+                $this->cancelEdit();
+            }
+        } elseif ($this->deleteType === 'message') {
+            ContactMessage::destroy($this->deleteId);
+            $this->showToast('Message deleted successfully.');
+            $this->viewingMessage = null;
+        }
+
+        $this->confirmingDelete = false;
+        $this->deleteType = '';
+        $this->deleteId = null;
+    }
+
+    public function cancelDelete()
+    {
+        $this->confirmingDelete = false;
+        $this->deleteType = '';
+        $this->deleteId = null;
+    }
+
     public function deleteProduct()
     {
-        $product = Product::find($this->editingProductId);
-        if ($product) {
-            $product->delete();
-            $this->showToast('Product deleted successfully!');
-            $this->cancelEdit();
-        }
+        // Legacy direct call wrapper or unused if switched entirely
+        $this->confirmDelete('product', $this->editingProductId);
     }
     
     public function deletePromotion()
     {
-        $promotion = Promotion::find($this->editingPromotionId);
-        if ($promotion) {
-            $promotion->delete();
-            $this->showToast('Promotion deleted successfully!');
-            $this->cancelEdit();
-        }
+        $this->confirmDelete('promotion', $this->editingPromotionId);
     }
     
     public function showToast($message)
@@ -362,12 +404,12 @@ class AdminDashboard extends Component
         $query = Product::query();
 
         if ($this->selectedSub) {
-            $query->whereHas('category', function ($q) {
+            $query->whereHas('subCategory', function ($q) {
                 $q->where('name', $this->selectedSub);
             });
         } else {
             $query->whereHas('category', function ($q) {
-                $q->where('parent', $this->selectedMain);
+                $q->where('name', $this->selectedMain);
             });
         }
 
@@ -380,8 +422,10 @@ class AdminDashboard extends Component
 
     public function getSubCategoriesProperty()
     {
-        // Fetch categories where parent matches selectedMain
-        return Category::where('parent', $this->selectedMain)->get();
+        // Fetch subcategories where category name matches selectedMain
+        return SubCategory::whereHas('category', function ($q) {
+            $q->where('name', $this->selectedMain);
+        })->get();
     }
 
     public function getOrdersProperty()

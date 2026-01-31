@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Category extends Model
+class SubCategory extends Model
 {
-    protected $fillable = ['name', 'description'];
+    protected $fillable = ['category_id', 'name', 'description'];
 
-    public function subCategories()
+    public function category()
     {
-        return $this->hasMany(SubCategory::class);
+        return $this->belongsTo(Category::class);
     }
 
     public function products()
