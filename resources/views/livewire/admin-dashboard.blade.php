@@ -292,10 +292,10 @@
                                                 </td>
                                                 <td class="px-6 py-4 font-medium text-gray-900">{{ $msg->name }}</td>
                                                 <td class="px-6 py-4 text-gray-600 truncate max-w-[200px]">{{ $msg->subject }}</td>
-                                                <td class="px-6 py-4 text-gray-400 text-xs">{{ optional($msg->CreatedAt)->diffForHumans() ?? 'N/A' }}</td>
+                                                <td class="px-6 py-4 text-gray-400 text-xs">{{ optional($msg->created_at)->diffForHumans() ?? 'N/A' }}</td>
                                                 <td class="px-6 py-4 text-right flex justify-end gap-2">
-                                                    <button wire:click="viewMessage({{ $msg->MessageId }})" class="px-4 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 text-xs font-semibold">View</button>
-                                                    <button wire:click="confirmDelete('message', {{ $msg->MessageId }})" 
+                                                    <button wire:click="viewMessage({{ $msg->id }})" class="px-4 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 text-xs font-semibold">View</button>
+                                                    <button wire:click="confirmDelete('message', {{ $msg->id }})" 
                                                             class="px-4 py-1.5 rounded-full border border-red-100 text-red-500 hover:bg-red-50 text-xs font-semibold">
                                                         Delete
                                                     </button>
