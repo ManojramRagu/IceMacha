@@ -30,6 +30,12 @@ class DatabaseSeeder extends Seeder
         }
         $this->command->info('Categories Seeded.');
 
+        // Set parent relationships for subcategories
+        $this->command->info('Setting category parent relationships...');
+        Category::whereIn('name', ['Hot Drinks', 'Cold Drinks'])->update(['parent' => 'Beverages']);
+        Category::whereIn('name', ['Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Desserts'])->update(['parent' => 'Food']);
+        $this->command->info('Category parent relationships set.');
+
         $this->command->info('Seeding Products...');
         // 2. Seed Products (Correctly mapped to IDs 1-49 from SQL dump)
         $products = [
