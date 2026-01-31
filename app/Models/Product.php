@@ -6,24 +6,29 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    protected $casts = [
-        'price' => 'float',
-    ];
-
     protected $fillable = [
-        'name',
-        'description',
-        'price',
-        'stock_quantity',
-        'category_id',
-        'image_path',
+        'name', 
+        'description', 
+        'price', 
+        'image_path', 
+        'category_id', 
+        'sub_category_id', 
+        'status', 
+        'stock_quantity'
     ];
 
-    public function category() {
+    public function category()
+    {
         return $this->belongsTo(Category::class);
     }
 
-    public function promotions() {
+    public function subCategory()
+    {
+        return $this->belongsTo(SubCategory::class);
+    }
+    
+    public function promotions()
+    {
         return $this->belongsToMany(Promotion::class, 'product_promotion');
     }
 }

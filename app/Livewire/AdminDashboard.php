@@ -7,6 +7,7 @@ use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\Category;
+use App\Models\SubCategory;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\Promotion;
@@ -203,12 +204,13 @@ class AdminDashboard extends Component
             // If the DB stores 'storage/products/...', then `asset($product->ImagePath)` results in `http://.../storage/products/...` which is correct.
         }
 
-        // Find Category ID
-        $category = Category::where('name', $this->selectedSub)->where('parent', $this->selectedMain)->first();
-        // Fallback or error if not found? logic implies sub exists.
+        // Find SubCategory ID
+        $subCategory = SubCategory::where('name', $this->selectedSub)
+            ->whereHas('category', function ($q) {
+                $q->where('name', $this->selectedMain);
+            })->first();
         
-        if (!$category) {
-            // Should not happen with UI logic, but safety first
+        if (!$subCategory) {
              $this->showToast('Category Error!', 'error');
              return;
         }
@@ -218,7 +220,8 @@ class AdminDashboard extends Component
             'price' => $this->editingPrice,
             'stock_quantity' => $this->editingStock,
             'description' => $this->editingDescription,
-            'category_id' => $category->id,
+            'category_id' => $subCategory->category_id,
+            'sub_category_id' => $subCategory->id,
             'image_path' => $imagePath ?? 'img/placeholder.png' // Default
         ]);
 
@@ -362,12 +365,12 @@ class AdminDashboard extends Component
         $query = Product::query();
 
         if ($this->selectedSub) {
-            $query->whereHas('category', function ($q) {
+            $query->whereHas('subCategory', function ($q) {
                 $q->where('name', $this->selectedSub);
             });
         } else {
             $query->whereHas('category', function ($q) {
-                $q->where('parent', $this->selectedMain);
+                $q->where('name', $this->selectedMain);
             });
         }
 
@@ -380,8 +383,10 @@ class AdminDashboard extends Component
 
     public function getSubCategoriesProperty()
     {
-        // Fetch categories where parent matches selectedMain
-        return Category::where('parent', $this->selectedMain)->get();
+        // Fetch subcategories where category name matches selectedMain
+        return SubCategory::whereHas('category', function ($q) {
+            $q->where('name', $this->selectedMain);
+        })->get();
     }
 
     public function getOrdersProperty()
