@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-brand border-b border-brand shadow-sm relative z-50" style="height: 100px;">
+<nav x-data="{ open: false }" class="sticky top-0 z-50 bg-brand/95 backdrop-blur-md border-b border-brand/50 shadow-lg transition-all duration-300" style="height: 100px;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full relative">
         <div class="flex justify-center items-center h-full relative">
             

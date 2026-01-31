@@ -11,6 +11,7 @@ class ProductMenu extends Component
     public $selectedProduct = null;
     public $showToast = false;
     public $toastMessage = '';
+    public $toastType = 'success'; // success, warning, error
 
     public function addToCart($productId, $type = 'product', $quantity = 1)
     {
@@ -58,15 +59,18 @@ class ProductMenu extends Component
             if ($availableToAdd <= 0) {
                 $reason = ($existingBundleQty >= 10) ? "Order limit of 10 reached" : "Insufficient stock";
                 $this->toastMessage = "Cannot add more. {$reason}.";
+                $this->toastType = 'error';
                 $this->showToast = true;
                 return;
             }
 
             // Cap the quantity
             $quantityToAdd = min($quantity, $availableToAdd);
+            $messageType = ($quantityToAdd < $quantity) ? 'warning' : 'success';
             $message = ($quantityToAdd < $quantity) 
                 ? "Added {$quantityToAdd} bundles (Stock/Limit reached)!" 
                 : "Bundle added to cart successfully!";
+            $this->toastType = $messageType;
 
             // Handle Bundle Add
             if ($existingCartItem) {
@@ -102,15 +106,18 @@ class ProductMenu extends Component
             if ($availableToAdd <= 0) {
                 $reason = ($existingQty >= 10) ? "Order limit of 10 reached" : "Out of stock";
                 $this->toastMessage = "Cannot add more. {$reason}.";
+                $this->toastType = 'error';
                 $this->showToast = true;
                 return;
             }
 
             // Cap the quantity
             $quantityToAdd = min($quantity, $availableToAdd);
+            $messageType = ($quantityToAdd < $quantity) ? 'warning' : 'success';
             $message = ($quantityToAdd < $quantity) 
                 ? "Added {$quantityToAdd} items (Stock/Limit reached)!" 
                 : "Item added to cart successfully!";
+            $this->toastType = $messageType;
 
             // Handle Product Add
             if ($existingCartItem) {
