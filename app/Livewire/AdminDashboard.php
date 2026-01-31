@@ -47,6 +47,11 @@ class AdminDashboard extends Component
     // Feedback State
     public $viewingMessage = null;
 
+    // Confirmation Modal State
+    public $confirmingDelete = false;
+    public $deleteType = ''; // 'product', 'promotion', 'message'
+    public $deleteId = null;
+
     protected $queryString = [
         'activeTab' => ['except' => 'inventory'],
         'selectedMain' => ['except' => 'Beverages'],
@@ -310,24 +315,56 @@ class AdminDashboard extends Component
         // Actually, let's keep it simple. If SelectedMain is Promotion and we click Add, we clear state and set mode='create'.
     }
 
+    public function confirmDelete($type, $id)
+    {
+        $this->confirmingDelete = true;
+        $this->deleteType = $type;
+        $this->deleteId = $id;
+    }
+
+    public function performDelete()
+    {
+        if ($this->deleteType === 'product') {
+            $product = Product::find($this->deleteId);
+            if ($product) {
+                $product->delete();
+                $this->showToast('Product deleted successfully!');
+                $this->cancelEdit();
+            }
+        } elseif ($this->deleteType === 'promotion') {
+            $promotion = Promotion::find($this->deleteId);
+            if ($promotion) {
+                $promotion->delete();
+                $this->showToast('Promotion deleted successfully!');
+                $this->cancelEdit();
+            }
+        } elseif ($this->deleteType === 'message') {
+            ContactMessage::destroy($this->deleteId);
+            $this->showToast('Message deleted successfully.');
+            $this->viewingMessage = null;
+        }
+
+        $this->confirmingDelete = false;
+        $this->deleteType = '';
+        $this->deleteId = null;
+    }
+
+    public function cancelDelete()
+    {
+        $this->confirmingDelete = false;
+        $this->deleteType = '';
+        $this->deleteId = null;
+    }
+
     public function deleteProduct()
     {
-        $product = Product::find($this->editingProductId);
-        if ($product) {
-            $product->delete();
-            $this->showToast('Product deleted successfully!');
-            $this->cancelEdit();
-        }
+        // Legacy direct call wrapper or unused if switched entirely
+        $this->confirmDelete('product', $this->editingProductId);
     }
     
     public function deletePromotion()
     {
-        $promotion = Promotion::find($this->editingPromotionId);
-        if ($promotion) {
-            $promotion->delete();
-            $this->showToast('Promotion deleted successfully!');
-            $this->cancelEdit();
-        }
+        $this->confirmDelete('promotion', $this->editingPromotionId);
     }
     
     public function showToast($message)
