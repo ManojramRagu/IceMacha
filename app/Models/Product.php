@@ -36,4 +36,14 @@ class Product extends Model
     {
         return $this->belongsToMany(Promotion::class, 'product_promotion');
     }
+
+    public function scopeAvailable($query)
+    {
+        return $query->where('status', 'active')->where('stock_quantity', '>', 0);
+    }
+
+    public function getFormattedPriceAttribute()
+    {
+        return 'Rs. ' . number_format($this->price, 2);
+    }
 }
