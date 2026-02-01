@@ -193,7 +193,7 @@
                                             class="hover:bg-gray-50/80 transition-colors group text-sm cursor-pointer {{ ($editingProductId === $item->id || $editingPromotionId === $item->id) ? 'bg-sand/30' : '' }}">
                                             <td class="px-4 py-4 text-gray-400 font-mono text-xs">{{ $index + 1 }}</td>
                                             <td class="px-4 py-4 font-medium text-gray-900">{{ $item->name }}</td>
-                                            <td class="px-4 py-4 text-gray-600">LKR {{ number_format($item->price, 2) }}</td>
+                                            <td class="px-4 py-4 text-gray-600 font-bold">{{ $item->price }}</td>
                                             
                                             @if($selectedMain === 'Promotions')
                                                 <td class="px-4 py-4 text-green-600 font-bold">{{ $item->discount_percent }}%</td>

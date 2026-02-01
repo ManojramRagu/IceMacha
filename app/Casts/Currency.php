@@ -14,7 +14,7 @@ class Currency implements CastsAttributes
      */
     public function get(Model $model, string $key, mixed $value, array $attributes): mixed
     {
-        return 'Rs. ' . number_format($value, 2);
+        return 'LKR ' . number_format($value, 2);
     }
 
     /**
@@ -26,7 +26,7 @@ class Currency implements CastsAttributes
     {
         // Remove currency symbol and formatting if someone tries to set a formatted string
         if (is_string($value)) {
-            $value = str_replace(['Rs. ', ','], '', $value);
+            $value = str_replace(['LKR ', 'Rs. ', ','], '', $value);
         }
         
         return (float) $value;

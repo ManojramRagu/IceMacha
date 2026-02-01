@@ -244,7 +244,7 @@
 
                                             <button wire:click.prevent="addToCart({{ $selectedProduct->id }}, 'product', modalQty)" 
                                                     class="w-full py-5 rounded-2xl bg-brand text-white font-bold text-lg hover:bg-cocoa transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
-                                                Add to Cart - Rs. <span x-text="(modalQty * {{ $selectedProduct->getRawOriginal('price') }}).toLocaleString()"></span>
+                                                Add to Cart - LKR <span x-text="(modalQty * {{ $selectedProduct->getRawOriginal('price') }}).toLocaleString()"></span>
                                             </button>
                                         </div>
                                     </template>

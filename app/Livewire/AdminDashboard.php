@@ -66,6 +66,11 @@ class AdminDashboard extends Component
                 ->where('name', 'like', '%' . $this->productSearch . '%')
                 ->take(5)
                 ->get()
+                ->map(fn($p) => [
+                    'id' => $p->id,
+                    'name' => $p->name,
+                    'price' => $p->getRawOriginal('price')
+                ])
                 ->toArray();
         } else {
             $this->searchResults = [];
@@ -109,7 +114,7 @@ class AdminDashboard extends Component
         if ($product) {
             $this->editingProductId = $id;
             $this->editingName = $product->name;
-            $this->editingPrice = $product->price;
+            $this->editingPrice = $product->getRawOriginal('price');
             $this->editingStock = $product->stock_quantity;
             $this->editingDescription = $product->description;
         }
@@ -131,7 +136,7 @@ class AdminDashboard extends Component
                 $this->bundleItems[] = [
                     'product_id' => $product->id,
                     'name' => $product->name,
-                    'price' => (float)$product->price
+                    'price' => (float)$product->getRawOriginal('price')
                 ];
             }
         }
@@ -144,7 +149,7 @@ class AdminDashboard extends Component
             $this->bundleItems[] = [
                 'product_id' => $product->id,
                 'name' => $product->name,
-                'price' => (float)$product->price
+                'price' => (float)$product->getRawOriginal('price')
             ];
             $this->productSearch = '';
             $this->searchResults = [];
