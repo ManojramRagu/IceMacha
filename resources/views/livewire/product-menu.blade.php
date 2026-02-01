@@ -120,7 +120,7 @@
                         <div class="h-px flex-grow bg-gradient-to-r from-cocoa/20 to-transparent mb-1.5"></div>
                     </div>
 
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                         @foreach($subCategoryProducts as $product)
                             <div class="group bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-sm hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden flex flex-col items-center text-center relative hover:-translate-y-1 md:hover:-translate-y-2"
                                  wire:click="selectProduct({{ $product->id }})">
@@ -168,7 +168,7 @@
             
             {{-- PAGINATION --}}
              <div class="mt-12 flex justify-center">
-                {{ $products->links() }} 
+                {{ $products->links('vendor.pagination.icemacha') }} 
             </div>
         </div>
 

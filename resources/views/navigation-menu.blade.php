@@ -114,76 +114,111 @@
         </div>
     </div>
 
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-brand border-t border-brand/80">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link href="{{ route('home') }}" :active="request()->routeIs('home')" class="text-white hover:bg-brand/80">
-                Home
-            </x-responsive-nav-link>
-            <x-responsive-nav-link href="{{ route('menu') }}" :active="request()->routeIs('menu')" class="text-white hover:bg-brand/80">
-                Menu
-            </x-responsive-nav-link>
-            @auth
-                <x-responsive-nav-link href="{{ route('my-orders') }}" :active="request()->routeIs('my-orders')" class="text-white hover:bg-brand/80">
-                    {{ __('My Orders') }}
-                </x-responsive-nav-link>
-            @endauth
-            <x-responsive-nav-link href="{{ route('about') }}" :active="request()->routeIs('about')" class="text-white hover:bg-brand/80">
-                About
-            </x-responsive-nav-link>
-            @if(Auth::check() && Auth::user()->role === 'admin')
-                <x-responsive-nav-link href="{{ route('admin') }}" class="text-white hover:bg-brand/80">
-                    Admin
-                </x-responsive-nav-link>
-            @else
-                <x-responsive-nav-link href="{{ route('contact') }}" :active="request()->routeIs('contact')" class="text-white hover:bg-brand/80">
-                    Contact
-                </x-responsive-nav-link>
-            @endif
+    <!-- Mobile Side-out Menu -->
+    <div x-show="open" 
+         class="fixed inset-0 z-50 sm:hidden"
+         style="display: none;">
+         
+        <!-- Backdrop Blur -->
+        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
+             x-show="open"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="open = false">
         </div>
 
-        @auth
-            <!-- Responsive Settings Options -->
-            <div class="pt-4 pb-1 border-t border-brand/80">
-                <div class="flex items-center px-4">
-                    @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-                        <div class="shrink-0 me-3">
-                            <img class="size-10 rounded-full object-cover border-2 border-white" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
-                        </div>
+        <!-- Off-canvas Sidebar -->
+        <div class="fixed inset-y-0 right-0 max-w-xs w-full bg-brand shadow-2xl transform transition-transform"
+             x-show="open"
+             x-transition:enter="transform transition ease-in-out duration-300"
+             x-transition:enter-start="translate-x-full"
+             x-transition:enter-end="translate-x-0"
+             x-transition:leave="transform transition ease-in-out duration-300"
+             x-transition:leave-start="translate-x-0"
+             x-transition:leave-end="translate-x-full">
+             
+             <div class="h-full flex flex-col py-6 overflow-y-auto">
+                <!-- Header -->
+                <div class="px-6 flex items-center justify-between mb-8">
+                    <img src="{{ asset('img/logo.webp') }}" class="h-10 w-auto" alt="IceMacha" />
+                    <button @click="open = false" class="text-white hover:text-sand transition-colors">
+                        <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="flex-1 px-4 space-y-2">
+                    <a href="{{ route('home') }}" class="block px-4 py-3 rounded-xl text-lg font-bold transition-all {{ request()->routeIs('home') ? 'bg-white text-brand shadow-md' : 'text-white hover:bg-white/10' }}">
+                        Home
+                    </a>
+                    <a href="{{ route('menu') }}" class="block px-4 py-3 rounded-xl text-lg font-bold transition-all {{ request()->routeIs('menu') ? 'bg-white text-brand shadow-md' : 'text-white hover:bg-white/10' }}">
+                        Menu
+                    </a>
+                    <a href="{{ route('about') }}" class="block px-4 py-3 rounded-xl text-lg font-bold transition-all {{ request()->routeIs('about') ? 'bg-white text-brand shadow-md' : 'text-white hover:bg-white/10' }}">
+                        About
+                    </a>
+                    @auth
+                         <a href="{{ route('my-orders') }}" class="block px-4 py-3 rounded-xl text-lg font-bold transition-all {{ request()->routeIs('my-orders') ? 'bg-white text-brand shadow-md' : 'text-white hover:bg-white/10' }}">
+                            My Orders
+                        </a>
+                    @endauth
+
+                    @if(Auth::check() && Auth::user()->role === 'admin')
+                        <a href="{{ route('admin') }}" class="block px-4 py-3 rounded-xl text-lg font-bold transition-all text-white hover:bg-white/10">
+                            Admin Dashboard
+                        </a>
+                    @else
+                        <a href="{{ route('contact') }}" class="block px-4 py-3 rounded-xl text-lg font-bold transition-all {{ request()->routeIs('contact') ? 'bg-white text-brand shadow-md' : 'text-white hover:bg-white/10' }}">
+                            Contact Us
+                        </a>
                     @endif
-
-                    <div>
-                        <div class="font-medium text-base text-white">{{ Auth::user()->name }}</div>
-                        <div class="font-medium text-sm text-sand">{{ Auth::user()->email }}</div>
-                    </div>
                 </div>
 
-                <div class="mt-3 space-y-1">
-                    <x-responsive-nav-link href="{{ route('profile.show') }}" :active="request()->routeIs('profile.show')" class="text-white hover:bg-brand/80">
-                        {{ __('Profile') }}
-                    </x-responsive-nav-link>
+                <!-- Footer / Auth -->
+                <div class="px-6 pt-8 mt-4 border-t border-white/10">
+                    @auth
+                        <div class="flex items-center gap-4 mb-6">
+                            @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
+                                <img class="h-10 w-10 rounded-full object-cover border-2 border-white" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
+                            @else
+                                <div class="h-10 w-10 rounded-full bg-white text-brand flex items-center justify-center font-bold">
+                                    {{ substr(Auth::user()->name, 0, 1) }}
+                                </div>
+                            @endif
+                            <div>
+                                <div class="font-bold text-white">{{ Auth::user()->name }}</div>
+                                <div class="text-xs text-sand">{{ Auth::user()->email }}</div>
+                            </div>
+                        </div>
+                        
+                        <a href="{{ route('profile.show') }}" class="block w-full text-center py-3 mb-3 text-white border border-white/30 rounded-xl hover:bg-white/10 font-bold text-sm">
+                            Manage Profile
+                        </a>
 
-                    <!-- Authentication -->
-                    <form method="POST" action="{{ route('logout') }}" x-data>
-                        @csrf
-                        <x-responsive-nav-link href="{{ route('logout') }}"
-                                       @click.prevent="$root.submit();" class="text-white hover:bg-brand/80">
-                            {{ __('Log Out') }}
-                        </x-responsive-nav-link>
-                    </form>
+                        <form method="POST" action="{{ route('logout') }}" x-data>
+                            @csrf
+                            <button type="submit" @click.prevent="$root.submit();" class="block w-full text-center py-3 bg-white text-brand rounded-xl font-bold shadow-lg text-sm">
+                                Log Out
+                            </button>
+                        </form>
+                    @else
+                        <div class="grid grid-cols-2 gap-4">
+                            <a href="{{ route('login') }}" class="block w-full text-center py-3 text-white border border-white/30 rounded-xl hover:bg-white/10 font-bold transition-colors">
+                                Log In
+                            </a>
+                            <a href="{{ route('register') }}" class="block w-full text-center py-3 bg-white text-brand rounded-xl font-bold shadow-lg transition-transform active:scale-95">
+                                Register
+                            </a>
+                        </div>
+                    @endauth
                 </div>
-            </div>
-        @else
-            <div class="pt-4 pb-4 border-t border-brand/80">
-                <div class="space-y-1 px-4">
-                    <a href="{{ route('login') }}" class="block w-full text-center py-2 text-white font-semibold border border-white rounded-lg mb-2 hover:bg-white/10">
-                        Log in
-                    </a>
-                    <a href="{{ route('register') }}" class="block w-full text-center py-2 text-brand font-semibold bg-white rounded-lg hover:bg-gray-100">
-                        Register
-                    </a>
-                </div>
-            </div>
-        @endauth
+             </div>
+        </div>
     </div>
 </nav>

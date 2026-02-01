@@ -216,17 +216,22 @@ class ProductMenu extends Component
             ->withCount('promotions');
 
         if ($this->activeCategory !== 'All') {
-            $query->whereHas('category', function ($q) {
+            $query->whereHas('subCategory', function ($q) {
                 $q->where('name', $this->activeCategory);
             });
         }
 
         $products = $query->paginate(12);
 
+        // Fetch distinct available subcategories for the filter
+        $categories = \App\Models\SubCategory::whereHas('products', function($q) {
+            $q->where('status', 'active')->where('stock_quantity', '>', 0);
+        })->pluck('name')->sort()->values();
+
         return view('livewire.product-menu', [
             'products' => $products,
             'promotions' => \App\Models\Promotion::with('products')->get(),
-            'categories' => \App\Models\Category::where('name', '!=', 'Promotions')->pluck('name')
+            'categories' => $categories
         ]);
     }
 }
