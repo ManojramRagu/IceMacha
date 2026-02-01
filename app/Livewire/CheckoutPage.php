@@ -8,8 +8,9 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\Promotion;
 use App\Models\OrderItem;
-use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.app')]
 class CheckoutPage extends Component
 {
     public $clientSecret;
@@ -110,6 +111,6 @@ class CheckoutPage extends Component
 
     public function render()
     {
-        return view('livewire.checkout-page')->layout('layouts.app');
+        return view('livewire.checkout-page');
     }
 }

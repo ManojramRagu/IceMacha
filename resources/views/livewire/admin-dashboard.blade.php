@@ -224,9 +224,15 @@
                     <div class="space-y-8">
                     <div class="space-y-8">
                         <!-- Orders Table -->
-                        <div>
+                        <div wire:poll.10s>
                             <div class="flex items-center justify-between mb-6">
-                                <h2 class="text-xl font-bold text-gray-800">Orders</h2>
+                                <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                    Live Orders
+                                    <span class="flex h-2 w-2 relative">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-brand"></span>
+                                    </span>
+                                </h2>
                             </div>
 
                             <div class="overflow-x-auto rounded-2xl border border-gray-100 mb-8">

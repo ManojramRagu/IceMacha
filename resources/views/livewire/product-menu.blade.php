@@ -70,9 +70,13 @@
         @foreach($productsByCategory as $categoryName => $categoryProducts)
             <div class="mb-20 scroll-mt-40" 
                  x-show="activeCategory === 'all' || activeCategory === '{{ $categoryName }}'" 
-                 x-transition:enter="transition ease-out duration-500"
-                 x-transition:enter-start="opacity-0 translate-y-8"
-                 x-transition:enter-end="opacity-100 translate-y-0">
+                 x-transition:enter="transition ease-out duration-700"
+                 x-transition:enter-start="opacity-0 translate-y-12"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-300"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95"
+                 wire:transition>
                 
                 <div class="flex items-end gap-6 mb-8">
                     <h3 class="text-3xl font-bold text-cocoa leading-none">{{ $categoryName }}</h3>

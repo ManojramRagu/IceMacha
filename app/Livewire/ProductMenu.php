@@ -4,7 +4,11 @@ namespace App\Livewire;
 
 use App\Models\Product;
 use Livewire\Component;
+use Livewire\Attributes\Lazy;
+use Livewire\Attributes\Layout;
 
+#[Lazy]
+#[Layout('layouts.app')]
 class ProductMenu extends Component
 {
     public $showModal = false;
@@ -145,7 +149,7 @@ class ProductMenu extends Component
         }
 
         // Dispatch event to update navbar icon
-        $this->dispatch('cartUpdated');
+        $this->dispatch('cart-updated');
 
         // Update local state if the modal is open for this product
         if ($this->selectedProduct && $this->selectedProduct->id == $productId && $type == 'product') {
@@ -189,6 +193,11 @@ class ProductMenu extends Component
         $this->selectedProduct = null;
     }
 
+    public function placeholder()
+    {
+        return view('livewire.placeholders.menu-skeleton');
+    }
+
     public function render()
     {
         $products = \Illuminate\Support\Facades\Cache::remember('menu_categories', 60 * 60, function () {
@@ -198,6 +207,6 @@ class ProductMenu extends Component
         return view('livewire.product-menu', [
             'products' => $products,
             'promotions' => \App\Models\Promotion::with('products')->get() // Fetch bundles
-        ])->layout('layouts.app');
+        ]);
     }
 }

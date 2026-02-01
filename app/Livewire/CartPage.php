@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Livewire;
-use App\Models\CartItem;
 use Livewire\Component;
+use App\Models\CartItem;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.app')]
 class CartPage extends Component
 {
 // Increases the quantity of a specific item
@@ -18,7 +20,7 @@ class CartPage extends Component
             // Check if we can increase (stock available)
             if ($item->Quantity < $stock) {
                 $item->increment('Quantity');
-                $this->dispatch('cartUpdated');
+                $this->dispatch('cart-updated');
             } else {
                 // Send toast notification when stock limit reached
                 $this->dispatch('toast', 
@@ -29,7 +31,7 @@ class CartPage extends Component
         } else {
             // For promotions/bundles, increment without stock check (or add bundle logic if needed)
             $item->increment('Quantity');
-            $this->dispatch('cartUpdated');
+            $this->dispatch('cart-updated');
         }
     }
 
@@ -39,7 +41,7 @@ class CartPage extends Component
         $item = CartItem::find($itemId);
         if ($item->Quantity > 1) {
             $item->decrement('Quantity');
-            $this->dispatch('cartUpdated');
+            $this->dispatch('cart-updated');
         }
     }
 
@@ -47,7 +49,7 @@ class CartPage extends Component
     public function removeItem($itemId)
     {
         CartItem::destroy($itemId);
-        $this->dispatch('cartUpdated');
+        $this->dispatch('cart-updated');
     }
 
     public function render()
@@ -63,6 +65,6 @@ class CartPage extends Component
                 $price = $item->product ? $item->product->price : ($item->promotion ? $item->promotion->price : 0);
                 return $price * $item->Quantity;
             })
-        ])->layout('layouts.app');
+        ]);
     }
 }
