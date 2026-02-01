@@ -1,35 +1,54 @@
 @extends('layouts.app')
 
 @section('content')
-    <!-- 1. Hero Section (Modern & Premium) -->
-    <div class="relative w-full h-[450px] md:h-[600px] overflow-hidden group">
-        <!-- Hero Image -->
-        <img src="{{ asset('img/hero/hero.webp') }}" alt="Delicious Moments" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105">
+    <!-- 1. Hero Section (Matched with other pages) -->
+    <div class="relative h-[500px] md:h-[650px] overflow-hidden">
+        {{-- Background Image --}}
+        <img src="{{ asset('img/hero/hero.webp') }}" class="absolute inset-0 w-full h-full object-cover" alt="Delicious Moments">
+         
+        {{-- Gradient Overlay (Fading to Blush) --}}
+        <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-blush"></div>
         
-        <!-- Gradient Overlay -->
-        <div class="absolute inset-0 bg-gradient-to-r from-black/60 to-black/30"></div>
+        {{-- Decorative Top Border --}}
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-brand to-transparent"></div>
+        
+        {{-- Content --}}
+        <div class="relative h-full flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto">
+            {{-- Decorative Line --}}
+            <div class="w-16 h-px bg-brand mb-6"></div>
+            
+            {{-- Badge --}}
+            <span class="text-brand font-bold uppercase tracking-widest text-sm mb-4 bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm border border-white/30">Est. 2024</span>
+            
+            {{-- Main Title --}}
+            <h1 class="text-4xl md:text-7xl font-bold text-white mb-6 tracking-tight leading-tight font-display">
+                More Than Just <br/> <span class="text-sand">A Cup of Coffee</span>
+            </h1>
+            
+            {{-- Subtitle --}}
+            <p class="text-lg md:text-xl text-white/90 font-light max-w-2xl leading-relaxed">
+                Experience the finest blends and handcrafted treats, delivered straight to your doorstep.
+            </p>
 
-        <!-- Content (Glassmorphism Card style) -->
-        <div class="absolute inset-0 flex items-center justify-center md:justify-start px-4 md:px-20">
-            <div class="max-w-2xl bg-white/10 backdrop-blur-md border border-white/20 p-8 md:p-12 rounded-3xl text-center md:text-left shadow-2xl">
-                <span class="inline-block py-1 px-3 rounded-full bg-brand/20 text-sand text-xs font-bold tracking-widest uppercase mb-4 border border-sand/30">
-                    Est. 2024
-                </span>
-                <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 font-display drop-shadow-lg leading-tight">
-                    More Than Just <br/> <span class="text-sand">A Cup of Coffee</span>
-                </h1>
-                <p class="text-lg text-white/90 mb-8 font-light leading-relaxed">
-                    Experience the finest blends and handcrafted treats, delivered straight to your doorstep.
-                </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                    <a href="{{ route('menu') }}" class="px-8 py-3.5 bg-brand text-white font-bold rounded-2xl hover:bg-white hover:text-brand transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                        Order Now
-                    </a>
-                    <a href="#story" class="px-8 py-3.5 bg-transparent border border-white/40 text-white font-bold rounded-2xl hover:bg-white/10 transition-all backdrop-blur-sm">
-                        Our Story
-                    </a>
-                </div>
+            {{-- CTA Buttons --}}
+            <div class="flex flex-col sm:flex-row gap-4 mt-8">
+                <a href="{{ route('menu') }}" class="px-8 py-3.5 bg-brand text-white font-bold rounded-2xl hover:bg-white hover:text-brand transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    Order Now
+                </a>
+                <a href="#story" class="px-8 py-3.5 bg-white/10 border border-white/30 text-white font-bold rounded-2xl hover:bg-white/20 transition-all backdrop-blur-md">
+                    Our Story
+                </a>
             </div>
+            
+            {{-- Decorative Line --}}
+            <div class="w-16 h-px bg-brand mt-6"></div>
+        </div>
+        
+        {{-- Scroll Indicator --}}
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <svg class="w-6 h-6 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
         </div>
     </div>
 
