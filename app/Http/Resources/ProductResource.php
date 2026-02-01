@@ -24,8 +24,7 @@ class ProductResource extends JsonResource
             'category_id' => $this->category_id,
             'sub_category_id' => $this->sub_category_id,
             'status' => $this->status,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            // Timestamps removed as per v1 requirements
             // 'deleted_at' is explicitly removed as per requirements
         ];
     }

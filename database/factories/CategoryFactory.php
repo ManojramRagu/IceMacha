@@ -19,7 +19,7 @@ class CategoryFactory extends Factory
         return [
             'name' => $this->faker->word(),
             'description' => $this->faker->sentence(),
-            'image' => $this->faker->imageUrl(),
+            // 'image' removed to fix crash
         ];
     }
 }

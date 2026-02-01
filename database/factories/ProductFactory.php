@@ -21,7 +21,7 @@ class ProductFactory extends Factory
             'description' => $this->faker->sentence(),
             'price' => $this->faker->randomFloat(2, 10, 100),
             'stock_quantity' => $this->faker->numberBetween(0, 100),
-            'image_path' => $this->faker->imageUrl(),
+            'image_path' => 'products/dummy.jpg',
             'category_id' => \App\Models\Category::factory(),
             'status' => 'active',
         ];
