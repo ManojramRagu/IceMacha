@@ -17,5 +17,23 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (Throwable $e, \Illuminate\Http\Request $request) {
+            if ($request->is('api/*')) {
+                $statusCode = 500;
+                
+                if ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpException) {
+                    $statusCode = $e->getStatusCode();
+                } elseif ($e instanceof \Illuminate\Auth\AuthenticationException) {
+                    $statusCode = 401;
+                } elseif ($e instanceof \Illuminate\Validation\ValidationException) {
+                    $statusCode = 422;
+                }
+
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                    'data' => null,
+                ], $statusCode);
+            }
+        });
     })->create();
