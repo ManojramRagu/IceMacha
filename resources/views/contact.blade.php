@@ -2,7 +2,7 @@
 
 @section('content')
     {{-- Hero Section --}}
-    <div class="relative h-[400px] overflow-hidden">
+    <div class="relative h-[250px] md:h-[400px] overflow-hidden">
         {{-- Background Image --}}
         <img src="{{ asset('img/contact/hero.webp') }}" class="absolute inset-0 w-full h-full object-cover" alt="Contact Us">
         
@@ -21,12 +21,12 @@
             <span class="text-brand font-bold uppercase tracking-widest text-sm mb-4 bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm border border-white/30">Get in Touch</span>
             
             {{-- Main Title --}}
-            <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight leading-tight font-display">
+            <h1 class="text-3xl md:text-6xl font-bold text-white mb-6 tracking-tight leading-tight font-display">
                 We'd Love to Hear From You
             </h1>
             
             {{-- Subtitle --}}
-            <p class="text-lg md:text-xl text-white/90 font-light max-w-2xl leading-relaxed">
+            <p class="text-base md:text-xl text-white/90 font-light max-w-2xl leading-relaxed">
                 Have a question or just want to say hi? We're all ears.
             </p>
             
@@ -35,25 +35,25 @@
         </div>
         
         {{-- Scroll Indicator --}}
-        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce hidden md:block">
             <svg class="w-6 h-6 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
             </svg>
         </div>
     </div>
 
-    <div class="min-h-screen bg-gray-50 flex py-16 px-4">
+    <div class="min-h-screen bg-gray-50 flex py-8 md:py-16 px-4">
         <div class="max-w-7xl w-full mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
             
             <!-- 2. Contact Info & Map (Left - 4 cols) -->
-            <div class="md:col-span-5 bg-cocoa text-white relative flex flex-col justify-between p-10 md:p-14">
+            <div class="md:col-span-5 bg-cocoa text-white relative flex flex-col justify-between p-6 md:p-14">
                  <!-- Decorative Shape -->
                  <div class="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10 pointer-events-none">
                     <div class="absolute -top-24 -left-24 w-64 h-64 rounded-full bg-brand blur-3xl"></div>
                     <div class="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-sand blur-3xl"></div>
                  </div>
 
-                <div class="relative z-10 space-y-10">
+                <div class="relative z-10 space-y-6 md:space-y-10">
                     <div>
                         <h3 class="text-2xl font-bold font-display mb-2">Contact Information</h3>
                         <p class="text-white/70">Fill up the form and our team will get back to you within 24 hours.</p>
@@ -108,7 +108,7 @@
             </div>
 
             <!-- 3. Contact Form (Right - 7 cols) -->
-            <div class="md:col-span-7 bg-white p-10 md:p-14 relative z-20">
+            <div class="md:col-span-7 bg-white p-6 md:p-14 relative z-20">
                  <h2 class="text-3xl font-display font-bold text-brand mb-8 text-center md:text-left">Send us a Message</h2>
                 
                 <form id="contact-form" action="https://formspree.io/f/mojdpjne" method="POST" class="space-y-6">

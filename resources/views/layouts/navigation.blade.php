@@ -2,8 +2,8 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full relative">
         <div class="flex justify-center items-center h-full relative">
             
-            <!-- Center Navigation Cluster -->
-            <div class="hidden sm:flex items-center gap-12 relative z-20">
+            <!-- Center Navigation Cluster (Desktop) -->
+            <div class="hidden lg:flex items-center gap-12 relative z-20">
                 <a href="{{ route('home') }}" class="text-white hover:text-sand font-medium transition-colors {{ request()->routeIs('home') ? 'font-bold' : '' }}">
                     Home
                 </a>
@@ -30,8 +30,8 @@
                 </a>
             </div>
 
-            <!-- Right Side Utility (Absolute Right) -->
-            <div class="hidden sm:flex items-center gap-6 absolute right-0 top-1/2 -translate-y-1/2 z-20">
+            <!-- Right Side Utility (Desktop) -->
+            <div class="hidden lg:flex items-center gap-6 absolute right-0 top-1/2 -translate-y-1/2 z-20">
                 <!-- Cart Icon -->
                 <div class="flex items-center text-white">
                     <livewire:cart-icon />
@@ -39,7 +39,6 @@
 
                 <!-- Authentication -->
                 @auth
-                    <!-- My Orders Icon -->
                     <!-- My Orders Icon -->
                     <a href="{{ route('my-orders') }}" class="text-white hover:text-sand transition-colors group relative" title="Orders" aria-label="View My Orders">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -98,82 +97,109 @@
                 @endauth
             </div>
 
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
+            <!-- Hamburger (Mobile) -->
+            <div class="-me-2 flex items-center lg:hidden absolute right-0 top-1/2 -translate-y-1/2">
                 <div class="me-4 text-white">
                     <livewire:cart-icon />
                 </div>
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-sand hover:bg-brand/80 focus:outline-none focus:bg-brand/80 transition duration-150 ease-in-out">
+                <button @click="open = true" class="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-sand hover:bg-brand/80 focus:outline-none focus:bg-brand/80 transition duration-150 ease-in-out">
                     <svg class="size-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-brand border-t border-brand/80">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link href="{{ route('home') }}" :active="request()->routeIs('home')" class="text-white hover:bg-brand/80">
-                Home
-            </x-responsive-nav-link>
-            <x-responsive-nav-link href="{{ route('menu') }}" :active="request()->routeIs('menu')" class="text-white hover:bg-brand/80">
-                Menu
-            </x-responsive-nav-link>
-            @auth
-                <x-responsive-nav-link href="{{ route('my-orders') }}" :active="request()->routeIs('my-orders')" class="text-white hover:bg-brand/80">
-                    {{ __('My Orders') }}
-                </x-responsive-nav-link>
-            @endauth
-            <x-responsive-nav-link href="{{ route('about') }}" :active="request()->routeIs('about')" class="text-white hover:bg-brand/80">
-                About
-            </x-responsive-nav-link>
-        </div>
+    <!-- Mobile Sidebar Menu -->
+    <div x-show="open" 
+         style="display: none;" 
+         class="fixed inset-0 z-[60] lg:hidden"
+         role="dialog" 
+         aria-modal="true">
+        
+        <!-- Backdrop -->
+        <div x-show="open"
+             x-transition:enter="transition-opacity ease-linear duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-linear duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-black/50 backdrop-blur-sm"
+             @click="open = false"></div>
 
-        @auth
-            <!-- Responsive Settings Options -->
-            <div class="pt-4 pb-1 border-t border-brand/80">
-                <div class="flex items-center px-4">
-                    @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-                        <div class="shrink-0 me-3">
-                            <img class="size-10 rounded-full object-cover border-2 border-white" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
-                        </div>
-                    @endif
-
-                    <div>
-                        <div class="font-medium text-base text-white">{{ Auth::user()->name }}</div>
-                        <div class="font-medium text-sm text-sand">{{ Auth::user()->email }}</div>
-                    </div>
-                </div>
-
-                <div class="mt-3 space-y-1">
-                    <x-responsive-nav-link href="{{ route('profile.show') }}" :active="request()->routeIs('profile.show')" class="text-white hover:bg-brand/80">
-                        {{ __('Profile') }}
-                    </x-responsive-nav-link>
-
-                    <!-- Authentication -->
-                    <form method="POST" action="{{ route('logout') }}" x-data>
-                        @csrf
-                        <x-responsive-nav-link href="{{ route('logout') }}"
-                                       @click.prevent="$root.submit();" class="text-white hover:bg-brand/80">
-                            {{ __('Log Out') }}
-                        </x-responsive-nav-link>
-                    </form>
-                </div>
+        <!-- Sidebar -->
+        <div x-show="open"
+             x-transition:enter="transition ease-in-out duration-300 transform"
+             x-transition:enter-start="translate-x-full"
+             x-transition:enter-end="translate-x-0"
+             x-transition:leave="transition ease-in-out duration-300 transform"
+             x-transition:leave-start="translate-x-0"
+             x-transition:leave-end="translate-x-full"
+             class="fixed inset-y-0 right-0 w-64 bg-brand shadow-2xl p-6 overflow-y-auto border-l border-brand/50">
+            
+            <div class="flex items-center justify-between mb-8">
+                <span class="text-xl font-bold text-white tracking-widest">MENU</span>
+                <button @click="open = false" class="text-white hover:text-sand transition-colors">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
-        @else
-            <div class="pt-4 pb-4 border-t border-brand/80">
-                <div class="space-y-1 px-4">
-                    <a href="{{ route('login') }}" class="block w-full text-center py-2 text-white font-semibold border border-white rounded-lg mb-2 hover:bg-white/10">
+
+            <div class="flex flex-col space-y-4">
+                <a href="{{ route('home') }}" class="text-white text-lg font-medium hover:text-sand transition-colors {{ request()->routeIs('home') ? 'text-sand font-bold' : '' }}">
+                    Home
+                </a>
+                <a href="{{ route('menu') }}" class="text-white text-lg font-medium hover:text-sand transition-colors {{ request()->routeIs('menu') ? 'text-sand font-bold' : '' }}">
+                    Menu
+                </a>
+                <a href="{{ route('about') }}" class="text-white text-lg font-medium hover:text-sand transition-colors {{ request()->routeIs('about') ? 'text-sand font-bold' : '' }}">
+                    About
+                </a>
+                <a href="{{ route('contact') }}" class="text-white text-lg font-medium hover:text-sand transition-colors {{ request()->routeIs('contact') ? 'text-sand font-bold' : '' }}">
+                    Contact
+                </a>
+
+                <div class="h-px bg-white/20 my-4"></div>
+
+                @auth
+                    <a href="{{ route('my-orders') }}" class="text-white text-lg font-medium hover:text-sand transition-colors {{ request()->routeIs('my-orders') ? 'text-sand font-bold' : '' }}">
+                        My Orders
+                    </a>
+                    <a href="{{ route('profile.show') }}" class="text-white text-lg font-medium hover:text-sand transition-colors {{ request()->routeIs('profile.show') ? 'text-sand font-bold' : '' }}">
+                        Profile
+                    </a>
+                    
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <a href="{{ route('logout') }}" 
+                           @click.prevent="$root.submit();"
+                           class="text-white text-lg font-medium hover:text-sand transition-colors">
+                            Log Out
+                        </a>
+                    </form>
+                    
+                    <div class="mt-6 flex items-center gap-3">
+                         @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
+                            <img class="size-10 rounded-full object-cover border-2 border-white" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
+                        @endif
+                        <div>
+                             <div class="font-medium text-base text-white">{{ Auth::user()->name }}</div>
+                             <div class="font-medium text-xs text-sand">{{ Auth::user()->email }}</div>
+                        </div>
+                    </div>
+
+                @else
+                    <a href="{{ route('login') }}" class="block w-full text-center py-2 text-white font-semibold border border-white rounded-lg hover:bg-white/10 transition-colors">
                         Log in
                     </a>
-                    <a href="{{ route('register') }}" class="block w-full text-center py-2 text-brand font-semibold bg-white rounded-lg hover:bg-gray-100">
+                    <a href="{{ route('register') }}" class="block w-full text-center py-2 text-brand font-semibold bg-white rounded-lg hover:bg-gray-100 transition-colors">
                         Register
                     </a>
-                </div>
+                @endauth
             </div>
-        @endauth
+        </div>
     </div>
 </nav>
