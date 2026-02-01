@@ -148,7 +148,7 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="flex-1 px-4 space-y-2">
+                <div class="flex-1 px-4 space-y-2 flex flex-col justify-start">
                     <a href="{{ route('home') }}" class="block px-4 py-3 rounded-xl text-lg font-bold transition-all {{ request()->routeIs('home') ? 'bg-white text-brand shadow-md' : 'text-white hover:bg-white/10' }}">
                         Home
                     </a>
@@ -156,8 +156,24 @@
                         Menu
                     </a>
                     
-                    {{-- User Links (Cart & Orders) - Styled as Cards --}}
-                    <div class="grid grid-cols-2 gap-3 my-4">
+                    <a href="{{ route('about') }}" class="block px-4 py-3 rounded-xl text-lg font-bold transition-all {{ request()->routeIs('about') ? 'bg-white text-brand shadow-md' : 'text-white hover:bg-white/10' }}">
+                        About
+                    </a>
+
+                    @if(Auth::check() && Auth::user()->role === 'admin')
+                        <a href="{{ route('admin') }}" class="block px-4 py-3 rounded-xl text-lg font-bold transition-all text-white hover:bg-white/10">
+                            Admin Dashboard
+                        </a>
+                    @else
+                        <a href="{{ route('contact') }}" class="block px-4 py-3 rounded-xl text-lg font-bold transition-all {{ request()->routeIs('contact') ? 'bg-white text-brand shadow-md' : 'text-white hover:bg-white/10' }}">
+                            Contact Us
+                        </a>
+                    @endif
+                </div>
+
+                <!-- Footer (Cart & Orders) -->
+                <div class="px-6 pt-4 mt-auto mb-6">
+                     <div class="grid grid-cols-2 gap-3">
                         <a href="{{ route('checkout') }}" class="flex flex-col items-center justify-center p-4 bg-white/10 hover:bg-white/20 rounded-2xl border border-white/10 transition-all text-white group">
                             <div class="bg-white text-brand p-2 rounded-full mb-2 group-hover:scale-110 transition-transform">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -187,59 +203,6 @@
                             </a>
                         @endauth
                     </div>
-
-                    <a href="{{ route('about') }}" class="block px-4 py-3 rounded-xl text-lg font-bold transition-all {{ request()->routeIs('about') ? 'bg-white text-brand shadow-md' : 'text-white hover:bg-white/10' }}">
-                        About
-                    </a>
-
-                    @if(Auth::check() && Auth::user()->role === 'admin')
-                        <a href="{{ route('admin') }}" class="block px-4 py-3 rounded-xl text-lg font-bold transition-all text-white hover:bg-white/10">
-                            Admin Dashboard
-                        </a>
-                    @else
-                        <a href="{{ route('contact') }}" class="block px-4 py-3 rounded-xl text-lg font-bold transition-all {{ request()->routeIs('contact') ? 'bg-white text-brand shadow-md' : 'text-white hover:bg-white/10' }}">
-                            Contact Us
-                        </a>
-                    @endif
-                </div>
-
-                <!-- Footer / Auth -->
-                <div class="px-6 pt-8 mt-4 border-t border-white/10">
-                    @auth
-                        <div class="flex items-center gap-4 mb-6">
-                            @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-                                <img class="h-10 w-10 rounded-full object-cover border-2 border-white" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
-                            @else
-                                <div class="h-10 w-10 rounded-full bg-white text-brand flex items-center justify-center font-bold">
-                                    {{ substr(Auth::user()->name, 0, 1) }}
-                                </div>
-                            @endif
-                            <div>
-                                <div class="font-bold text-white">{{ Auth::user()->name }}</div>
-                                <div class="text-xs text-sand">{{ Auth::user()->email }}</div>
-                            </div>
-                        </div>
-                        
-                        <a href="{{ route('profile.show') }}" class="block w-full text-center py-3 mb-3 text-white border border-white/30 rounded-xl hover:bg-white/10 font-bold text-sm">
-                            Manage Profile
-                        </a>
-
-                        <form method="POST" action="{{ route('logout') }}" x-data>
-                            @csrf
-                            <button type="submit" @click.prevent="$root.submit();" class="block w-full text-center py-3 bg-white text-brand rounded-xl font-bold shadow-lg text-sm">
-                                Log Out
-                            </button>
-                        </form>
-                    @else
-                        <div class="grid grid-cols-2 gap-4">
-                            <a href="{{ route('login') }}" class="block w-full text-center py-3 text-white border border-white/30 rounded-xl hover:bg-white/10 font-bold transition-colors">
-                                Log In
-                            </a>
-                            <a href="{{ route('register') }}" class="block w-full text-center py-3 bg-white text-brand rounded-xl font-bold shadow-lg transition-transform active:scale-95">
-                                Register
-                            </a>
-                        </div>
-                    @endauth
                 </div>
              </div>
         </div>
