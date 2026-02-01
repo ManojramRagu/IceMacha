@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Models\Category;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class ProductApiTest extends TestCase
@@ -45,14 +46,13 @@ class ProductApiTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'status',
-                'message',
                 'data' => [
-                    'current_page',
-                    'data' => [
-                        '*' => ['id', 'name', 'price']
-                    ]
-                ]
+                    '*' => ['id', 'name', 'price']
+                ],
+                'links',
+                'meta',
+                'status',
+                'message'
             ]);
     }
 
@@ -65,7 +65,7 @@ class ProductApiTest extends TestCase
         $response = $this->getJson('/api/products?category_id=' . $category->id);
 
         $response->assertStatus(200);
-        $this->assertCount(1, $response->json('data.data'));
+        $this->assertCount(1, $response->json('data'));
     }
 
     public function test_cannot_create_product_without_token()
@@ -74,8 +74,6 @@ class ProductApiTest extends TestCase
             'name' => 'New Product',
             'price' => 100
         ]);
-        
-        $response->dump();
 
         $response->assertStatus(401); // Unauthorized
     }
@@ -90,7 +88,11 @@ class ProductApiTest extends TestCase
         
         $category = $this->createCategory();
 
-        $response = $this->actingAs($user, 'sanctum')->postJson('/api/products', [
+        $category = $this->createCategory();
+
+        Sanctum::actingAs($user, ['admin:all']);
+
+        $response = $this->postJson('/api/products', [
             'name' => 'New Product',
             'description' => 'Test Desc',
             'price' => 100,
@@ -114,7 +116,9 @@ class ProductApiTest extends TestCase
         ]);
         
         // Sending invalid data to trigger validation error
-        $response = $this->actingAs($user, 'sanctum')->postJson('/api/products', [
+        Sanctum::actingAs($user, ['admin:all']);
+
+        $response = $this->postJson('/api/products', [
             'name' => '', // Required
         ]);
 

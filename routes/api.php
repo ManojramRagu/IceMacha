@@ -2,32 +2,34 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\LoginApiController;
+use App\Http\Controllers\Api\ProductController;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::middleware(['throttle:api'])->group(function () {
+    // Auth Routes
+    Route::post('/login', [LoginApiController::class, 'login']);
+    
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout', [LoginApiController::class, 'logout']);
+        
+        Route::get('/user', function (Request $request) {
+            return $request->user();
+        });
+    });
 
-/**
- * Product API Routes
- * 
- * Public Routes:
- * - GET /api/products: List services/products (Pagination + Filter)
- * - GET /api/products/{id}: Show details
- * 
- * Protected Routes (Sanctum):
- * - POST /api/products: Create
- * - PUT /api/products/{id}: Update
- * - DELETE /api/products/{id}: Delete
- */
-Route::prefix('products')->group(function () {
-    // Public
-    Route::get('/', [\App\Http\Controllers\Api\ProductController::class, 'index']);
-    Route::get('/{id}', [\App\Http\Controllers\Api\ProductController::class, 'show']);
+    /**
+     * Product API Routes
+     */
+    Route::prefix('products')->group(function () {
+        // Public
+        Route::get('/', [ProductController::class, 'index']);
+        Route::get('/{id}', [ProductController::class, 'show']);
 
-    // Protected
-    Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
-        Route::post('/', [\App\Http\Controllers\Api\ProductController::class, 'store']);
-        Route::put('/{id}', [\App\Http\Controllers\Api\ProductController::class, 'update']);
-        Route::delete('/{id}', [\App\Http\Controllers\Api\ProductController::class, 'destroy']);
+        // Protected (Admin only for write operations)
+        Route::middleware(['auth:sanctum', 'abilities:admin:all'])->group(function () {
+            Route::post('/', [ProductController::class, 'store']);
+            Route::put('/{id}', [ProductController::class, 'update']);
+            Route::delete('/{id}', [ProductController::class, 'destroy']);
+        });
     });
 });

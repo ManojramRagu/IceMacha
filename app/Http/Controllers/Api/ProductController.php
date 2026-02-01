@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Http\Resources\ProductResource;
 use App\Traits\ApiResponses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -39,7 +40,10 @@ class ProductController extends Controller
             // Pagination (10 per page)
             $products = $query->paginate(10);
 
-            return $this->successResponse($products, 'Products retrieved successfully.');
+            return ProductResource::collection($products)->additional([
+                'status' => 'success',
+                'message' => 'Products retrieved successfully.'
+            ])->response()->setStatusCode(200);
         } catch (Exception $e) {
             return $this->errorResponse('Failed to retrieve products: ' . $e->getMessage(), 500);
         }
@@ -81,7 +85,10 @@ class ProductController extends Controller
 
             $product = Product::create($data);
 
-            return $this->successResponse($product, 'Product created successfully.', 201);
+            return (new ProductResource($product))->additional([
+                'status' => 'success',
+                'message' => 'Product created successfully.'
+            ])->response()->setStatusCode(201);
         } catch (Exception $e) {
             return $this->errorResponse('Failed to create product: ' . $e->getMessage(), 500);
         }
@@ -102,7 +109,10 @@ class ProductController extends Controller
                 return $this->errorResponse('Product not found.', 404);
             }
 
-            return $this->successResponse($product, 'Product retrieved successfully.');
+            return (new ProductResource($product))->additional([
+                'status' => 'success',
+                'message' => 'Product retrieved successfully.'
+            ])->response()->setStatusCode(200);
         } catch (Exception $e) {
             return $this->errorResponse('Failed to retrieve product: ' . $e->getMessage(), 500);
         }
@@ -146,7 +156,10 @@ class ProductController extends Controller
 
             $product->update($data);
 
-            return $this->successResponse($product, 'Product updated successfully.');
+            return (new ProductResource($product))->additional([
+                'status' => 'success',
+                'message' => 'Product updated successfully.'
+            ])->response()->setStatusCode(200);
         } catch (Exception $e) {
             return $this->errorResponse('Failed to update product: ' . $e->getMessage(), 500);
         }
