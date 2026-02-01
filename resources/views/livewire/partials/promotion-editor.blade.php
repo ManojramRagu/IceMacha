@@ -83,7 +83,6 @@
          <button wire:click="setMode('list')" class="px-6 py-2 rounded-full border border-gray-200 text-gray-600 font-semibold hover:bg-gray-50 transition-colors">Cancel</button>
     @else
         <button wire:click="deletePromotion" 
-                onclick="confirm('Delete this promotion?') || event.stopImmediatePropagation()"
                 class="px-6 py-2 rounded-full border border-red-200 text-red-600 font-semibold hover:bg-red-50 transition-colors">
             Delete
         </button>
