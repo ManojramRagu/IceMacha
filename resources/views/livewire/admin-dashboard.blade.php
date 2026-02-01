@@ -70,7 +70,7 @@
         <div class="col-span-12 {{ $activeTab === 'inventory' ? 'md:col-span-9' : 'md:col-span-12' }} space-y-6">
             
             <!-- List/Create Card -->
-            <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8 min-h-[600px] flex flex-col">
+            <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-4 md:p-8 min-h-[600px] flex flex-col">
                 @if($activeTab === 'inventory')
                     <!-- Header with Search -->
                     <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">

@@ -6,11 +6,22 @@ use App\Models\Product;
 use Livewire\Component;
 use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Layout;
+use Livewire\WithPagination;
 
 #[Lazy]
 #[Layout('layouts.app')]
 class ProductMenu extends Component
 {
+    use WithPagination;
+
+    public $activeCategory = 'All';
+
+    public function setCategory($category)
+    {
+        $this->activeCategory = $category;
+        $this->resetPage();
+    }
+    
     public $showModal = false;
     public $selectedProduct = null;
     public $showToast = false;
@@ -200,13 +211,27 @@ class ProductMenu extends Component
 
     public function render()
     {
-        $products = \Illuminate\Support\Facades\Cache::remember('menu_categories', 60 * 60, function () {
-            return \App\Models\Product::available()->with(['category', 'subCategory'])->withCount('promotions')->get();
-        });
+        $query = \App\Models\Product::available()
+            ->with(['category', 'subCategory'])
+            ->withCount('promotions');
+
+        if ($this->activeCategory !== 'All') {
+            $query->whereHas('subCategory', function ($q) {
+                $q->where('name', $this->activeCategory);
+            });
+        }
+
+        $products = $query->paginate(12);
+
+        // Fetch distinct available subcategories for the filter
+        $categories = \App\Models\SubCategory::whereHas('products', function($q) {
+            $q->where('status', 'active')->where('stock_quantity', '>', 0);
+        })->pluck('name')->sort()->values();
 
         return view('livewire.product-menu', [
             'products' => $products,
-            'promotions' => \App\Models\Promotion::with('products')->get() // Fetch bundles
+            'promotions' => \App\Models\Promotion::with('products')->get(),
+            'categories' => $categories
         ]);
     }
 }
