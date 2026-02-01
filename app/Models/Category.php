@@ -8,6 +8,11 @@ class Category extends Model
 {
     protected $fillable = ['name', 'description'];
 
+    protected static function booted(): void
+    {
+        static::observe(\App\Observers\CategoryObserver::class);
+    }
+
     public function subCategories()
     {
         return $this->hasMany(SubCategory::class);

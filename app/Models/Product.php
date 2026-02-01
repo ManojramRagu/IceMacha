@@ -17,6 +17,11 @@ class Product extends Model
         'stock_quantity'
     ];
 
+    protected static function booted(): void
+    {
+        static::observe(\App\Observers\ProductObserver::class);
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class);
