@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Promotion;
 use App\Models\OrderItem;
 use Livewire\Attributes\Layout;
+use Illuminate\Support\Facades\DB;
 
 #[Layout('layouts.app')]
 class CheckoutPage extends Component
@@ -17,6 +18,7 @@ class CheckoutPage extends Component
     public $total;
     public $cartItems;
     public $paymentMethod = 'card';
+    protected $orderId;
 
     public function mount()
     {
@@ -52,40 +54,45 @@ class CheckoutPage extends Component
         }
 
         if ($this->paymentMethod === 'cash') {
-            // Create Order
-            $order = Order::create([
-                'user_id' => auth()->id(),
-                'total_amount' => $this->total,
-                'payment_method' => strtoupper($this->paymentMethod),
-                'status' => 'pending',
-            ]);
+            DB::transaction(function() {
+                // Create Order
+                $order = Order::create([
+                    'user_id' => auth()->id(),
+                    'total_amount' => $this->total,
+                    'payment_method' => strtoupper($this->paymentMethod),
+                    'status' => 'pending',
+                ]);
 
-            // Migrate Items
-            // Migrate Items & Deduct Stock
-            foreach ($this->cartItems as $item) {
-                if ($item->PromotionId) {
-                    OrderItem::create([
-                        'order_id' => $order->id,
-                        'promotion_id' => $item->PromotionId,
-                        'quantity' => $item->Quantity,
-                        'price_at_purchase' => $item->promotion->price ?? 0
-                    ]);
-                } else {
-                    OrderItem::create([
-                        'order_id' => $order->id,
-                        'product_id' => $item->product->id,
-                        'quantity' => $item->Quantity,
-                        'price_at_purchase' => $item->product->price
-                    ]);
+                // Migrate Items & Deduct Stock
+                foreach ($this->cartItems as $item) {
+                    if ($item->PromotionId) {
+                        OrderItem::create([
+                            'order_id' => $order->id,
+                            'promotion_id' => $item->PromotionId,
+                            'quantity' => $item->Quantity,
+                            'price_at_purchase' => $item->promotion->price ?? 0
+                        ]);
+                    } else {
+                        OrderItem::create([
+                            'order_id' => $order->id,
+                            'product_id' => $item->product->id,
+                            'quantity' => $item->Quantity,
+                            'price_at_purchase' => $item->product->price
+                        ]);
+                    }
                 }
-            }
-            
-            $this->deductStock($order);
+                
+                $this->deductStock($order);
 
-            // Clear Cart
-            CartItem::whereIn('CartItemId', $this->cartItems->pluck('CartItemId'))->delete();
-            
-            return redirect()->route('order.success', ['orderId' => $order->id]);
+                // Clear Cart
+                CartItem::whereIn('CartItemId', $this->cartItems->pluck('CartItemId'))->delete();
+                
+                $this->orderId = $order->id; // Temporary store for redirect
+            });
+
+            if (isset($this->orderId)) {
+                return redirect()->route('order.success', ['orderId' => $this->orderId]);
+            }
         }
     }
 

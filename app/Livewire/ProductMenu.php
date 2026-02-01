@@ -201,7 +201,7 @@ class ProductMenu extends Component
     public function render()
     {
         $products = \Illuminate\Support\Facades\Cache::remember('menu_categories', 60 * 60, function () {
-            return \App\Models\Product::available()->with(['category', 'subCategory'])->get();
+            return \App\Models\Product::available()->with(['category', 'subCategory'])->withCount('promotions')->get();
         });
 
         return view('livewire.product-menu', [

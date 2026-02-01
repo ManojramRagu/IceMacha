@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Scopes\ActiveProductScope;
+use App\Casts\Currency;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -21,8 +23,13 @@ class Product extends Model
         'stock_quantity'
     ];
 
+    protected $casts = [
+        'price' => Currency::class,
+    ];
+
     protected static function booted(): void
     {
+        static::addGlobalScope(new ActiveProductScope);
         static::observe(\App\Observers\ProductObserver::class);
     }
 
@@ -43,11 +50,6 @@ class Product extends Model
 
     public function scopeAvailable($query)
     {
-        return $query->where('status', 'active')->where('stock_quantity', '>', 0);
-    }
-
-    public function getFormattedPriceAttribute()
-    {
-        return 'Rs. ' . number_format($this->price, 2);
+        return $query->where('stock_quantity', '>', 0);
     }
 }

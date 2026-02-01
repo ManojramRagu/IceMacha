@@ -62,7 +62,8 @@ class AdminDashboard extends Component
     public function updatedProductSearch()
     {
         if (strlen($this->productSearch) > 1) {
-            $this->searchResults = Product::where('name', 'like', '%' . $this->productSearch . '%')
+            $this->searchResults = Product::withoutGlobalScopes()
+                ->where('name', 'like', '%' . $this->productSearch . '%')
                 ->take(5)
                 ->get()
                 ->toArray();
@@ -104,7 +105,7 @@ class AdminDashboard extends Component
             return;
         }
 
-        $product = Product::find($id);
+        $product = Product::withoutGlobalScopes()->find($id);
         if ($product) {
             $this->editingProductId = $id;
             $this->editingName = $product->name;
@@ -138,7 +139,7 @@ class AdminDashboard extends Component
     
     public function addProductToBundle($productId)
     {
-        $product = Product::find($productId);
+        $product = Product::withoutGlobalScopes()->find($productId);
         if ($product) {
             $this->bundleItems[] = [
                 'product_id' => $product->id,
@@ -244,7 +245,7 @@ class AdminDashboard extends Component
             'editingDescription' => 'nullable|string',
         ]);
 
-        $product = Product::find($this->editingProductId);
+        $product = Product::withoutGlobalScopes()->find($this->editingProductId);
         if ($product) {
             $product->update([
                 'name' => $this->editingName,
@@ -327,7 +328,7 @@ class AdminDashboard extends Component
     public function performDelete()
     {
         if ($this->deleteType === 'product') {
-            $product = Product::find($this->deleteId);
+            $product = Product::withoutGlobalScopes()->find($this->deleteId);
             if ($product) {
                 $product->delete();
                 $this->showToast('Product deleted successfully!');
@@ -401,7 +402,7 @@ class AdminDashboard extends Component
             return $query->get();
         }
 
-        $query = Product::query();
+        $query = Product::withoutGlobalScopes();
 
         if ($this->selectedSub) {
             $query->whereHas('subCategory', function ($q) {

@@ -106,13 +106,21 @@
                                         </span>
                                     </div>
                                 @endif
+
+                                @if($product->promotions_count > 0)
+                                    <div class="absolute top-4 left-4">
+                                        <span class="px-3 py-1 bg-brand text-white rounded-lg text-xs font-bold shadow-lg">
+                                            Bundle Available
+                                        </span>
+                                    </div>
+                                @endif
                             </div>
 
                             {{-- Content --}}
                             <div class="p-6 w-full flex flex-col flex-grow">
                                 <h4 class="text-xl font-bold text-cocoa mb-2 leading-tight group-hover:text-brand transition-colors">{{ $product->name }}</h4>
                                 <div class="mt-auto pt-2">
-                                     <span class="text-brand font-bold text-lg">{{ $product->formatted_price }}</span>
+                                     <span class="text-brand font-bold text-lg">{{ $product->price }}</span>
                                 </div>
                             </div>
 
@@ -209,7 +217,7 @@
                                 <p class="text-gray-500 mb-8 text-lg leading-relaxed">{{ $selectedProduct->description }}</p>
                                 
                                 <div class="flex items-center gap-6 mb-10">
-                                    <div class="text-3xl font-bold text-cocoa">{{ $selectedProduct->formatted_price }}</div>
+                                    <div class="text-3xl font-bold text-cocoa">{{ $selectedProduct->price }}</div>
                                     @if($selectedProduct->stock_quantity <= 5 && $selectedProduct->stock_quantity > 0)
                                         <div class="text-orange-500 font-bold text-sm bg-orange-50 px-3 py-1 rounded-lg">
                                             Running Low!
@@ -236,7 +244,7 @@
 
                                             <button wire:click.prevent="addToCart({{ $selectedProduct->id }}, 'product', modalQty)" 
                                                     class="w-full py-5 rounded-2xl bg-brand text-white font-bold text-lg hover:bg-cocoa transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
-                                                Add to Cart - Rs. <span x-text="(modalQty * {{ $selectedProduct->price }}).toLocaleString()"></span>
+                                                Add to Cart - Rs. <span x-text="(modalQty * {{ $selectedProduct->getRawOriginal('price') }}).toLocaleString()"></span>
                                             </button>
                                         </div>
                                     </template>
