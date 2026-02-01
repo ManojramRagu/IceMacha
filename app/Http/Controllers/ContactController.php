@@ -18,13 +18,15 @@ class ContactController extends Controller
             'message' => 'required|string',
         ]);
 
-        ContactMessage::create([
+        $contactMessage = ContactMessage::create([
             'user_id' => Auth::id(),
             'name' => $request->first_name . ' ' . $request->last_name,
             'email' => $request->email,
             'subject' => $request->subject,
             'message' => $request->message,
         ]);
+
+        \App\Events\MessageReceived::dispatch($contactMessage);
 
         return response()->json(['success' => true]);
     }

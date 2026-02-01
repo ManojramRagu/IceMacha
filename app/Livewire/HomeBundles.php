@@ -47,7 +47,7 @@ class HomeBundles extends Component
         // but keeping structure similar to ProductMenu for consistency.
 
         // Dispatch event to update navbar icon (if navbar listens to this)
-        $this->dispatch('cartUpdated');
+        $this->dispatch('cart-updated');
 
         // Show toast
         $this->toastMessage = 'Bundle added to cart successfully!';

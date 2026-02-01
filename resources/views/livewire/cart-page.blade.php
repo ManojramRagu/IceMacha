@@ -38,7 +38,7 @@
                                      @php
                                          $imagePath = $item->product ? $item->product->image_path : ($item->promotion ? $item->promotion->image_path : null);
                                          $name = $item->product ? $item->product->name : ($item->promotion ? $item->promotion->name : 'Unknown Item');
-                                         $price = $item->product ? $item->product->price : ($item->promotion ? $item->promotion->price : 0);
+                                         $price = $item->product ? $item->product->getRawOriginal('price') : ($item->promotion ? $item->promotion->price : 0);
                                      @endphp
                                      
                                      @if($imagePath)

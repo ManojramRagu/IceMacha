@@ -4,7 +4,11 @@ namespace App\Livewire;
 
 use App\Models\Product;
 use Livewire\Component;
+use Livewire\Attributes\Lazy;
+use Livewire\Attributes\Layout;
 
+#[Lazy]
+#[Layout('layouts.app')]
 class ProductMenu extends Component
 {
     public $showModal = false;
@@ -89,7 +93,14 @@ class ProductMenu extends Component
 
         } else {
             // Check Product Stock
-            $product = \App\Models\Product::find($productId);
+            $product = \App\Models\Product::available()->find($productId);
+
+            if (!$product) {
+                 $this->toastMessage = "Product is no longer available.";
+                 $this->toastType = 'error';
+                 $this->showToast = true;
+                 return;
+            }
             
             // Get existing quantity
             $existingCartItem = \App\Models\CartItem::where('CartId', $cart->CartId)
@@ -104,6 +115,8 @@ class ProductMenu extends Component
             $availableToAdd = min($remainingStock, $remainingPolicyLimit);
 
             if ($availableToAdd <= 0) {
+                // Since scopeAvailable filters out stock <= 0, this likely hits the policy limit
+                // or race condition where it just went to 0 but was still in cache/view
                 $reason = ($existingQty >= 10) ? "Order limit of 10 reached" : "Out of stock";
                 $this->toastMessage = "Cannot add more. {$reason}.";
                 $this->toastType = 'error';
@@ -136,7 +149,7 @@ class ProductMenu extends Component
         }
 
         // Dispatch event to update navbar icon
-        $this->dispatch('cartUpdated');
+        $this->dispatch('cart-updated');
 
         // Update local state if the modal is open for this product
         if ($this->selectedProduct && $this->selectedProduct->id == $productId && $type == 'product') {
@@ -148,7 +161,16 @@ class ProductMenu extends Component
 
     public function selectProduct($productId)
     {
-        $this->selectedProduct = Product::find($productId);
+        $product = Product::available()->find($productId);
+        
+        if (!$product) {
+             $this->toastMessage = "Product is no longer available.";
+             $this->toastType = 'error';
+             $this->showToast = true;
+             return;
+        }
+
+        $this->selectedProduct = $product;
         
         // Calculate Quantity currently in cart for this product
         $this->quantityInCart = 0;
@@ -171,11 +193,20 @@ class ProductMenu extends Component
         $this->selectedProduct = null;
     }
 
+    public function placeholder()
+    {
+        return view('livewire.placeholders.menu-skeleton');
+    }
+
     public function render()
     {
+        $products = \Illuminate\Support\Facades\Cache::remember('menu_categories', 60 * 60, function () {
+            return \App\Models\Product::available()->with(['category', 'subCategory'])->withCount('promotions')->get();
+        });
+
         return view('livewire.product-menu', [
-            'products' => \App\Models\Product::with(['category', 'subCategory'])->get(),
+            'products' => $products,
             'promotions' => \App\Models\Promotion::with('products')->get() // Fetch bundles
-        ])->layout('layouts.app');
+        ]);
     }
 }

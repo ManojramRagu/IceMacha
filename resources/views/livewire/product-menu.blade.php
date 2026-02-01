@@ -70,9 +70,13 @@
         @foreach($productsByCategory as $categoryName => $categoryProducts)
             <div class="mb-20 scroll-mt-40" 
                  x-show="activeCategory === 'all' || activeCategory === '{{ $categoryName }}'" 
-                 x-transition:enter="transition ease-out duration-500"
-                 x-transition:enter-start="opacity-0 translate-y-8"
-                 x-transition:enter-end="opacity-100 translate-y-0">
+                 x-transition:enter="transition ease-out duration-700"
+                 x-transition:enter-start="opacity-0 translate-y-12"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-300"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95"
+                 wire:transition>
                 
                 <div class="flex items-end gap-6 mb-8">
                     <h3 class="text-3xl font-bold text-cocoa leading-none">{{ $categoryName }}</h3>
@@ -88,23 +92,25 @@
                             <div class="relative w-full aspect-[4/5] overflow-hidden bg-gray-100">
                                 <img src="/{{ $product->image_path }}" 
                                      alt="{{ $product->name }}"
-                                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 {{ $product->stock_quantity == 0 ? 'grayscale opacity-70' : '' }}"
+                                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                      onerror="this.onerror=null; this.src='https://via.placeholder.com/400x500?text={{ urlencode($product->name) }}';">
                                 
                                 {{-- Gradient Overlay --}}
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                                 {{-- Badges --}}
-                                @if($product->stock_quantity == 0)
-                                    <div class="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
-                                        <span class="px-4 py-2 bg-white/90 text-red-600 rounded-xl font-bold text-sm tracking-wider uppercase shadow-xl">
-                                            Out of Stock
-                                        </span>
-                                    </div>
-                                @elseif($product->stock_quantity <= 5)
+                                @if($product->stock_quantity <= 5)
                                     <div class="absolute top-4 right-4 animate-pulse">
                                         <span class="px-3 py-1 bg-orange-500 text-white rounded-lg text-xs font-bold shadow-lg">
                                             Low Stock
+                                        </span>
+                                    </div>
+                                @endif
+
+                                @if($product->promotions_count > 0)
+                                    <div class="absolute top-4 left-4">
+                                        <span class="px-3 py-1 bg-brand text-white rounded-lg text-xs font-bold shadow-lg">
+                                            Bundle Available
                                         </span>
                                     </div>
                                 @endif
@@ -114,7 +120,7 @@
                             <div class="p-6 w-full flex flex-col flex-grow">
                                 <h4 class="text-xl font-bold text-cocoa mb-2 leading-tight group-hover:text-brand transition-colors">{{ $product->name }}</h4>
                                 <div class="mt-auto pt-2">
-                                     <span class="text-brand font-bold text-lg">LKR {{ number_format($product->price, 0) }}</span>
+                                     <span class="text-brand font-bold text-lg">{{ $product->price }}</span>
                                 </div>
                             </div>
 
@@ -211,7 +217,7 @@
                                 <p class="text-gray-500 mb-8 text-lg leading-relaxed">{{ $selectedProduct->description }}</p>
                                 
                                 <div class="flex items-center gap-6 mb-10">
-                                    <div class="text-3xl font-bold text-cocoa">Rs. {{ number_format($selectedProduct->price, 0) }}</div>
+                                    <div class="text-3xl font-bold text-cocoa">{{ $selectedProduct->price }}</div>
                                     @if($selectedProduct->stock_quantity <= 5 && $selectedProduct->stock_quantity > 0)
                                         <div class="text-orange-500 font-bold text-sm bg-orange-50 px-3 py-1 rounded-lg">
                                             Running Low!
@@ -238,7 +244,7 @@
 
                                             <button wire:click.prevent="addToCart({{ $selectedProduct->id }}, 'product', modalQty)" 
                                                     class="w-full py-5 rounded-2xl bg-brand text-white font-bold text-lg hover:bg-cocoa transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
-                                                Add to Cart - Rs. <span x-text="(modalQty * {{ $selectedProduct->price }}).toLocaleString()"></span>
+                                                Add to Cart - LKR <span x-text="(modalQty * {{ $selectedProduct->getRawOriginal('price') }}).toLocaleString()"></span>
                                             </button>
                                         </div>
                                     </template>

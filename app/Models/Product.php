@@ -3,9 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Scopes\ActiveProductScope;
+use App\Casts\Currency;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Product extends Model
 {
+    use HasFactory;
+    
     protected $fillable = [
         'name', 
         'description', 
@@ -16,6 +22,16 @@ class Product extends Model
         'status', 
         'stock_quantity'
     ];
+
+    protected $casts = [
+        'price' => Currency::class,
+    ];
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new ActiveProductScope);
+        static::observe(\App\Observers\ProductObserver::class);
+    }
 
     public function category()
     {
@@ -30,5 +46,10 @@ class Product extends Model
     public function promotions()
     {
         return $this->belongsToMany(Promotion::class, 'product_promotion');
+    }
+
+    public function scopeAvailable($query)
+    {
+        return $query->where('stock_quantity', '>', 0);
     }
 }

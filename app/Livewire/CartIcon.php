@@ -16,7 +16,7 @@ class CartIcon extends Component
         $this->updateCartCount();
     }
 
-    #[On('cartUpdated')] 
+    #[On('cart-updated')] 
     public function updateCartCount()
     {
         if (Auth::check()) {
