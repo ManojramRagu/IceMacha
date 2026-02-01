@@ -17,7 +17,9 @@ Route::get('/contact', function () {
     return view('contact');
 })->name('contact');
 
-Route::post('/contact/store', [App\Http\Controllers\ContactController::class, 'store'])->name('contact.store');
+Route::post('/contact/store', [App\Http\Controllers\ContactController::class, 'store'])
+    ->middleware('throttle:contact')
+    ->name('contact.store');
 
 Route::middleware([
     'auth:sanctum',

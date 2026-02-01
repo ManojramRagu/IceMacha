@@ -14,6 +14,15 @@ class EnsureUserIsAdmin
             return $next($request);
         }
 
+        // Log unauthorized access attempts
+        \App\Models\SecurityLog::create([
+            'email' => $request->user() ? $request->user()->email : null,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'attempted_url' => $request->fullUrl(),
+            'attempted_at' => now(),
+        ]);
+
         abort(403, 'Unauthorized action.');
     }
 }

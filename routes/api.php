@@ -25,7 +25,7 @@ Route::prefix('products')->group(function () {
     Route::get('/{id}', [\App\Http\Controllers\Api\ProductController::class, 'show']);
 
     // Protected
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
         Route::post('/', [\App\Http\Controllers\Api\ProductController::class, 'store']);
         Route::put('/{id}', [\App\Http\Controllers\Api\ProductController::class, 'update']);
         Route::delete('/{id}', [\App\Http\Controllers\Api\ProductController::class, 'destroy']);
