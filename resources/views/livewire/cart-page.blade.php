@@ -1,28 +1,40 @@
-<div class="w-full bg-blush min-h-screen py-10 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-6xl mx-auto">
-        <h1 class="text-3xl font-bold text-brand mb-8 text-center md:text-left">Shopping Cart</h1>
+<div class="w-full bg-gray-50 min-h-screen font-display">
+    <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        {{-- Page Header --}}
+        <div class="mb-10">
+            <div class="flex items-center gap-3 mb-2">
+                <svg class="w-8 h-8 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                <h1 class="text-4xl font-bold text-cocoa">Shopping Cart</h1>
+            </div>
+            <p class="text-gray-500 ml-11">Review your items and proceed to checkout</p>
+        </div>
 
         @if($cartItems->isEmpty())
-            <div class="flex flex-col items-center justify-center py-20 bg-white rounded-xl shadow-sm text-center">
-                <div class="bg-brand/10 p-6 rounded-full mb-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-brand">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+            {{-- Empty Cart State --}}
+            <div class="flex flex-col items-center justify-center py-24 bg-white rounded-3xl shadow-sm text-center">
+                <div class="bg-gradient-to-br from-brand/10 to-brand/5 p-8 rounded-full mb-8">
+                    <svg class="w-20 h-20 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
                 </div>
-                <h2 class="text-2xl font-semibold text-cocoa mb-2">Your cart is empty</h2>
-                <p class="text-cocoa/70 mb-8 max-w-sm">Looks like you haven't added anything to your cart yet. Browse our menu to find something delicious!</p>
-                <a href="{{ route('menu') }}" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-brand hover:bg-brand/90 transition-colors duration-200 shadow-sm hover:shadow-md">
-                    Back to Menu
+                <h2 class="text-3xl font-bold text-cocoa mb-3">Your cart is empty</h2>
+                <p class="text-gray-500 mb-10 max-w-md text-lg">Looks like you haven't added anything yet. Start exploring our delicious menu!</p>
+                <a href="{{ route('menu') }}" class="inline-flex items-center gap-2 px-8 py-4 bg-brand text-white font-bold rounded-2xl hover:bg-cocoa transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Browse Menu
                 </a>
             </div>
         @else
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Cart Items (Left Column) -->
-                <div class="lg:col-span-2 space-y-4">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {{-- Cart Items --}}
+                <div class="lg:col-span-8 space-y-4">
                     @foreach($cartItems as $item)
-                        <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between transition hover:shadow-md" wire:key="item-{{ $item->CartItemId }}">
-                            <div class="flex items-center gap-4 flex-1">
-                                <div class="shrink-0 overflow-hidden rounded-lg bg-sand/20" style="width: 80px; height: 80px;">
+                        <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all p-6 group" wire:key="item-{{ $item->CartItemId }}">
+                            <div class="flex flex-col md:flex-row gap-6">
+                                {{-- Product Image --}}
+                                <div class="shrink-0 w-full md:w-32 h-32 rounded-xl overflow-hidden bg-gray-100 group-hover:scale-[1.02] transition-transform">
                                      @php
                                          $imagePath = $item->product ? $item->product->image_path : ($item->promotion ? $item->promotion->image_path : null);
                                          $name = $item->product ? $item->product->name : ($item->promotion ? $item->promotion->name : 'Unknown Item');
@@ -30,83 +42,107 @@
                                      @endphp
                                      
                                      @if($imagePath)
-                                        <img src="{{ asset($imagePath) }}" alt="{{ $name }}" class="h-full w-full object-cover" style="max-width: 100%;">
+                                        <img src="{{ asset($imagePath) }}" alt="{{ $name }}" class="w-full h-full object-cover">
                                      @else
-                                        <div class="w-full h-full flex items-center justify-center text-cocoa/40">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                        <div class="w-full h-full flex items-center justify-center text-gray-300">
+                                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                             </svg>
                                         </div>
                                      @endif
                                 </div>
-                                <div>
-                                    <h3 class="text-lg font-semibold text-cocoa">{{ $name }}</h3>
-                                    <p class="text-cocoa/60 text-sm">LKR {{ number_format($price, 2) }}</p>
-                                </div>
-                            </div>
 
-                            <div class="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto mt-4 sm:mt-0">
-                                <!-- Quantity Controls -->
-                                <div class="flex items-center bg-slate/30 rounded-lg p-1">
-                                    <button wire:click="decrement({{ $item->CartItemId }})" class="p-1.5 text-cocoa hover:text-brand hover:bg-white rounded-md transition-colors disabled:opacity-50" @if($item->Quantity <= 1) disabled @endif>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
-                                        </svg>
-                                    </button>
-                                    <span class="w-8 text-center font-medium text-cocoa">{{ $item->Quantity }}</span>
-                                    <button wire:click="increment({{ $item->CartItemId }})" class="p-1.5 text-cocoa hover:text-brand hover:bg-white rounded-md transition-colors">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
-                                        </svg>
-                                    </button>
-                                </div>
+                                {{-- Product Details --}}
+                                <div class="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                    <div class="flex-1">
+                                        <h3 class="text-xl font-bold text-cocoa mb-1">{{ $name }}</h3>
+                                        <p class="text-gray-500 text-sm">LKR {{ number_format($price, 0) }} each</p>
+                                    </div>
 
-                                <div class="text-right min-w-[80px]">
-                                    <p class="font-bold text-lg text-brand">LKR {{ number_format($price * $item->Quantity, 2) }}</p>
-                                </div>
+                                    {{-- Controls --}}
+                                    <div class="flex items-center gap-6">
+                                        {{-- Quantity --}}
+                                        <div class="flex items-center bg-gray-100 rounded-xl p-1.5">
+                                            <button wire:click="decrement({{ $item->CartItemId }})" 
+                                                    class="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-brand hover:bg-white rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed" 
+                                                    @if($item->Quantity <= 1) disabled @endif>
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                                </svg>
+                                            </button>
+                                            <span class="w-12 text-center font-bold text-cocoa text-lg">{{ $item->Quantity }}</span>
+                                            <button wire:click="increment({{ $item->CartItemId }})" 
+                                                    class="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-brand hover:bg-white rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                                    @if($item->product && $item->Quantity >= $item->product->stock_quantity) disabled @endif>
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
 
-                                <button wire:click="removeItem({{ $item->CartItemId }})" class="text-red-400 hover:text-red-600 transition-colors p-2" title="Remove Item">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                    </svg>
-                                </button>
+                                        {{-- Price --}}
+                                        <div class="text-right min-w-[100px]">
+                                            <p class="text-2xl font-bold text-brand">LKR {{ number_format($price * $item->Quantity, 0) }}</p>
+                                        </div>
+
+                                        {{-- Remove --}}
+                                        <button wire:click="removeItem({{ $item->CartItemId }})" 
+                                                class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" 
+                                                title="Remove">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     @endforeach
                 </div>
 
-                <!-- Order Summary (Right Column) -->
-                <div class="lg:col-span-1">
-                    <div class="bg-white rounded-xl shadow-sm p-6 sticky top-6">
-                        <h2 class="text-xl font-bold text-cocoa mb-6">Order Summary</h2>
+                {{-- Order Summary --}}
+                <div class="lg:col-span-4">
+                    <div class="bg-white rounded-2xl shadow-sm p-8 sticky top-24 border-2 border-gray-100">
+                        <h2 class="text-2xl font-bold text-cocoa mb-8">Order Summary</h2>
                         
-                        <div class="space-y-3 mb-6">
-                            <div class="flex justify-between text-cocoa/70">
-                                <span>Subtotal</span>
-                                <span>LKR {{ number_format($total, 2) }}</span>
+                        <div class="space-y-4 mb-8">
+                            <div class="flex justify-between text-gray-600">
+                                <span class="text-lg">Subtotal</span>
+                                <span class="font-semibold">LKR {{ number_format($total, 0) }}</span>
                             </div>
-                            <!-- Add tax or shipping logic here if needed, for now just subtotal -->
-                             <div class="flex justify-between text-cocoa/70">
-                                <span>Taxes</span>
-                                <span>LKR 0.00</span>
-                            </div>
-                        </div>
-
-                        <div class="border-t border-gray-100 pt-4 mb-8">
-                            <div class="flex justify-between items-end">
-                                <span class="text-cocoa font-semibold text-lg">Total</span>
-                                <span class="text-3xl font-bold text-cocoa">LKR {{ number_format($total, 2) }}</span>
+                            <div class="flex justify-between text-gray-600">
+                                <span class="text-lg">Taxes & Fees</span>
+                                <span class="font-semibold">LKR 0</span>
                             </div>
                         </div>
 
-                        <a href="{{ route('checkout') }}" class="block w-full text-center bg-brand text-white font-semibold py-4 rounded-xl shadow-sm hover:bg-brand/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand transition-all duration-200 text-lg">
-                            Checkout
+                        <div class="border-t-2 border-gray-100 pt-6 mb-8">
+                            <div class="flex justify-between items-baseline">
+                                <span class="text-xl font-bold text-cocoa">Total</span>
+                                <span class="text-4xl font-bold text-cocoa">LKR {{ number_format($total, 0) }}</span>
+                            </div>
+                        </div>
+
+                        <a href="{{ route('checkout') }}" 
+                           class="block w-full text-center bg-brand text-white font-bold py-5 rounded-2xl shadow-lg hover:shadow-xl hover:bg-cocoa transition-all transform hover:-translate-y-1 text-lg mb-6">
+                            Proceed to Checkout
                         </a>
 
-                         <div class="mt-6 text-center">
-                            <a href="{{ route('menu') }}" class="text-sm text-cocoa/60 hover:text-brand font-medium transition-colors">
-                                Continue Shopping
-                            </a>
+                        <a href="{{ route('menu') }}" 
+                           class="block text-center text-gray-500 hover:text-brand font-semibold transition-colors">
+                            ← Continue Shopping
+                        </a>
+
+                        {{-- Trust Badges --}}
+                        <div class="mt-8 pt-8 border-t border-gray-100">
+                            <div class="flex items-center justify-center gap-6 text-gray-400">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="text-sm">Secure Payment</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

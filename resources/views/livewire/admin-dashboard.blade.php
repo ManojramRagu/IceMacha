@@ -292,11 +292,10 @@
                                                 </td>
                                                 <td class="px-6 py-4 font-medium text-gray-900">{{ $msg->name }}</td>
                                                 <td class="px-6 py-4 text-gray-600 truncate max-w-[200px]">{{ $msg->subject }}</td>
-                                                <td class="px-6 py-4 text-gray-400 text-xs">{{ optional($msg->CreatedAt)->diffForHumans() ?? 'N/A' }}</td>
+                                                <td class="px-6 py-4 text-gray-400 text-xs">{{ optional($msg->created_at)->diffForHumans() ?? 'N/A' }}</td>
                                                 <td class="px-6 py-4 text-right flex justify-end gap-2">
-                                                    <button wire:click="viewMessage({{ $msg->MessageId }})" class="px-4 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 text-xs font-semibold">View</button>
-                                                    <button wire:click="deleteMessage({{ $msg->MessageId }})" 
-                                                            onclick="confirm('Delete this message?') || event.stopImmediatePropagation()"
+                                                    <button wire:click="viewMessage({{ $msg->id }})" class="px-4 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 text-xs font-semibold">View</button>
+                                                    <button wire:click="confirmDelete('message', {{ $msg->id }})" 
                                                             class="px-4 py-1.5 rounded-full border border-red-100 text-red-500 hover:bg-red-50 text-xs font-semibold">
                                                         Delete
                                                     </button>
@@ -387,7 +386,6 @@
 
                         <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-100">
                             <button wire:click="deleteProduct" 
-                                    onclick="confirm('Are you sure you want to delete this product?') || event.stopImmediatePropagation()"
                                     class="px-6 py-2 rounded-full border border-red-200 text-red-600 font-semibold hover:bg-red-50 transition-colors">
                                 Delete Product
                             </button>
@@ -422,6 +420,34 @@
             @endif
         </div>
     </div>
+
+    <!-- Confirmation Modal -->
+    @if($confirmingDelete)
+        <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" wire:click.self="cancelDelete">
+            <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-bounce-in p-8 text-center">
+                
+                <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 text-red-500">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                </div>
+                
+                <h3 class="text-2xl font-bold font-display text-gray-900 mb-2">Are you sure?</h3>
+                <p class="text-gray-500 mb-8">
+                    Do you really want to delete this {{ $deleteType }}? This process cannot be undone.
+                </p>
+                
+                <div class="flex gap-3 justify-center">
+                    <button wire:click="cancelDelete" class="px-6 py-3 rounded-xl border border-gray-200 text-gray-600 font-semibold hover:bg-gray-50 transition-colors w-full">
+                        Cancel
+                    </button>
+                    <button wire:click="performDelete" class="px-6 py-3 rounded-xl bg-red-500 text-white font-bold shadow-lg hover:shadow-xl hover:bg-red-600 transition-all transform hover:-translate-y-0.5 w-full">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <!-- Success Toast (Reused from Product Menu) -->
     <div x-data="{ show: @entangle('showToast') }" 

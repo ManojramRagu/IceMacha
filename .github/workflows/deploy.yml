@@ -24,7 +24,19 @@ jobs:
     - name: Install Node Dependencies & Build Assets
       run: |
         npm install
-        npm run build # This fixes your home screen styling issues
+        npm run build
+
+    - name: Pre-Deployment Permission Fix
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          # 1. Give ubuntu user ownership so scp can overwrite files without permission errors
+          sudo chown -R ubuntu:ubuntu /var/www/html
+          # 2. Fix log permission specifically in case it's locked
+          sudo chmod 666 /var/www/html/storage/logs/laravel.log || true
 
     - name: Deploy to EC2 via SSH
       uses: appleboy/scp-action@v0.1.7
@@ -34,6 +46,7 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         source: "."
         target: "/var/www/html"
+        rm: false 
 
     - name: Run Post-Deployment Commands
       uses: appleboy/ssh-action@v1.0.3
@@ -43,8 +56,21 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           cd /var/www/html
-          php artisan migrate --force # Updates your RDS schema
+          
+          # 1. Database Setup (RDS)
+          # NOTE: Using migrate:fresh once to clear the "sessions table already exists" error
+          # You can change this to 'migrate' later for incremental updates
+          php artisan migrate:fresh --seed --force
+          
+          # 2. Optimization & Cleanup
           php artisan config:cache
           php artisan route:cache
-          php artisan storage:link # Ensures product/promotion images are visible
-          sudo chown -R www-data:www-data storage bootstrap/cache
+          php artisan view:cache
+          
+          # 3. Storage & Permissions Fix
+          php artisan storage:link || true
+          
+          # 4. Final Security/Runtime Permissions
+          # Hand ownership back to the web server (www-data)
+          sudo chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+          sudo chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache

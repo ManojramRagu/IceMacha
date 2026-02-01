@@ -2,14 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Promotion extends Model
 {
-    use HasFactory;
-
-    protected $fillable = ['name', 'description', 'price', 'discount_percent', 'image_path'];
+    protected $fillable = ['name', 'description', 'price', 'image_path', 'status', 'discount_percent'];
 
     public function products()
     {

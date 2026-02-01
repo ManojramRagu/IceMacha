@@ -6,23 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('promotions', function (Blueprint $table) {
-            $table->integer('discount_percent')->default(0)->after('price');
+            if (!Schema::hasColumn('promotions', 'discount_percent')) {
+                $table->integer('discount_percent')->default(0)->after('price');
+            }
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('promotions', function (Blueprint $table) {
-            $table->dropColumn('discount_percent');
+            if (Schema::hasColumn('promotions', 'discount_percent')) {
+                $table->dropColumn('discount_percent');
+            }
         });
     }
 };

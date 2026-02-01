@@ -14,6 +14,7 @@
     <!-- Bundle Items Section -->
     <div class="md:col-span-2 border rounded-xl p-4 bg-gray-50/50">
         <h4 class="font-bold text-gray-800 mb-3">Bundle Items</h4>
+        @error('bundleItems') <p class="text-red-500 text-sm mb-2 font-bold">{{ $message }}</p> @enderror
         
         <!-- Search to Add -->
         <div class="relative mb-3">
@@ -67,7 +68,8 @@
         </div>
         <div>
             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Discount %</label>
-             <input type="number" wire:model.live="discountPercent" min="0" max="100" class="w-full rounded-lg border-gray-200 focus:border-brand focus:ring-brand bg-white text-lg font-bold text-brand">
+             <input type="number" wire:model.live="discountPercent" min="5" max="80" class="w-full rounded-lg border-gray-200 focus:border-brand focus:ring-brand bg-white text-lg font-bold text-brand">
+             @error('discountPercent') <p class="text-red-500 text-xs mt-1 font-semibold">{{ $message }}</p> @enderror
         </div>
         <div>
              <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Final Bundle Price</label>
