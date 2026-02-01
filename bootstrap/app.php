@@ -11,6 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    // In bootstrap/app.php (Laravel 11/12 style)
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->trustProxies(at: '*'); // Trusts CloudFront headers
+    })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
