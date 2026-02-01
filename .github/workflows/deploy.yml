@@ -21,6 +21,11 @@ jobs:
     - name: Install Composer Dependencies
       run: composer install --no-dev --optimize-autoloader
 
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
     - name: Install Node Dependencies & Build Assets
       run: |
         npm install
@@ -34,7 +39,6 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           sudo chown -R ubuntu:ubuntu /var/www/html
-          sudo chmod 666 /var/www/html/storage/logs/laravel.log || true
 
     - name: Deploy to EC2 via SCP
       uses: appleboy/scp-action@v0.1.7
@@ -54,6 +58,8 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           cd /var/www/html
+          
+          # Migration
           php artisan migrate --force
           
           # Optimization
@@ -61,8 +67,10 @@ jobs:
           php artisan route:cache
           php artisan view:cache
           
-          # Permissions
+          # Storage & Permissions
           php artisan storage:link || true
+          
+          # Secure Permissions
           sudo chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
           sudo chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
