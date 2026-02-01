@@ -11,6 +11,9 @@ class EnsureUserIsAdmin
     public function handle(Request $request, Closure $next): Response
     {
         if ($request->user() && $request->user()->role === 'admin') {
+            if (!$request->user()->two_factor_secret) {
+                return redirect()->route('profile.2fa')->with('flash_error', 'Security Enforcement: Please enable Two-Factor Authentication to access administrative features.');
+            }
             return $next($request);
         }
 
