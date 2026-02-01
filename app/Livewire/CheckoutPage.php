@@ -18,6 +18,9 @@ class CheckoutPage extends Component
     public $total;
     public $cartItems;
     public $paymentMethod = 'card';
+    public $showToast = false;
+    public $toastMessage = '';
+    public $toastType = 'success';
     protected $orderId;
 
     public function mount()
@@ -54,41 +57,49 @@ class CheckoutPage extends Component
         }
 
         if ($this->paymentMethod === 'cash') {
-            DB::transaction(function() {
-                // Create Order
-                $order = Order::create([
-                    'user_id' => auth()->id(),
-                    'total_amount' => $this->total,
-                    'payment_method' => strtoupper($this->paymentMethod),
-                    'status' => 'pending',
-                ]);
+            try {
+                DB::transaction(function() {
+                    // Create Order
+                    $order = Order::create([
+                        'user_id' => auth()->id(),
+                        'total_amount' => $this->total,
+                        'payment_method' => strtoupper($this->paymentMethod),
+                        'status' => 'pending',
+                    ]);
 
-                // Migrate Items & Deduct Stock
-                foreach ($this->cartItems as $item) {
-                    if ($item->PromotionId) {
-                        OrderItem::create([
-                            'order_id' => $order->id,
-                            'promotion_id' => $item->PromotionId,
-                            'quantity' => $item->Quantity,
-                            'price_at_purchase' => $item->promotion->price ?? 0
-                        ]);
-                    } else {
-                        OrderItem::create([
-                            'order_id' => $order->id,
-                            'product_id' => $item->product->id,
-                            'quantity' => $item->Quantity,
-                            'price_at_purchase' => $item->product->price
-                        ]);
+                    // Migrate Items
+                    foreach ($this->cartItems as $item) {
+                        if ($item->PromotionId) {
+                            OrderItem::create([
+                                'order_id' => $order->id,
+                                'promotion_id' => $item->PromotionId,
+                                'quantity' => $item->Quantity,
+                                'price_at_purchase' => $item->promotion->price ?? 0
+                            ]);
+                        } else {
+                            OrderItem::create([
+                                'order_id' => $order->id,
+                                'product_id' => $item->product->id,
+                                'quantity' => $item->Quantity,
+                                'price_at_purchase' => $item->product->price
+                            ]);
+                        }
                     }
-                }
-                
-                $this->deductStock($order);
+                    
+                    // Deduct Stock with Pessimistic Locking
+                    $this->deductStock($order);
 
-                // Clear Cart
-                CartItem::whereIn('CartItemId', $this->cartItems->pluck('CartItemId'))->delete();
-                
-                $this->orderId = $order->id; // Temporary store for redirect
-            });
+                    // Clear Cart
+                    CartItem::whereIn('CartItemId', $this->cartItems->pluck('CartItemId'))->delete();
+                    
+                    $this->orderId = $order->id; // Temporary store for redirect
+                });
+            } catch (\Exception $e) {
+                $this->toastMessage = $e->getMessage();
+                $this->toastType = 'error';
+                $this->showToast = true;
+                return;
+            }
 
             if (isset($this->orderId)) {
                 return redirect()->route('order.success', ['orderId' => $this->orderId]);
@@ -98,19 +109,23 @@ class CheckoutPage extends Component
 
     protected function deductStock(Order $order)
     {
-        $order->load('items.promotion.products', 'items.product');
-
         foreach ($order->items as $item) {
-            if ($item->product_id && $item->product) {
-                // Standard Item
-                $item->product->decrement('stock_quantity', $item->quantity);
-            } elseif ($item->promotion_id && $item->promotion) {
-                // Bundle Item - Deduct for each constituent product
-                foreach ($item->promotion->products as $p) {
-                    $p->decrement('stock_quantity', $item->quantity); 
-                    // Note: If bundle implies multiple of same product, we rely on pivot/logic.
-                    // Current Admin implementation attaches unique products.
-                    // $item->quantity is how many bundles bought.
+            if ($item->product_id) {
+                // Pessimistic Lock for standard product
+                $product = Product::lockForUpdate()->find($item->product_id);
+                if (!$product || $product->stock_quantity < $item->quantity) {
+                    throw new \Exception("Insufficient stock for " . ($product->name ?? 'Product'));
+                }
+                $product->decrement('stock_quantity', $item->quantity);
+            } elseif ($item->promotion_id) {
+                // Bundle Item - Lock each constituent product
+                $promotion = Promotion::with('products')->find($item->promotion_id);
+                foreach ($promotion->products as $p) {
+                    $product = Product::lockForUpdate()->find($p->id);
+                    if (!$product || $product->stock_quantity < $item->quantity) {
+                        throw new \Exception("Insufficient stock for {$product->name} in '{$promotion->name}' bundle.");
+                    }
+                    $product->decrement('stock_quantity', $item->quantity); 
                 }
             }
         }
