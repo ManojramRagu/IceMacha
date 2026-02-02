@@ -272,25 +272,48 @@ class AdminDashboard extends Component
             'discountPercent' => 'required|integer|min:5|max:80',
             'bundleItems' => 'required|array|min:2',
         ];
+
+        // if creating, image is required. if editing, nullable
+        if (!$this->editingPromotionId) {
+             $rules['newImage'] = 'required|image|max:2048';
+        } else {
+             $rules['newImage'] = 'nullable|image|max:2048';
+        }
         
         $this->validate($rules, [
             'bundleItems.min' => 'A bundle must have at least 2 items.'
         ]);
         
+        // Handle Image
+        $imagePath = null;
+        if ($this->newImage) {
+            $filename = 'promo-' . Str::slug($this->editingName) . '-' . time() . '.' . $this->newImage->getClientOriginalExtension();
+            $path = 'promotions';
+            $this->newImage->storeAs($path, $filename, 'public');
+            $imagePath = 'storage/' . $path . '/' . $filename;
+        }
+
         // Calculate price
         $originalTotal = $this->getOriginalTotalProperty();
         $finalPrice = max(0, $originalTotal - ($originalTotal * ($this->discountPercent / 100)));
 
         if ($this->editingPromotionId) {
             $promotion = Promotion::find($this->editingPromotionId);
-            $promotion->update([
+            
+            $data = [
                 'name' => $this->editingName,
                 'description' => $this->editingDescription,
                 'price' => $finalPrice,
                 'discount_percent' => $this->discountPercent,
-            ]);
+            ];
+
+            if ($imagePath) {
+                $data['image_path'] = $imagePath;
+            }
+
+            $promotion->update($data);
             
-            // Sync products manually to allow duplicates
+            // Sync products
             $promotion->products()->detach();
             foreach ($this->bundleItems as $item) {
                 $promotion->products()->attach($item['product_id']);
@@ -304,6 +327,7 @@ class AdminDashboard extends Component
                 'description' => $this->editingDescription,
                 'price' => $finalPrice,
                 'discount_percent' => $this->discountPercent,
+                'image_path' => $imagePath, // Required
             ]);
             
             foreach ($this->bundleItems as $item) {
@@ -314,6 +338,7 @@ class AdminDashboard extends Component
         }
         
         $this->cancelEdit();
+        $this->mode = 'list';
     }
     
     public function createPromotion() {
@@ -434,9 +459,43 @@ class AdminDashboard extends Component
         })->get();
     }
 
-    public function getOrdersProperty()
+    public $viewingOrderId = null;
+    public $viewingOrder = null;
+
+    public function getActiveOrdersProperty()
     {
-        return Order::with('user')->latest()->take(50)->get();
+        return Order::with('user')->where('status', 'pending')->latest()->take(50)->get();
+    }
+
+    public function getCompletedOrdersProperty()
+    {
+        return Order::with('user')->where('status', 'paid')->latest()->take(50)->get();
+    }
+
+    public function viewOrder($id)
+    {
+        $this->viewingOrderId = $id;
+        $this->viewingOrder = Order::with('items.product', 'user')->find($id);
+    }
+
+    public function closeOrderView()
+    {
+        $this->viewingOrderId = null;
+        $this->viewingOrder = null;
+    }
+
+    public function markAsPaid($id)
+    {
+        $order = Order::find($id);
+        if ($order && $order->status === 'pending') {
+            $order->update(['status' => 'paid']);
+            $this->showToast('Order marked as PAID.');
+            
+            // Refresh view if open
+            if ($this->viewingOrderId == $id) {
+                $this->viewingOrder = $order->refresh();
+            }
+        }
     }
 
     public function getMessagesProperty()
