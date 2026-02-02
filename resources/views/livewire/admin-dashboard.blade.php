@@ -356,7 +356,8 @@
             @if($activeTab === 'inventory')
                 @if($editingProductId)
                     <!-- Product Editor -->
-                    <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8 transform transition-all duration-300">
+                    <!-- Product Editor -->
+                    <div x-data x-init="$el.scrollIntoView({ behavior: 'smooth', block: 'center' })" class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8 transform transition-all duration-300">
                         <div class="flex justify-between items-center mb-6">
                             <h3 class="font-bold text-gray-800 text-lg">Update / Delete Product</h3>
                             <button wire:click="cancelEdit" class="text-gray-400 hover:text-gray-600">
@@ -408,7 +409,8 @@
                     </div>
                 @elseif($editingPromotionId)
                     <!-- Promotion Editor -->
-                    <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8 transform transition-all duration-300">
+                    <!-- Promotion Editor -->
+                    <div x-data x-init="$el.scrollIntoView({ behavior: 'smooth', block: 'center' })" class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8 transform transition-all duration-300">
                         <div class="flex justify-between items-center mb-6">
                             <h3 class="font-bold text-gray-800 text-lg">Update / Delete Promotion</h3>
                              <button wire:click="cancelEdit" class="text-gray-400 hover:text-gray-600">
