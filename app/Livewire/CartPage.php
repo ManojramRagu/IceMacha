@@ -62,7 +62,7 @@ class CartPage extends Component
         return view('livewire.cart-page', [
             'cartItems' => $cartItems,
             'total' => $cartItems->sum(function($item) {
-                $price = $item->product ? $item->product->price : ($item->promotion ? $item->promotion->price : 0);
+                $price = $item->product ? $item->product->getRawOriginal('price') : ($item->promotion ? $item->promotion->price : 0);
                 return $price * $item->Quantity;
             })
         ]);
