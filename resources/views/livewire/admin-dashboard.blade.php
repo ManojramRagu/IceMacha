@@ -223,19 +223,19 @@
                 @else
                     <div class="space-y-8">
                     <div class="space-y-8">
-                        <!-- Orders Table -->
+                        <!-- Active Orders Table -->
                         <div wire:poll.10s>
                             <div class="flex items-center justify-between mb-6">
                                 <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                                    Live Orders
+                                    Active Orders (Pending)
                                     <span class="flex h-2 w-2 relative">
-                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75"></span>
-                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-brand"></span>
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
                                     </span>
                                 </h2>
                             </div>
 
-                            <div class="overflow-x-auto rounded-2xl border border-gray-100 mb-8">
+                            <div class="overflow-x-auto rounded-2xl border border-gray-100 mb-8 bg-white shadow-sm">
                                 <table class="w-full text-left text-sm">
                                     <thead class="bg-gray-50 text-gray-500 font-bold uppercase text-xs">
                                         <tr>
@@ -247,17 +247,17 @@
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-50">
-                                        @forelse($this->orders as $order)
-                                            <tr class="hover:bg-gray-50/50 transition-colors">
-                                                <td class="px-6 py-4 font-mono text-xs">#{{ $order->id }}</td>
+                                        @forelse($this->activeOrders as $order)
+                                            <tr wire:click="viewOrder({{ $order->id }})" class="hover:bg-brand/5 cursor-pointer transition-colors group">
+                                                <td class="px-6 py-4 font-mono text-xs font-bold text-brand">#{{ $order->id }}</td>
                                                 <td class="px-6 py-4 font-medium text-gray-900">{{ $order->user->name ?? 'Guest' }}</td>
-                                                <td class="px-6 py-4 font-bold text-brand">LKR {{ number_format($order->total_amount, 2) }}</td>
+                                                <td class="px-6 py-4 font-bold text-gray-800">LKR {{ number_format($order->total_amount, 2) }}</td>
                                                 <td class="px-6 py-4">
-                                                    <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase bg-yellow-100 text-yellow-700">
+                                                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-yellow-100 text-yellow-700 shadow-sm">
                                                         {{ $order->status }}
                                                     </span>
                                                 </td>
-                                                <td class="px-6 py-4 text-gray-400 text-xs">{{ $order->created_at->format('M d, Y') }}</td>
+                                                <td class="px-6 py-4 text-gray-400 text-xs">{{ $order->created_at->format('M d, Y h:i A') }}</td>
                                             </tr>
                                         @empty
                                             <tr>
@@ -268,6 +268,130 @@
                                 </table>
                             </div>
                         </div>
+
+                        <!-- Completed Orders Table -->
+                        <div>
+                            <div class="flex items-center justify-between mb-6">
+                                <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                    Completed Orders
+                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                </h2>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-2xl border border-gray-100 mb-8 bg-white shadow-sm opacity-90">
+                                <table class="w-full text-left text-sm">
+                                    <thead class="bg-gray-50 text-gray-500 font-bold uppercase text-xs">
+                                        <tr>
+                                            <th class="px-6 py-4">#</th>
+                                            <th class="px-6 py-4">User</th>
+                                            <th class="px-6 py-4">Total</th>
+                                            <th class="px-6 py-4">Status</th>
+                                            <th class="px-6 py-4">Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-50">
+                                        @forelse($this->completedOrders as $order)
+                                            <tr wire:click="viewOrder({{ $order->id }})" class="hover:bg-gray-50 cursor-pointer transition-colors">
+                                                <td class="px-6 py-4 font-mono text-xs text-gray-500">#{{ $order->id }}</td>
+                                                <td class="px-6 py-4 font-medium text-gray-600">{{ $order->user->name ?? 'Guest' }}</td>
+                                                <td class="px-6 py-4 font-bold text-gray-600">LKR {{ number_format($order->total_amount, 2) }}</td>
+                                                <td class="px-6 py-4">
+                                                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-green-100 text-green-700 shadow-sm">
+                                                        {{ $order->status }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 text-gray-400 text-xs">{{ $order->created_at->format('M d, Y') }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="5" class="px-6 py-12 text-center text-gray-400 italic">No completed orders found.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Order Detail Modal -->
+                        @if($viewingOrder)
+                            <div class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md" wire:click.self="closeOrderView">
+                                <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-300 relative">
+                                    
+                                    <!-- Modal Header -->
+                                    <div class="relative h-32 bg-brand overflow-hidden">
+                                        <div class="absolute inset-0 bg-black/20"></div>
+                                        
+                                        <button wire:click="closeOrderView" class="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/40 rounded-full text-white transition-colors z-10">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </button>
+                                        
+                                        <div class="absolute bottom-6 left-8 text-white">
+                                            <p class="text-xs uppercase tracking-widest opacity-80 font-bold mb-1">Order Details</p>
+                                            <h2 class="text-3xl font-display font-bold">#{{ $viewingOrder->id }}</h2>
+                                        </div>
+                                    </div>
+
+                                    <!-- Modal Content -->
+                                    <div class="p-8 max-h-[60vh] overflow-y-auto">
+                                        <!-- User Info -->
+                                        <div class="flex items-center gap-4 mb-8">
+                                            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-xl">
+                                                ☕
+                                            </div>
+                                            <div>
+                                                <h3 class="font-bold text-gray-900 text-lg">{{ $viewingOrder->user->name ?? 'Guest User' }}</h3>
+                                                <p class="text-gray-500 text-sm">{{ $viewingOrder->user->email ?? 'N/A' }}</p>
+                                            </div>
+                                            <div class="ml-auto text-right">
+                                                <span class="block px-3 py-1 rounded-full text-xs font-bold uppercase mb-1 {{ $viewingOrder->status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
+                                                    {{ $viewingOrder->status }}
+                                                </span>
+                                                <p class="text-xs text-gray-400">{{ $viewingOrder->created_at->diffForHumans() }}</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Order Items -->
+                                        <div class="space-y-4 mb-8">
+                                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Items Ordered</p>
+                                            @foreach($viewingOrder->items as $item)
+                                                <div class="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
+                                                    <div class="flex items-center gap-3">
+                                                        <span class="w-6 h-6 rounded-full bg-sand/30 text-cocoa text-xs font-bold flex items-center justify-center">
+                                                            {{ $item->quantity }}x
+                                                        </span>
+                                                        <span class="text-gray-700 font-medium">{{ $item->product->name ?? 'Unknown Item' }}</span>
+                                                    </div>
+                                                    <span class="font-bold text-gray-900">
+                                                        {{ number_format(($item->price_at_purchase ?? $item->product->price ?? 0) * $item->quantity, 2) }}
+                                                    </span>
+                                                </div>
+                                            @endforeach
+                                        </div>
+
+                                        <!-- Total -->
+                                        <div class="flex justify-between items-center pt-6 border-t border-gray-100 mb-8">
+                                            <span class="text-lg font-bold text-gray-500">Total Amount</span>
+                                            <span class="text-2xl font-bold text-brand">LKR {{ number_format($viewingOrder->total_amount, 2) }}</span>
+                                        </div>
+
+                                        <!-- Actions -->
+                                        @if($viewingOrder->status === 'pending')
+                                            <button wire:click="markAsPaid({{ $viewingOrder->id }})" 
+                                                class="w-full py-4 rounded-xl bg-brand text-white font-bold text-lg shadow-lg hover:bg-opacity-90 hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
+                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                Mark as PAID
+                                            </button>
+                                            <p class="text-center text-xs text-gray-400 mt-3">This action cannot be undone.</p>
+                                        @else
+                                            <div class="w-full py-4 rounded-xl bg-gray-100 text-gray-400 font-bold text-lg flex items-center justify-center gap-2 cursor-not-allowed">
+                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                Order Completed
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
 
                         <!-- Feedback Table -->
                         <div>

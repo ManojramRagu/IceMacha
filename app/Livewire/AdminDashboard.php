@@ -434,9 +434,43 @@ class AdminDashboard extends Component
         })->get();
     }
 
-    public function getOrdersProperty()
+    public $viewingOrderId = null;
+    public $viewingOrder = null;
+
+    public function getActiveOrdersProperty()
     {
-        return Order::with('user')->latest()->take(50)->get();
+        return Order::with('user')->where('status', 'pending')->latest()->take(50)->get();
+    }
+
+    public function getCompletedOrdersProperty()
+    {
+        return Order::with('user')->where('status', 'paid')->latest()->take(50)->get();
+    }
+
+    public function viewOrder($id)
+    {
+        $this->viewingOrderId = $id;
+        $this->viewingOrder = Order::with('items.product', 'user')->find($id);
+    }
+
+    public function closeOrderView()
+    {
+        $this->viewingOrderId = null;
+        $this->viewingOrder = null;
+    }
+
+    public function markAsPaid($id)
+    {
+        $order = Order::find($id);
+        if ($order && $order->status === 'pending') {
+            $order->update(['status' => 'paid']);
+            $this->showToast('Order marked as PAID.');
+            
+            // Refresh view if open
+            if ($this->viewingOrderId == $id) {
+                $this->viewingOrder = $order->refresh();
+            }
+        }
     }
 
     public function getMessagesProperty()
