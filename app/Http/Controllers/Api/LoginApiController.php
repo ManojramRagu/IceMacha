@@ -32,7 +32,7 @@ class LoginApiController extends Controller
 
         $abilities = $user->role === 'admin' 
             ? ['admin:all'] 
-            : ['products:read', 'cart:write'];
+            : ['products:read', 'cart:manage'];
 
         $token = $user->createToken($request->device_name, $abilities)->plainTextToken;
 
