@@ -57,7 +57,10 @@ class StripePaymentController extends Controller
             return redirect()->route('dashboard')->with('success', 'Order processed.');
         }
 
-        $total = $cartItems->sum(fn($item) => $item->product->price * $item->Quantity); // Re-calculate or use Intent amount
+        $total = $cartItems->sum(function($item) {
+            $price = $item->product ? $item->product->getRawOriginal('price') : ($item->promotion ? $item->promotion->price : 0);
+            return $price * $item->Quantity;
+        });
 
         // Create Order
         $order = Order::create([
@@ -81,7 +84,7 @@ class StripePaymentController extends Controller
                     'order_id' => $order->id,
                     'product_id' => $item->product->id,
                     'quantity' => $item->Quantity,
-                    'price_at_purchase' => $item->product->price
+                    'price_at_purchase' => $item->product->getRawOriginal('price')
                 ]);
             }
         }
