@@ -14,10 +14,36 @@ class ProductApiController extends Controller
      */
     public function index()
     {
-        // Cache the paginated results for 10 minutes (600 seconds)
-        $products = \Illuminate\Support\Facades\Cache::remember('products_api_index', 600, function () {
+        // Cache the paginated results for 60 seconds
+        $page = request('page', 1);
+        $products = Cache::remember('api_products_page_' . $page, 60, function () {
             return Product::paginate(10);
         });
+
+        return ProductResource::collection($products);
+    }
+
+    /**
+     * Display top selling products.
+     */
+    public function topSelling()
+    {
+        $products = Product::withCount('orderItems')
+            ->orderBy('order_items_count', 'desc')
+            ->take(5)
+            ->get();
+
+        return ProductResource::collection($products);
+    }
+
+    /**
+     * Display trending products (Most Stocked).
+     */
+    public function trending()
+    {
+        $products = Product::orderBy('stock_quantity', 'desc')
+            ->take(5)
+            ->get();
 
         return ProductResource::collection($products);
     }

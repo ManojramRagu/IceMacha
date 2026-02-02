@@ -93,6 +93,9 @@ class CheckoutPage extends Component
                     CartItem::whereIn('CartItemId', $this->cartItems->pluck('CartItemId'))->delete();
                     
                     $this->orderId = $order->id; // Temporary store for redirect
+
+                    // Dispatch Job for Async Email
+                    \App\Jobs\SendOrderConfirmationEmail::dispatch($order);
                 });
             } catch (\Exception $e) {
                 $this->toastMessage = $e->getMessage();

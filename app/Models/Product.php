@@ -48,6 +48,11 @@ class Product extends Model
         return $this->belongsToMany(Promotion::class, 'product_promotion');
     }
 
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
     public function scopeAvailable($query)
     {
         return $query->where('stock_quantity', '>', 0);
