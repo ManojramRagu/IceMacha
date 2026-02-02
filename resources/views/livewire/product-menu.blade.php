@@ -39,98 +39,138 @@
     </div>
 
     {{-- Main Container --}}
-    <div class="max-w-7xl mx-auto px-4 py-8 -mt-20 relative z-10" x-data="{ activeCategory: 'all' }">
+    <div class="max-w-7xl mx-auto px-4 py-8 -mt-20 relative z-10">
 
-        @php
-            $productsByCategory = $products->where('category.name', '!=', 'Promotions')
-                ->groupBy(function($item) {
-                    return $item->subCategory ? $item->subCategory->name : 'Others';
-                })->sortKeys();
-        @endphp
-
-        {{-- 1. STICKY CATEGORY FILTER --}}
-        <div class="sticky top-24 z-30 mb-12 flex justify-center pointer-events-none"> <!-- precise top spacing -->
-            <div class="pointer-events-auto bg-white/80 backdrop-blur-md px-2 py-2 rounded-full shadow-lg border border-white/40 flex flex-wrap justify-center gap-1.5 transition-all duration-300 hover:bg-white/95">
-                <button @click="activeCategory = 'all'"
-                        :class="activeCategory === 'all' ? 'bg-brand text-white shadow-md' : 'text-gray-500 hover:bg-gray-100 hover:text-brand'"
-                        class="px-6 py-2.5 rounded-full font-bold transition-all duration-300 text-sm">
-                    All
-                </button>
-                @foreach($productsByCategory->keys() as $catName)
-                    <button @click="activeCategory = '{{ $catName }}'"
-                            :class="activeCategory === '{{ $catName }}' ? 'bg-brand text-white shadow-md' : 'text-gray-500 hover:bg-gray-100 hover:text-brand'"
-                            class="px-6 py-2.5 rounded-full font-bold transition-all duration-300 text-sm">
-                        {{ $catName }}
+        {{-- CATEGORY FILTER & SEARCH --}}
+        <div class="sticky top-24 z-30 mb-8 md:mb-12 pointer-events-none" x-data="{ open: false }">
+            
+            {{-- DESKTOP: Horizontal Pills --}}
+            <div class="hidden md:flex justify-center pointer-events-auto">
+                <div class="bg-white/80 backdrop-blur-md px-2 py-2 rounded-full shadow-lg border border-white/40 flex flex-wrap justify-center gap-1.5 transition-all duration-300 hover:bg-white/95">
+                    <button wire:click="setCategory('All')"
+                            class="px-6 py-2.5 rounded-full font-bold transition-all duration-300 text-sm {{ $activeCategory === 'All' ? 'bg-brand text-white shadow-md' : 'text-gray-500 hover:bg-gray-100 hover:text-brand' }}">
+                        All
                     </button>
-                @endforeach
-            </div>
-        </div>
-
-        {{-- 2. PRODUCT GRID --}}
-        @foreach($productsByCategory as $categoryName => $categoryProducts)
-            <div class="mb-20 scroll-mt-40" 
-                 x-show="activeCategory === 'all' || activeCategory === '{{ $categoryName }}'" 
-                 x-transition:enter="transition ease-out duration-500"
-                 x-transition:enter-start="opacity-0 translate-y-8"
-                 x-transition:enter-end="opacity-100 translate-y-0">
-                
-                <div class="flex items-end gap-6 mb-8">
-                    <h3 class="text-3xl font-bold text-cocoa leading-none">{{ $categoryName }}</h3>
-                    <div class="h-px flex-grow bg-gradient-to-r from-cocoa/20 to-transparent mb-1.5"></div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                    @foreach($categoryProducts as $product)
-                        <div class="group bg-white rounded-[2rem] shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer overflow-hidden flex flex-col items-center text-center relative hover:-translate-y-2"
-                             wire:click="selectProduct({{ $product->id }})">
-                            
-                            {{-- Image Area --}}
-                            <div class="relative w-full aspect-[4/5] overflow-hidden bg-gray-100">
-                                <img src="/{{ $product->image_path }}" 
-                                     alt="{{ $product->name }}"
-                                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 {{ $product->stock_quantity == 0 ? 'grayscale opacity-70' : '' }}"
-                                     onerror="this.onerror=null; this.src='https://via.placeholder.com/400x500?text={{ urlencode($product->name) }}';">
-                                
-                                {{-- Gradient Overlay --}}
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                                {{-- Badges --}}
-                                @if($product->stock_quantity == 0)
-                                    <div class="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
-                                        <span class="px-4 py-2 bg-white/90 text-red-600 rounded-xl font-bold text-sm tracking-wider uppercase shadow-xl">
-                                            Out of Stock
-                                        </span>
-                                    </div>
-                                @elseif($product->stock_quantity <= 5)
-                                    <div class="absolute top-4 right-4 animate-pulse">
-                                        <span class="px-3 py-1 bg-orange-500 text-white rounded-lg text-xs font-bold shadow-lg">
-                                            Low Stock
-                                        </span>
-                                    </div>
-                                @endif
-                            </div>
-
-                            {{-- Content --}}
-                            <div class="p-6 w-full flex flex-col flex-grow">
-                                <h4 class="text-xl font-bold text-cocoa mb-2 leading-tight group-hover:text-brand transition-colors">{{ $product->name }}</h4>
-                                <div class="mt-auto pt-2">
-                                     <span class="text-brand font-bold text-lg">LKR {{ number_format($product->price, 0) }}</span>
-                                </div>
-                            </div>
-
-                            {{-- Quick Add Button (Visible on Hover/Desktop) --}}
-                            @if($product->stock_quantity > 0)
-                                <button wire:click.stop="addToCart({{ $product->id }}, 'product', 1)"
-                                        class="absolute bottom-6 right-6 w-10 h-10 bg-white text-brand rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-brand hover:text-white z-20"
-                                        title="Quick Add">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                </button>
-                            @endif
-                        </div>
+                    @foreach($categories as $catName)
+                        <button wire:click="setCategory('{{ $catName }}')"
+                                class="px-6 py-2.5 rounded-full font-bold transition-all duration-300 text-sm {{ $activeCategory === $catName ? 'bg-brand text-white shadow-md' : 'text-gray-500 hover:bg-gray-100 hover:text-brand' }}">
+                            {{ $catName }}
+                        </button>
                     @endforeach
                 </div>
             </div>
-        @endforeach
+
+            {{-- MOBILE: Hamburger / Dropdown --}}
+            <div class="md:hidden flex justify-center pointer-events-auto relative">
+                <button @click="open = !open" 
+                        @click.away="open = false"
+                        class="bg-white text-brand font-bold px-6 py-3 rounded-full shadow-lg border border-brand/10 flex items-center gap-2">
+                    <span>Filter: {{ $activeCategory }}</span>
+                    <svg class="w-4 h-4 transition-transform duration-300" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                {{-- Mobile Dropdown Menu --}}
+                <div x-show="open" 
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 translate-y-2"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 translate-y-2"
+                     class="absolute top-full mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 flex flex-col z-40 max-h-[60vh] overflow-y-auto">
+                     
+                     <button wire:click="setCategory('All'); open = false" 
+                             class="px-6 py-3 text-left font-bold hover:bg-brand/5 {{ $activeCategory === 'All' ? 'text-brand bg-brand/5' : 'text-gray-600' }}">
+                         All Categories
+                     </button>
+                     @foreach($categories as $catName)
+                        <button wire:click="setCategory('{{ $catName }}'); open = false"
+                                class="px-6 py-3 text-left font-bold hover:bg-brand/5 {{ $activeCategory === $catName ? 'text-brand bg-brand/5' : 'text-gray-600' }}">
+                            {{ $catName }}
+                        </button>
+                     @endforeach
+                </div>
+            </div>
+        </div>
+
+        @php
+            // Group the paginated items by SubCategory for display
+            $productsBySubCategory = $products->groupBy(function($item) {
+                return $item->subCategory ? $item->subCategory->name : 'Others';
+            })->sortKeys();
+        @endphp
+
+        {{-- 2. PRODUCT GRID --}}
+        <div class="min-h-[400px]">
+            @if($products->isEmpty())
+                <div class="text-center py-20">
+                    <div class="text-gray-400 mb-4">
+                         <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-500">No items found in this category.</h3>
+                </div>
+            @endif
+
+            @foreach($productsBySubCategory as $subCategoryName => $subCategoryProducts)
+                <div class="mb-12">
+                    <div class="flex items-end gap-6 mb-8">
+                        <h3 class="text-2xl md:text-3xl font-bold text-cocoa leading-none">{{ $subCategoryName }}</h3>
+                        <div class="h-px flex-grow bg-gradient-to-r from-cocoa/20 to-transparent mb-1.5"></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                        @foreach($subCategoryProducts as $product)
+                            <div class="group bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-sm hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden flex flex-col items-center text-center relative hover:-translate-y-1 md:hover:-translate-y-2"
+                                 wire:click="selectProduct({{ $product->id }})">
+                                
+                                {{-- Image Area --}}
+                                <div class="relative w-full h-32 md:h-auto md:aspect-[4/5] overflow-hidden bg-gray-100">
+                                    <img src="/{{ $product->image_path }}" 
+                                         alt="{{ $product->name }}"
+                                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                         onerror="this.onerror=null; this.src='https://via.placeholder.com/400x500?text={{ urlencode($product->name) }}';">
+                                    
+                                    {{-- Gradient Overlay --}}
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                                    {{-- Badges (Desktop Only or Mini on Mobile) --}}
+                                    @if($product->stock_quantity <= 5)
+                                        <div class="absolute top-2 right-2 md:top-4 md:right-4 animate-pulse">
+                                            <span class="px-2 py-0.5 md:px-3 md:py-1 bg-orange-500 text-white rounded-lg text-[10px] md:text-xs font-bold shadow-lg">
+                                                Low
+                                            </span>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                {{-- Content --}}
+                                <div class="p-4 md:p-6 w-full flex flex-col flex-grow">
+                                    <h4 class="text-sm md:text-xl font-bold text-cocoa mb-1 md:mb-2 leading-tight group-hover:text-brand transition-colors line-clamp-2">{{ $product->name }}</h4>
+                                    <div class="mt-auto pt-2">
+                                         <span class="text-brand font-bold text-base md:text-lg">{{ $product->price }}</span>
+                                    </div>
+                                </div>
+                                
+                                {{-- Desktop Quick Add --}}
+                                @if($product->stock_quantity > 0)
+                                    <button wire:click.stop="addToCart({{ $product->id }}, 'product', 1)"
+                                            class="hidden md:flex absolute bottom-6 right-6 w-10 h-10 bg-white text-brand rounded-full shadow-lg items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-brand hover:text-white z-20">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    </button>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endforeach
+            
+            {{-- PAGINATION --}}
+             <div class="mt-12 flex justify-center">
+                {{ $products->links('vendor.pagination.icemacha') }} 
+            </div>
+        </div>
 
         {{-- 3. SPECIAL OFFERS (DISTINCT SECTION) --}}
         @if($promotions->isNotEmpty())
@@ -211,7 +251,7 @@
                                 <p class="text-gray-500 mb-8 text-lg leading-relaxed">{{ $selectedProduct->description }}</p>
                                 
                                 <div class="flex items-center gap-6 mb-10">
-                                    <div class="text-3xl font-bold text-cocoa">Rs. {{ number_format($selectedProduct->price, 0) }}</div>
+                                    <div class="text-3xl font-bold text-cocoa">{{ $selectedProduct->price }}</div>
                                     @if($selectedProduct->stock_quantity <= 5 && $selectedProduct->stock_quantity > 0)
                                         <div class="text-orange-500 font-bold text-sm bg-orange-50 px-3 py-1 rounded-lg">
                                             Running Low!
@@ -238,7 +278,7 @@
 
                                             <button wire:click.prevent="addToCart({{ $selectedProduct->id }}, 'product', modalQty)" 
                                                     class="w-full py-5 rounded-2xl bg-brand text-white font-bold text-lg hover:bg-cocoa transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
-                                                Add to Cart - Rs. <span x-text="(modalQty * {{ $selectedProduct->price }}).toLocaleString()"></span>
+                                                Add to Cart - LKR <span x-text="(modalQty * {{ $selectedProduct->getRawOriginal('price') }}).toLocaleString()"></span>
                                             </button>
                                         </div>
                                     </template>

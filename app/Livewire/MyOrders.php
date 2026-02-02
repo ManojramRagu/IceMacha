@@ -4,7 +4,9 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Order;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.app')]
 class MyOrders extends Component
 {
     public $selectedOrder = null;
@@ -36,6 +38,6 @@ class MyOrders extends Component
 
         return view('livewire.my-orders', [
             'orders' => $orders
-        ])->layout('layouts.app');
+        ]);
     }
 }

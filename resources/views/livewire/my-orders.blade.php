@@ -48,7 +48,7 @@
 
                             <div class="border-t border-gray-100 pt-4 flex justify-between items-center">
                                 <span class="font-medium text-cocoa">Total Amount</span>
-                                <span class="text-xl font-bold text-brand">Rs. {{ number_format($order->total_amount, 2) }}</span>
+                                <span class="text-xl font-bold text-brand">LKR {{ number_format($order->total_amount, 2) }}</span>
                             </div>
                         </div>
                     </div>
@@ -119,8 +119,8 @@
                                             </div>
                                             
                                             <div class="text-right">
-                                                 <p class="text-sm font-bold text-brand">Rs. {{ number_format($item->price_at_purchase * $item->quantity, 2) }}</p>
-                                                 <p class="text-xs text-gray-400">Rs. {{ number_format($item->price_at_purchase, 2) }} / ea</p>
+                                                 <p class="text-sm font-bold text-brand">LKR {{ number_format($item->price_at_purchase * $item->quantity, 2) }}</p>
+                                                 <p class="text-xs text-gray-400">LKR {{ number_format($item->price_at_purchase, 2) }} / ea</p>
                                             </div>
                                         </div>
                                     @endforeach
@@ -129,7 +129,7 @@
                             
                              <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse justify-between items-center border-t border-gray-100">
                                 <div class="text-xl font-bold text-brand">
-                                    Total: Rs. {{ number_format($selectedOrder->total_amount, 2) }}
+                                    Total: LKR {{ number_format($selectedOrder->total_amount, 2) }}
                                 </div>
                                 <div class="text-xs text-gray-400 mt-2 sm:mt-0">
                                     {{ $selectedOrder->items->count() }} Items

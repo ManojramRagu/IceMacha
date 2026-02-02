@@ -17,7 +17,9 @@ Route::get('/contact', function () {
     return view('contact');
 })->name('contact');
 
-Route::post('/contact/store', [App\Http\Controllers\ContactController::class, 'store'])->name('contact.store');
+Route::post('/contact/store', [App\Http\Controllers\ContactController::class, 'store'])
+    ->middleware('throttle:contact')
+    ->name('contact.store');
 
 Route::middleware([
     'auth:sanctum',
@@ -27,6 +29,10 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+
+    Route::get('/user/profile-2fa', function () {
+        return view('profile.two-factor-enforce');
+    })->name('profile.2fa');
 });
 
 Route::get('/menu', ProductMenu::class)->name('menu');

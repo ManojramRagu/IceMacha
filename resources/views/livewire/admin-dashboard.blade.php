@@ -70,7 +70,7 @@
         <div class="col-span-12 {{ $activeTab === 'inventory' ? 'md:col-span-9' : 'md:col-span-12' }} space-y-6">
             
             <!-- List/Create Card -->
-            <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8 min-h-[600px] flex flex-col">
+            <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-4 md:p-8 min-h-[600px] flex flex-col">
                 @if($activeTab === 'inventory')
                     <!-- Header with Search -->
                     <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
@@ -193,7 +193,7 @@
                                             class="hover:bg-gray-50/80 transition-colors group text-sm cursor-pointer {{ ($editingProductId === $item->id || $editingPromotionId === $item->id) ? 'bg-sand/30' : '' }}">
                                             <td class="px-4 py-4 text-gray-400 font-mono text-xs">{{ $index + 1 }}</td>
                                             <td class="px-4 py-4 font-medium text-gray-900">{{ $item->name }}</td>
-                                            <td class="px-4 py-4 text-gray-600">LKR {{ number_format($item->price, 2) }}</td>
+                                            <td class="px-4 py-4 text-gray-600 font-bold">{{ $item->price }}</td>
                                             
                                             @if($selectedMain === 'Promotions')
                                                 <td class="px-4 py-4 text-green-600 font-bold">{{ $item->discount_percent }}%</td>
@@ -224,9 +224,15 @@
                     <div class="space-y-8">
                     <div class="space-y-8">
                         <!-- Orders Table -->
-                        <div>
+                        <div wire:poll.10s>
                             <div class="flex items-center justify-between mb-6">
-                                <h2 class="text-xl font-bold text-gray-800">Orders</h2>
+                                <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                    Live Orders
+                                    <span class="flex h-2 w-2 relative">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-brand"></span>
+                                    </span>
+                                </h2>
                             </div>
 
                             <div class="overflow-x-auto rounded-2xl border border-gray-100 mb-8">
