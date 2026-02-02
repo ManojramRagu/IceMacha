@@ -38,8 +38,10 @@ This document outlines the step-by-step procedures to verify the security contro
 
 ### Test Case
 1.  **Method:** `POST`
-2.  **URL:** `{{base_url}}/api/register` (or Update Profile endpoint)
-3.  **Body (JSON):**
+2.  **URL:** `{{base_url}}/register`
+3.  **Headers:** `Accept: application/json`
+4.  **Pre-requisite:** Run `GET {{base_url}}/sanctum/csrf-cookie` first to set cookies.
+5.  **Body (JSON):**
     ```json
     {
         "name": "Hacker",
@@ -49,7 +51,7 @@ This document outlines the step-by-step procedures to verify the security contro
         "role": "admin"  <-- Malicious injection
     }
     ```
-4.  **Verification:**
+6.  **Verification:**
     *   **Expected Behavior:** Account is created, but `role` remains `user` (default) in the database.
     *   **Check DB:** `SELECT role FROM users WHERE email='hacker@example.com';` -> Should be `user`.
 
@@ -104,7 +106,7 @@ This document outlines the step-by-step procedures to verify the security contro
 
 ---
 
-## 6. HTTPS Enforcement
+## 6. HTTPS Enforcement (Production Only)
 **Objective:** Confirm insecure HTTP requests are upgraded or rejected.
 
 ### Test Case
@@ -112,4 +114,40 @@ This document outlines the step-by-step procedures to verify the security contro
 2.  **URL:** `http://your-production-domain.com/api/v1/products` (Note: `http` protocol)
 3.  **Verification:**
     *   **Expected:** `301 Moved Permanently` (Redirect to HTTPS) or connection upgrade.
-    *   *Note: This only works on the Production environment, as local dev usually runs on HTTP.*
+
+---
+
+## 7. Shopping Flow: Add to Cart
+**Objective:** Verify that a user can add items to their cart via API.
+
+### Test Case
+1.  **Method:** `POST`
+2.  **URL:** `{{base_url}}/api/cart`
+3.  **Headers:**
+    *   `Authorization`: `Bearer {{user_token}}`
+    *   `Accept`: `application/json`
+4.  **Body (JSON):**
+    ```json
+    {
+        "product_id": 1,
+        "quantity": 2
+    }
+    ```
+5.  **Verification:**
+    *   **Response:** `200 OK` or `201 Created`.
+    *   **Check DB:** `cart_items` table should show a new row for this user.
+
+---
+
+## 8. Shopping Flow: Checkout Integration
+**Objective:** Verify the checkout process (requires a valid Cart).
+
+### Test Case
+1.  **Method:** `GET`
+2.  **URL:** `{{base_url}}/checkout` (Web Route)
+    *   *Note: Since Checkout is a Livewire page with Stripe JS, testing it fully via API is complex. We verify the Access.*
+3.  **Headers:** `Accept: text/html` (Simulate Browser)
+4.  **Pre-requisite:** Log in via Browser or ensure Session Cookie is set.
+5.  **Verification:**
+    *   **Response:** `200 OK`.
+    *   **Content:** HTML containing Stripe Elements form (`<div id="payment-element">...</div>`).
