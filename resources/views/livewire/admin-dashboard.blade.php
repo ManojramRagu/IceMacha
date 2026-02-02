@@ -545,7 +545,7 @@
                     </div>
                 @elseif($activeTab === 'inventory')
                      <!-- Placeholder Footer when no product selected -->
-                    <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8 text-center">
+                    <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8 text-center w-full">
                         <p class="text-gray-400 italic">Click on a row above to edit details.</p>
                     </div>
                 @endif

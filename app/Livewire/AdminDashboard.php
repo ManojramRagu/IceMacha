@@ -272,25 +272,48 @@ class AdminDashboard extends Component
             'discountPercent' => 'required|integer|min:5|max:80',
             'bundleItems' => 'required|array|min:2',
         ];
+
+        // if creating, image is required. if editing, nullable
+        if (!$this->editingPromotionId) {
+             $rules['newImage'] = 'required|image|max:2048';
+        } else {
+             $rules['newImage'] = 'nullable|image|max:2048';
+        }
         
         $this->validate($rules, [
             'bundleItems.min' => 'A bundle must have at least 2 items.'
         ]);
         
+        // Handle Image
+        $imagePath = null;
+        if ($this->newImage) {
+            $filename = 'promo-' . Str::slug($this->editingName) . '-' . time() . '.' . $this->newImage->getClientOriginalExtension();
+            $path = 'promotions';
+            $this->newImage->storeAs($path, $filename, 'public');
+            $imagePath = 'storage/' . $path . '/' . $filename;
+        }
+
         // Calculate price
         $originalTotal = $this->getOriginalTotalProperty();
         $finalPrice = max(0, $originalTotal - ($originalTotal * ($this->discountPercent / 100)));
 
         if ($this->editingPromotionId) {
             $promotion = Promotion::find($this->editingPromotionId);
-            $promotion->update([
+            
+            $data = [
                 'name' => $this->editingName,
                 'description' => $this->editingDescription,
                 'price' => $finalPrice,
                 'discount_percent' => $this->discountPercent,
-            ]);
+            ];
+
+            if ($imagePath) {
+                $data['image_path'] = $imagePath;
+            }
+
+            $promotion->update($data);
             
-            // Sync products manually to allow duplicates
+            // Sync products
             $promotion->products()->detach();
             foreach ($this->bundleItems as $item) {
                 $promotion->products()->attach($item['product_id']);
@@ -304,6 +327,7 @@ class AdminDashboard extends Component
                 'description' => $this->editingDescription,
                 'price' => $finalPrice,
                 'discount_percent' => $this->discountPercent,
+                'image_path' => $imagePath, // Required
             ]);
             
             foreach ($this->bundleItems as $item) {
@@ -314,6 +338,7 @@ class AdminDashboard extends Component
         }
         
         $this->cancelEdit();
+        $this->mode = 'list';
     }
     
     public function createPromotion() {
