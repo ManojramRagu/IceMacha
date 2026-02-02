@@ -17,7 +17,7 @@ Route::middleware(['throttle:60,1'])->group(function () {
             return $request->user();
         });
 
-        // Cart Routes (Scoped)
+    // Cart Routes (Scoped)
         Route::middleware('abilities:cart:manage')->group(function () {
             // Placeholder for CartController
             Route::post('/cart', function() { return response()->json(['message' => 'Item added to cart']); });
@@ -25,9 +25,15 @@ Route::middleware(['throttle:60,1'])->group(function () {
     });
 
     /**
+     * Stats Routes
+     */
+    Route::get('/stats/trending', [ProductApiControllerV1::class, 'trending']);
+
+    /**
      * Product API Routes
      */
     Route::prefix('v1/products')->group(function () {
+         Route::get('/top-selling', [ProductApiControllerV1::class, 'topSelling']);
          Route::get('/', [ProductApiControllerV1::class, 'index']);
          Route::get('/{id}', [ProductApiControllerV1::class, 'show']);
     });

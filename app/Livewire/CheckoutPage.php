@@ -33,7 +33,10 @@ class CheckoutPage extends Component
             return redirect()->route('cart');
         }
 
-        $this->total = $this->cartItems->sum(fn($item) => $item->product->price * $item->Quantity);
+        $this->total = $this->cartItems->sum(function($item) {
+            $price = $item->product ? $item->product->getRawOriginal('price') : ($item->promotion ? $item->promotion->price : 0);
+            return $price * $item->Quantity;
+        });
 
         // Always setup Stripe Intent in case they switch to Card
         \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
@@ -81,7 +84,7 @@ class CheckoutPage extends Component
                                 'order_id' => $order->id,
                                 'product_id' => $item->product->id,
                                 'quantity' => $item->Quantity,
-                                'price_at_purchase' => $item->product->price
+                                'price_at_purchase' => $item->product->getRawOriginal('price')
                             ]);
                         }
                     }
@@ -93,6 +96,9 @@ class CheckoutPage extends Component
                     CartItem::whereIn('CartItemId', $this->cartItems->pluck('CartItemId'))->delete();
                     
                     $this->orderId = $order->id; // Temporary store for redirect
+
+                    // Dispatch Job for Async Email
+                    \App\Jobs\SendOrderConfirmationEmail::dispatch($order);
                 });
             } catch (\Exception $e) {
                 $this->toastMessage = $e->getMessage();
